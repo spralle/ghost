@@ -135,7 +135,6 @@ async function main() {
     ["README.md.template", "README.md"],
     ["vite.config.ts.template", "vite.config.ts"],
     ["src/index.ts.template", "src/index.ts"],
-    ["src/manifest.ts.template", "src/manifest.ts"],
     ["src/plugin-contract-expose.ts.template", "src/plugin-contract-expose.ts"],
     ["src/plugin-parts-expose.ts.template", "src/plugin-parts-expose.ts"],
     ["src/plugin-services-expose.ts.template", "src/plugin-services-expose.ts"],

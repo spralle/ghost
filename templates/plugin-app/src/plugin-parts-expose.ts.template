@@ -1,7 +1,7 @@
 import { defineReactParts } from "@ghost-shell/react";
-import { pluginManifest } from "./manifest.js";
+import { pluginContract } from "./plugin-contract-expose.js";
 import { MainPanel } from "./components/MainPanel.js";
 
-export const pluginParts = defineReactParts(pluginManifest, {
+export const pluginParts = defineReactParts(pluginContract, {
   "__PART_ID__": MainPanel,
 });
