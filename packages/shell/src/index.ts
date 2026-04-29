@@ -13,6 +13,9 @@ export { createGhostShell } from "./create-ghost-shell.js";
 export { createState, subscribeState, getStateSnapshot, disposeState, isManagedState, proxyMap, proxySet } from "./reactive-state.js";
 export type { StateOp, StateSubscriber } from "./reactive-state.js";
 
+// Stateful service registration utilities
+export { createServiceState, isStatefulService, type StatefulService } from "./stateful-service-registration.js";
+
 // Service gateway contracts and utilities
 export type {
   ServiceCallRequest,
@@ -27,6 +30,9 @@ export { SERVICE_GATEWAY_CONTRACT } from "./service-gateway-contract.js";
 export { createServiceGatewayHost, type ServiceRegistry } from "./service-gateway-host.js";
 export { createReplicaFromSnapshot, applyOps } from "./service-gateway-apply.js";
 export { createProjectedPluginServices, type ServiceGatewayTransport } from "./projected-plugin-services.js";
+
+// Popout window initialization
+export { initializePopout, type PopoutTransport, type PopoutInitResult } from "./popout-initialization.js";
 
 // DOM style synchronization for cross-window theming
 export type { DomSyncMutation, StyleElementMutation, RootAttributeMutation, DomStyleSnapshot, DomStyleObserver } from "./dom-style-sync.js";

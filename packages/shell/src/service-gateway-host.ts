@@ -7,6 +7,17 @@ import type {
   GatewayStateOp,
 } from "./service-gateway-contract.js";
 import { subscribeState, getStateSnapshot, isManagedState } from "./reactive-state.js";
+import { isStatefulService } from "./stateful-service-registration.js";
+
+/**
+ * Extract state from a service if it exposes the StatefulService pattern.
+ */
+export function extractServiceState(service: unknown): object | null {
+  if (isStatefulService(service)) {
+    return service.state;
+  }
+  return null;
+}
 
 /**
  * Registry that the host-side gateway uses to resolve services.

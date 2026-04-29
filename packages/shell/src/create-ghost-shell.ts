@@ -56,6 +56,8 @@ export interface GhostShellOptions {
   readonly debug?: boolean;
   /** Register with HMR window registry for Vite hot reload. Default: false. */
   readonly hmr?: boolean;
+  /** Transport for popout windows — enables projected services and style sync. */
+  readonly popoutTransport?: import("./popout-initialization.js").PopoutTransport;
 }
 
 // ---------------------------------------------------------------------------
@@ -175,6 +177,15 @@ export function createGhostShell(options: GhostShellOptions): GhostShell {
           tenantId: options.tenant.id,
           defaultThemeId: options.theme ?? "ghost.theme.tokyo-night",
         });
+      } else if (runtime.isPopout && options.popoutTransport) {
+        const { initializePopout } = await import("./popout-initialization.js");
+        const popoutInit = await initializePopout(options.popoutTransport, document);
+        runtime.services = popoutInit.services;
+        const originalDispose = disposeMount;
+        disposeMount = () => {
+          popoutInit.dispose();
+          originalDispose?.();
+        };
       }
     },
 
