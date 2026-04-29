@@ -196,3 +196,19 @@ export type {
 } from "./types.js";
 export type { WorkspaceInfo, WorkspaceService } from "./workspace-service.js";
 export { WORKSPACE_SERVICE_ID } from "./workspace-service.js";
+export * as ServiceTokens from "./service-tokens.js";
+export {
+  Theme,
+  Action,
+  Window,
+  View,
+  Menu,
+  Workspace,
+  Keybinding,
+  Context,
+  ActivityStatus,
+  SyncStatus,
+  Configuration,
+  PluginManagement,
+  PluginRegistry,
+} from "./service-tokens.js";
