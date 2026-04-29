@@ -17,28 +17,20 @@ describe("rewriteManifestPublicPath", () => {
     assert.equal(manifest.metaData.publicPath, "/");
   });
 
-  it("prefixes relative paths in shared[].assets.js.sync", () => {
+  it("leaves relative paths in shared[].assets unchanged", () => {
     const manifest = {
       shared: [{ assets: { js: { sync: ["__federation_shared.js"], async: [] } } }],
     };
     const result = rewriteManifestPublicPath(manifest, BASE);
-    assert.deepEqual(result.shared[0].assets.js.sync, [`${BASE}__federation_shared.js`]);
+    assert.deepEqual(result.shared[0].assets.js.sync, ["__federation_shared.js"]);
   });
 
-  it("prefixes relative paths in exposes[].assets.css.async", () => {
+  it("leaves relative paths in exposes[].assets unchanged", () => {
     const manifest = {
       exposes: [{ assets: { css: { sync: [], async: ["styles/main.css"] } } }],
     };
     const result = rewriteManifestPublicPath(manifest, BASE);
-    assert.deepEqual(result.exposes[0].assets.css.async, [`${BASE}styles/main.css`]);
-  });
-
-  it("does not double-prefix already-absolute URLs", () => {
-    const manifest = {
-      shared: [{ assets: { js: { sync: ["http://other.host/lib.js"], async: [] } } }],
-    };
-    const result = rewriteManifestPublicPath(manifest, BASE);
-    assert.deepEqual(result.shared[0].assets.js.sync, ["http://other.host/lib.js"]);
+    assert.deepEqual(result.exposes[0].assets.css.async, ["styles/main.css"]);
   });
 
   it("handles manifests with no shared or exposes", () => {
@@ -51,11 +43,11 @@ describe("rewriteManifestPublicPath", () => {
   it("handles entries with no assets gracefully", () => {
     const manifest = { shared: [{ name: "react" }], exposes: [{ path: "./foo" }] };
     const result = rewriteManifestPublicPath(manifest, BASE);
-    // Should not throw â€” assets are optional
+    // Should not throw — assets are optional
     assert.equal(result.shared[0].name, "react");
   });
 
-  it("rewrites both js and css asset types together", () => {
+  it("preserves all asset paths as relative", () => {
     const manifest = {
       exposes: [
         {
@@ -67,9 +59,9 @@ describe("rewriteManifestPublicPath", () => {
       ],
     };
     const result = rewriteManifestPublicPath(manifest, BASE);
-    assert.deepEqual(result.exposes[0].assets.js.sync, [`${BASE}entry.js`]);
-    assert.deepEqual(result.exposes[0].assets.js.async, [`${BASE}chunk.js`]);
-    assert.deepEqual(result.exposes[0].assets.css.sync, [`${BASE}style.css`]);
-    assert.deepEqual(result.exposes[0].assets.css.async, [`${BASE}lazy.css`]);
+    assert.deepEqual(result.exposes[0].assets.js.sync, ["entry.js"]);
+    assert.deepEqual(result.exposes[0].assets.js.async, ["chunk.js"]);
+    assert.deepEqual(result.exposes[0].assets.css.sync, ["style.css"]);
+    assert.deepEqual(result.exposes[0].assets.css.async, ["lazy.css"]);
   });
 });

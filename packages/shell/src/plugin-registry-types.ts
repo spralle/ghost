@@ -68,6 +68,7 @@ export interface PluginRegistryDiagnostic {
   level: "info" | "warn";
   code: string;
   message: string;
+  cause?: unknown;
 }
 
 export interface PluginRegistrySnapshot {

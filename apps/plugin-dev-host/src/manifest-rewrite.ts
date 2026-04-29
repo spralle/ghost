@@ -4,8 +4,9 @@
  * The gateway is the single source of truth for origin/port/pluginId,
  * so rewriting happens here rather than coupling plugins to env vars.
  *
- * publicPath is set on metaData, and relative asset paths in shared[]
- * and exposes[] entries are prefixed with the absolute base URL.
+ * Only publicPath is rewritten — asset paths in shared[] and exposes[]
+ * remain relative because the federation runtime resolves them against
+ * publicPath automatically. Prefixing both causes doubled URLs.
  */
 
 interface MfManifest {
@@ -23,28 +24,10 @@ interface MfEntry {
   [key: string]: unknown;
 }
 
-function isAbsoluteUrl(path: string): boolean {
-  return path.startsWith("http://") || path.startsWith("https://");
-}
-
-function prefixPaths(paths: string[], base: string): string[] {
-  return paths.map((p) => (isAbsoluteUrl(p) ? p : `${base}${p}`));
-}
-
-function rewriteEntryAssets(entries: MfEntry[], base: string): void {
-  for (const entry of entries) {
-    if (!entry.assets) continue;
-    const { js, css } = entry.assets;
-    if (js?.sync) js.sync = prefixPaths(js.sync, base);
-    if (js?.async) js.async = prefixPaths(js.async, base);
-    if (css?.sync) css.sync = prefixPaths(css.sync, base);
-    if (css?.async) css.async = prefixPaths(css.async, base);
-  }
-}
-
 /**
- * Deep-clones an MF manifest, sets `metaData.publicPath` to the given
- * absolute base URL, and prefixes relative asset paths in shared/exposes.
+ * Deep-clones an MF manifest and sets `metaData.publicPath` to the given
+ * absolute base URL. Asset paths remain relative — the federation runtime
+ * resolves them against publicPath at load time.
  */
 export function rewriteManifestPublicPath(
   manifest: Record<string, unknown>,
@@ -55,9 +38,6 @@ export function rewriteManifestPublicPath(
   if (rewritten.metaData) {
     rewritten.metaData.publicPath = absoluteBase;
   }
-
-  if (rewritten.shared) rewriteEntryAssets(rewritten.shared, absoluteBase);
-  if (rewritten.exposes) rewriteEntryAssets(rewritten.exposes, absoluteBase);
 
   return rewritten as Record<string, unknown>;
 }

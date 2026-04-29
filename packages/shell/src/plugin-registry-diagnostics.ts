@@ -13,6 +13,9 @@ export function pushDiagnostic(diagnostics: PluginRegistryDiagnostic[], diagnost
   const tag = `[plugin:${diagnostic.pluginId}]`;
   if (diagnostic.level === "warn") {
     console.warn(tag, diagnostic.code, diagnostic.message);
+    if (diagnostic.cause) {
+      console.warn(tag, "  cause:", diagnostic.cause);
+    }
   } else {
     console.info(tag, diagnostic.code, diagnostic.message);
   }
@@ -26,6 +29,7 @@ export function mapLoaderDiagnostic(diagnostic: PluginLoadDiagnostic): PluginReg
     level: diagnostic.level,
     code: diagnostic.code,
     message: `${diagnostic.message}${moduleLabel}`,
+    cause: diagnostic.cause,
   };
 }
 

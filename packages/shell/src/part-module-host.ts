@@ -225,7 +225,7 @@ function mountViaRenderer(
       instanceId: resolvePartInstanceId(part),
       definitionId: resolvePartDefinitionId(part),
       args: resolvePartArgs(part),
-      runtime: { services: runtime.services },
+      runtime: { services: runtime.services, registry: runtime.registry },
     },
     partId: resolvePartDefinitionId(part),
     pluginId: part.pluginId,
