@@ -137,7 +137,9 @@ export function createDomStyleObserver(doc: Document = document): DomStyleObserv
     getSnapshot,
     subscribe(callback) {
       subscribers.add(callback);
-      return () => { subscribers.delete(callback); };
+      return () => {
+        subscribers.delete(callback);
+      };
     },
     dispose() {
       disposed = true;
@@ -179,14 +181,12 @@ export function applyDomSyncMutations(mutations: DomSyncMutation[], targetDoc: D
 
 function applyStyleElementMutation(mut: StyleElementMutation, targetDoc: Document): void {
   if (mut.action === "remove") {
-    const existing = targetDoc.getElementById(mut.id)
-      ?? targetDoc.head.querySelector(`[data-sync-id="${mut.id}"]`);
+    const existing = targetDoc.getElementById(mut.id) ?? targetDoc.head.querySelector(`[data-sync-id="${mut.id}"]`);
     if (existing) existing.remove();
     return;
   }
 
-  let el = targetDoc.getElementById(mut.id)
-    ?? targetDoc.head.querySelector(`[data-sync-id="${mut.id}"]`);
+  let el = targetDoc.getElementById(mut.id) ?? targetDoc.head.querySelector(`[data-sync-id="${mut.id}"]`);
 
   if (!el) {
     el = targetDoc.createElement(mut.tagName);
@@ -226,9 +226,9 @@ function serializeStyleNode(node: Node, action: "add" | "update" | "remove"): St
     action,
     id,
     tagName: tagName.toLowerCase() as "style" | "link",
-    content: tagName === "STYLE" ? node.textContent ?? undefined : undefined,
-    href: tagName === "LINK" ? node.getAttribute("href") ?? undefined : undefined,
-    rel: tagName === "LINK" ? node.getAttribute("rel") ?? undefined : undefined,
+    content: tagName === "STYLE" ? (node.textContent ?? undefined) : undefined,
+    href: tagName === "LINK" ? (node.getAttribute("href") ?? undefined) : undefined,
+    rel: tagName === "LINK" ? (node.getAttribute("rel") ?? undefined) : undefined,
     attributes: extractDataAttributes(node),
   };
 }
@@ -260,7 +260,7 @@ function hashString(str: string): string {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash |= 0;
   }
   return Math.abs(hash).toString(36);

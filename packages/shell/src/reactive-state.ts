@@ -1,5 +1,5 @@
-import { proxy, subscribe, snapshot, unstable_enableOp } from "valtio/vanilla";
 import { proxyMap, proxySet } from "valtio/utils";
+import { proxy, snapshot, subscribe, unstable_enableOp } from "valtio/vanilla";
 
 export { proxyMap, proxySet };
 
@@ -46,7 +46,9 @@ export function subscribeState(state: object, callback: StateSubscriber): () => 
     throw new Error("subscribeState called on a non-managed state object. Use createState() first.");
   }
   managed.subscribers.add(callback);
-  return () => { managed.subscribers.delete(callback); };
+  return () => {
+    managed.subscribers.delete(callback);
+  };
 }
 
 /** Get an immutable snapshot of the current state. */

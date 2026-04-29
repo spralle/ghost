@@ -1,14 +1,14 @@
-import { createServiceToken } from "./service-token.js";
-import type { ThemeService } from "./theme-service.js";
-import type { WorkspaceService } from "./workspace-service.js";
-import type { KeybindingService } from "./keybinding-service.js";
-import type { ContextService } from "./context-service.js";
 import type { ActivityStatusService } from "./activity-status-service.js";
-import type { SyncStatusService } from "./sync-status-service.js";
 import type { ConfigurationService } from "./config-service.js";
+import type { ContextService } from "./context-service.js";
+import type { ActionService, MenuService, ViewService, WindowService } from "./ghost-api.js";
+import type { KeybindingService } from "./keybinding-service.js";
 import type { PluginManagementService } from "./plugin-management-service.js";
 import type { PluginRegistryService } from "./plugin-registry-service.js";
-import type { ActionService, WindowService, ViewService, MenuService } from "./ghost-api.js";
+import { createServiceToken } from "./service-token.js";
+import type { SyncStatusService } from "./sync-status-service.js";
+import type { ThemeService } from "./theme-service.js";
+import type { WorkspaceService } from "./workspace-service.js";
 
 // ---------------------------------------------------------------------------
 // Service Tokens — typed tokens for all builtin services

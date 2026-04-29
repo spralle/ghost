@@ -4,8 +4,13 @@
  */
 
 import type { PluginServices } from "@ghost-shell/contracts";
+import {
+  applyDomStyleSnapshot,
+  applyDomSyncMutations,
+  type DomStyleSnapshot,
+  type DomSyncMutation,
+} from "./dom-style-sync.js";
 import { createProjectedPluginServices, type ServiceGatewayTransport } from "./projected-plugin-services.js";
-import { applyDomStyleSnapshot, applyDomSyncMutations, type DomStyleSnapshot, type DomSyncMutation } from "./dom-style-sync.js";
 
 /**
  * Transport that bridges to the host window.

@@ -1,4 +1,5 @@
 import type { ActivationContext, Disposable, GhostApi, PluginServices, ServiceToken } from "@ghost-shell/contracts";
+import { createState, disposeState } from "../reactive-state.js";
 import {
   type ActionServiceDependencies,
   type ActionServiceWithEmitter,
@@ -16,7 +17,6 @@ import {
   type WorkspaceServiceDependencies,
   type WorkspaceServiceWithEmitter,
 } from "./workspace-service-impl.js";
-import { createState, disposeState } from "../reactive-state.js";
 
 /**
  * Dependencies needed to create a scoped GhostApi for a plugin.

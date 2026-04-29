@@ -1,10 +1,7 @@
-import { describe, it, expect, vi } from "vitest";
-import {
-  createProjectedPluginServices,
-  type ServiceGatewayTransport,
-} from "./projected-plugin-services.js";
-import type { StateOpBatch } from "./service-gateway-contract.js";
 import { createServiceToken } from "@ghost-shell/contracts";
+import { describe, expect, it, vi } from "vitest";
+import { createProjectedPluginServices, type ServiceGatewayTransport } from "./projected-plugin-services.js";
+import type { StateOpBatch } from "./service-gateway-contract.js";
 
 interface MockThemeService {
   state: { activeThemeId: string | null };

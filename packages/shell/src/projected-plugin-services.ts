@@ -1,12 +1,12 @@
-import { proxy } from "valtio/vanilla";
 import type { PluginServices, ServiceToken } from "@ghost-shell/contracts";
+import { proxy } from "valtio/vanilla";
+import { applyOps } from "./service-gateway-apply.js";
 import type {
   ServiceCallRequest,
   ServiceCallResponse,
-  StateSnapshotResponse,
   StateOpBatch,
+  StateSnapshotResponse,
 } from "./service-gateway-contract.js";
-import { applyOps } from "./service-gateway-apply.js";
 
 /**
  * Transport interface that ProjectedPluginServices uses to communicate with host.
@@ -69,16 +69,12 @@ export function createProjectedPluginServices(
         if (prop === "state") return stateProxy;
 
         return (...args: unknown[]) =>
-          transport
-            .callService({ tokenId, method: prop, args })
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error(
-                  response.error ?? `Service call failed: ${tokenId}.${prop}`,
-                );
-              }
-              return response.value;
-            });
+          transport.callService({ tokenId, method: prop, args }).then((response) => {
+            if (!response.ok) {
+              throw new Error(response.error ?? `Service call failed: ${tokenId}.${prop}`);
+            }
+            return response.value;
+          });
       },
 
       has(_target, prop: string | symbol) {

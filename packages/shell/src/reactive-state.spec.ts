@@ -1,7 +1,15 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 const tick = () => new Promise((r) => setTimeout(r, 10));
-import { createState, subscribeState, getStateSnapshot, disposeState, isManagedState, proxyMap } from "./reactive-state";
+
+import {
+  createState,
+  disposeState,
+  getStateSnapshot,
+  isManagedState,
+  proxyMap,
+  subscribeState,
+} from "./reactive-state";
 
 describe("createState", () => {
   it("returns a mutable proxy with same shape", () => {
@@ -40,7 +48,9 @@ describe("subscribeState", () => {
   it("batches multiple mutations in one microtask", async () => {
     const state = createState({ a: 0, b: 0 });
     let callCount = 0;
-    subscribeState(state, () => { callCount++; });
+    subscribeState(state, () => {
+      callCount++;
+    });
 
     state.a = 1;
     state.b = 2;
@@ -61,7 +71,9 @@ describe("getStateSnapshot", () => {
     const snap = getStateSnapshot(state);
     expect(snap.value).toBe("hello");
 
-    expect(() => { (snap as { value: string }).value = "mutated"; }).toThrow();
+    expect(() => {
+      (snap as { value: string }).value = "mutated";
+    }).toThrow();
   });
 });
 

@@ -1,12 +1,12 @@
+import { getStateSnapshot, isManagedState, subscribeState } from "./reactive-state.js";
 import type {
+  GatewayStateOp,
   ServiceCallRequest,
   ServiceCallResponse,
+  StateOpBatch,
   StateSnapshotRequest,
   StateSnapshotResponse,
-  StateOpBatch,
-  GatewayStateOp,
 } from "./service-gateway-contract.js";
-import { subscribeState, getStateSnapshot, isManagedState } from "./reactive-state.js";
 import { isStatefulService } from "./stateful-service-registration.js";
 
 /**
@@ -44,12 +44,14 @@ export function createServiceGatewayHost(registry: ServiceRegistry) {
     const unsub = subscribeState(state, (ops) => {
       const batch: StateOpBatch = {
         tokenId,
-        ops: ops.map(([op, path, value, prevValue]): GatewayStateOp => ({
-          op,
-          path: path.map((p) => (typeof p === "symbol" ? p.toString() : p)) as (string | number)[],
-          value,
-          prevValue,
-        })),
+        ops: ops.map(
+          ([op, path, value, prevValue]): GatewayStateOp => ({
+            op,
+            path: path.map((p) => (typeof p === "symbol" ? p.toString() : p)) as (string | number)[],
+            value,
+            prevValue,
+          }),
+        ),
         timestamp: Date.now(),
       };
       for (const sub of opSubscribers) {
@@ -92,7 +94,9 @@ export function createServiceGatewayHost(registry: ServiceRegistry) {
 
   function subscribeOps(callback: (batch: StateOpBatch) => void): () => void {
     opSubscribers.add(callback);
-    return () => { opSubscribers.delete(callback); };
+    return () => {
+      opSubscribers.delete(callback);
+    };
   }
 
   function dispose(): void {
