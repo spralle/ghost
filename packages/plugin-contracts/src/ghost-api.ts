@@ -2,6 +2,7 @@ import type { ContextApi } from "./context-contribution-registry.js";
 import type { Disposable } from "./disposable.js";
 import type { Event } from "./event.js";
 import type { PluginServices } from "./plugin-services.js";
+import type { ServiceToken } from "./service-token.js";
 import type { WorkspaceService } from "./workspace-service.js";
 
 // ─── GhostApi (top-level namespace) ───
@@ -250,10 +251,24 @@ export interface ActivationContext {
   readonly subscriptions: Disposable[];
   /** The ID of the plugin being activated. */
   readonly pluginId: string;
-  /** Optional service accessor — available when the shell provides services. */
-  readonly services?: PluginServices;
+  /** Service accessor — access any registered service by token. */
+  readonly services: PluginServices;
   /** Context contribution API for reactive state sharing between plugins. */
   readonly context?: ContextApi;
+
+  /**
+   * Create framework-managed reactive state.
+   * The returned object is a mutable proxy — mutations are automatically detected
+   * and can be replicated to popout windows.
+   */
+  createState<S extends object>(initial: S): S;
+
+  /**
+   * Register a service implementation for the given token.
+   * Other plugins can then access it via services.getService(token).
+   * Returns a Disposable to unregister.
+   */
+  registerService<T>(token: ServiceToken<T>, implementation: T): Disposable;
 }
 
 // ─── DeactivationContext ───

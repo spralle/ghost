@@ -212,7 +212,7 @@ async function runActivateHook(
   }
 
   const ghostApiInstance = createGhostApi(apiDeps);
-  const ctx = createActivationContext(pluginId, pluginServices ?? undefined);
+  const ctx = createActivationContext(pluginId, pluginServices ?? createNullServices());
 
   try {
     await state.activate(ghostApiInstance.api, ctx);
@@ -378,4 +378,11 @@ export async function activateByStartupEvent(
   }
 
   return result;
+}
+
+function createNullServices(): PluginServices {
+  return {
+    getService: () => null,
+    hasService: () => false,
+  } as PluginServices;
 }

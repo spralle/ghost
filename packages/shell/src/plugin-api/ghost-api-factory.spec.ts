@@ -1,6 +1,8 @@
-import type { ActivationContext, GhostApi } from "@ghost-shell/contracts";
+import type { ActivationContext, GhostApi, PluginServices } from "@ghost-shell/contracts";
 import type { SpecHarness } from "../context-state.spec-harness.js";
 import { createActivationContext, createGhostApi, type GhostApiFactoryDependencies } from "./ghost-api-factory.js";
+
+const nullServices: PluginServices = { getService: () => null, hasService: () => false } as PluginServices;
 
 function createTestApiDeps(overrides: Partial<GhostApiFactoryDependencies> = {}): GhostApiFactoryDependencies {
   return {
@@ -75,7 +77,7 @@ export function registerGhostApiFactorySpecs(harness: SpecHarness): void {
   // ─── createActivationContext ───
 
   test("ghost-api-factory: createActivationContext returns context with pluginId", () => {
-    const ctx = createActivationContext("com.test.plugin");
+    const ctx = createActivationContext("com.test.plugin", nullServices);
 
     assertEqual(ctx.pluginId, "com.test.plugin", "pluginId should match");
     assertTruthy(Array.isArray(ctx.subscriptions), "subscriptions should be an array");
@@ -83,7 +85,7 @@ export function registerGhostApiFactorySpecs(harness: SpecHarness): void {
   });
 
   test("ghost-api-factory: ActivationContext.subscriptions collects disposables", () => {
-    const ctx = createActivationContext("com.test.plugin");
+    const ctx = createActivationContext("com.test.plugin", nullServices);
 
     let disposed1 = false;
     let disposed2 = false;
@@ -115,7 +117,7 @@ export function registerGhostApiFactorySpecs(harness: SpecHarness): void {
   test("ghost-api-factory: activate receives working GhostApi", async () => {
     const deps = createTestApiDeps();
     const { api } = createGhostApi(deps);
-    const ctx = createActivationContext("com.test.plugin");
+    const ctx = createActivationContext("com.test.plugin", nullServices);
 
     let receivedApi: GhostApi | null = null;
     let receivedCtx: ActivationContext | null = null;
@@ -142,7 +144,7 @@ export function registerGhostApiFactorySpecs(harness: SpecHarness): void {
   test("ghost-api-factory: subscriptions auto-dispose cleans up actions", () => {
     const deps = createTestApiDeps();
     const { api } = createGhostApi(deps);
-    const ctx = createActivationContext("com.test.plugin");
+    const ctx = createActivationContext("com.test.plugin", nullServices);
 
     let changeCount = 0;
     api.actions.onDidChangeActions(() => {

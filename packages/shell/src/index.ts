@@ -26,6 +26,7 @@ export type {
 export { SERVICE_GATEWAY_CONTRACT } from "./service-gateway-contract.js";
 export { createServiceGatewayHost, type ServiceRegistry } from "./service-gateway-host.js";
 export { createReplicaFromSnapshot, applyOps } from "./service-gateway-apply.js";
+export { createProjectedPluginServices, type ServiceGatewayTransport } from "./projected-plugin-services.js";
 
 // DOM style synchronization for cross-window theming
 export type { DomSyncMutation, StyleElementMutation, RootAttributeMutation, DomStyleSnapshot, DomStyleObserver } from "./dom-style-sync.js";
