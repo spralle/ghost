@@ -15,13 +15,17 @@
 //     }
 //   }
 
+import type { ServiceToken } from "./service-token.js";
+
 // ---------------------------------------------------------------------------
 // Service accessor
 // ---------------------------------------------------------------------------
 
 /** Read-only service accessor available to plugins via the mount context. */
 export interface PluginServices {
-  /** Get a service by ID. Returns null if not registered. */
+  /** Get a service by typed token. Returns null if not registered. */
+  getService<T>(token: ServiceToken<T>): T | null;
+  /** Get a service by string ID (legacy). Returns null if not registered. */
   getService<T = unknown>(id: string): T | null;
 
   /** Check if a service is registered. */

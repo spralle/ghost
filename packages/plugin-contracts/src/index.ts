@@ -98,6 +98,8 @@ export type {
 } from "./plugin-registry-service.js";
 export { PLUGIN_REGISTRY_SERVICE_ID } from "./plugin-registry-service.js";
 export type { MountPartFn, PartMountCleanup, PluginMountContext, PluginServices } from "./plugin-services.js";
+export type { ServiceToken } from "./service-token.js";
+export { createServiceToken } from "./service-token.js";
 export type { ResolveMountOptions } from "./resolve-mount.js";
 export { resolveModuleMountFn } from "./resolve-mount.js";
 export {
