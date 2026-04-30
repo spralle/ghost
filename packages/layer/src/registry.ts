@@ -6,6 +6,21 @@ import type {
 import { InputBehavior, KeyboardInteractivity } from "@ghost-shell/contracts/layer";
 import { createLayerContainer, removeLayerContainer } from "./layer-dom.js";
 
+/** Well-known identifier for shell-owned surfaces. */
+export const SHELL_SURFACE_OWNER = "@ghost-shell/core";
+
+/** A surface registered by the shell itself (bypasses pluginContributable). */
+export interface ShellLayerSurface {
+  /** Unique surface ID. */
+  id: string;
+  /** Target layer name. */
+  layer: string;
+  /** Imperative mount function; returns optional cleanup. */
+  mount: (container: HTMLElement) => (() => void) | void;
+  /** Sort order within layer. */
+  order?: number;
+}
+
 /** The 7 built-in layers with generous z-order gaps for plugin insertion. */
 export const BUILTIN_LAYERS: readonly LayerDefinition[] = [
   {
@@ -69,6 +84,7 @@ export const BUILTIN_LAYERS: readonly LayerDefinition[] = [
 export class LayerRegistry {
   private layers: Map<string, LayerDefinition> = new Map();
   private surfaces: Map<string, { surface: PluginLayerSurfaceContribution; pluginId: string }> = new Map();
+  private shellSurfaces: Map<string, ShellLayerSurface> = new Map();
   private layerHost: HTMLElement | null = null;
   private sessionLockCheck: ((zOrder: number) => boolean) | null = null;
   private onSurfacesRemoved: ((entries: Array<{ surfaceId: string; pluginId: string }>) => void) | null = null;
@@ -246,5 +262,38 @@ export class LayerRegistry {
 
   getAllSurfaces(): Array<{ surface: PluginLayerSurfaceContribution; pluginId: string }> {
     return [...this.surfaces.values()];
+  }
+
+  registerShellSurface(surface: ShellLayerSurface): { success: boolean; reason?: string } {
+    const layer = this.layers.get(surface.layer);
+    if (!layer) {
+      return { success: false, reason: `Layer '${surface.layer}' does not exist` };
+    }
+    if (this.sessionLockCheck && !this.sessionLockCheck(layer.zOrder)) {
+      return {
+        success: false,
+        reason: `Session lock active — cannot add shell surface to layer '${surface.layer}'`,
+      };
+    }
+    this.shellSurfaces.set(surface.id, surface);
+    return { success: true };
+  }
+
+  unregisterShellSurface(id: string): boolean {
+    return this.shellSurfaces.delete(id);
+  }
+
+  getShellSurfacesForLayer(layerName: string): ShellLayerSurface[] {
+    const result: ShellLayerSurface[] = [];
+    for (const surface of this.shellSurfaces.values()) {
+      if (surface.layer === layerName) {
+        result.push(surface);
+      }
+    }
+    return result;
+  }
+
+  getAllShellSurfaces(): ShellLayerSurface[] {
+    return [...this.shellSurfaces.values()];
   }
 }
