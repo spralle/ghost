@@ -94,6 +94,23 @@ export function registerThemeServiceCapability(registry: ShellPluginRegistry, th
       capabilities: {
         services: [{ id: THEME_SERVICE_ID, version: "1.0.0" }],
       },
+      configuration: {
+        type: "object",
+        title: "Theme",
+        properties: {
+          activeThemeId: {
+            type: "string",
+            title: "Active Theme",
+            description: "The ID of the currently active theme",
+          },
+          backgroundIndex: {
+            type: "integer",
+            title: "Background Index",
+            description: "Index of the selected background for the active theme",
+            default: 0,
+          },
+        },
+      },
     },
   };
 

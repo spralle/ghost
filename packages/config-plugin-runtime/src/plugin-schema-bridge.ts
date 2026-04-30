@@ -11,9 +11,12 @@ export interface ConfigurationSchemaDeclaration {
   properties: Record<string, ConfigurationPropertySchema>;
 }
 
+/** A schema entry composed with its owning plugin ID. */
+export type ComposedSchemaEntry = ConfigurationPropertySchema & { owner: string };
+
 /** Stub for ComposeResult (@weaver/config-engine removed). */
 export interface ComposeResult {
-  schemas: Map<string, ConfigurationPropertySchema & { owner: string }>;
+  schemas: Map<string, ComposedSchemaEntry>;
   errors: Array<{ key: string; owners: string[]; message: string }>;
 }
 
@@ -21,8 +24,8 @@ export interface ComposeResult {
 export interface ConfigurationSchemaRegistry {
   register(declaration: ConfigurationSchemaDeclaration): RegisterSchemaResult;
   unregister(ownerId: string): UnregisterSchemaResult;
-  getSchema(key: string): (ConfigurationPropertySchema & { owner: string }) | undefined;
-  getSchemas(): Map<string, ConfigurationPropertySchema & { owner: string }>;
+  getSchema(key: string): ComposedSchemaEntry | undefined;
+  getSchemas(): Map<string, ComposedSchemaEntry>;
   getSchemasByOwner(ownerId: string): Map<string, ConfigurationPropertySchema>;
   getCompositionErrors(): ComposeResult["errors"];
 }
@@ -59,11 +62,7 @@ function createSchemaRegistry(): ConfigurationSchemaRegistry {
  */
 export interface PluginConfigInput {
   pluginId: string;
-  configuration?:
-    | {
-        properties: Record<string, ConfigurationPropertySchema>;
-      }
-    | undefined;
+  configuration?: ConfigurationPropertySchema | undefined;
 }
 
 /**
@@ -75,11 +74,13 @@ export function collectPluginSchemaDeclarations(plugins: PluginConfigInput[]): C
 
   for (const plugin of plugins) {
     if (plugin.configuration === undefined) continue;
+    const properties = plugin.configuration.properties;
+    if (properties === undefined) continue;
 
     declarations.push({
       ownerId: plugin.pluginId,
       namespace: deriveNamespace(plugin.pluginId),
-      properties: plugin.configuration.properties as Record<string, WeaverPropertySchema>,
+      properties: properties as Record<string, ConfigurationPropertySchema>,
     });
   }
 
@@ -108,7 +109,7 @@ class DefaultIncrementalSchemaRegistryAdapter implements IncrementalSchemaRegist
   private readonly registry = createSchemaRegistry();
 
   registerPlugin(plugin: PluginConfigInput): RegisterSchemaResult {
-    if (plugin.configuration === undefined) {
+    if (plugin.configuration === undefined || plugin.configuration.properties === undefined) {
       this.registry.unregister(plugin.pluginId);
       return { registeredKeys: [], errors: [] };
     }
@@ -116,7 +117,7 @@ class DefaultIncrementalSchemaRegistryAdapter implements IncrementalSchemaRegist
     return this.registry.register({
       ownerId: plugin.pluginId,
       namespace: deriveNamespace(plugin.pluginId),
-      properties: plugin.configuration.properties as Record<string, WeaverPropertySchema>,
+      properties: plugin.configuration.properties as Record<string, ConfigurationPropertySchema>,
     });
   }
 
@@ -144,15 +145,6 @@ class DefaultIncrementalSchemaRegistryAdapter implements IncrementalSchemaRegist
 export function createIncrementalSchemaRegistryAdapter(): IncrementalSchemaRegistryAdapter {
   return new DefaultIncrementalSchemaRegistryAdapter();
 }
-
-// Re-export weaver types for downstream consumers
-export type {
-  ComposedSchemaEntry,
-  ComposeResult,
-  ConfigurationSchemaDeclaration,
-  RegisterSchemaResult,
-  UnregisterSchemaResult,
-};
 
 // Backward compatibility aliases
 export type IncrementalPluginSchemaRegistry = IncrementalSchemaRegistryAdapter;

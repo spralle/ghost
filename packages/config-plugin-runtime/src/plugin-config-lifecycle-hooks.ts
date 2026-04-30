@@ -125,7 +125,7 @@ export function createInMemorySchemaRegistry(
 }
 
 function collectDefaultEntries(plugin: PluginConfigInput): Record<string, unknown> {
-  if (plugin.configuration === undefined) {
+  if (plugin.configuration === undefined || plugin.configuration.properties === undefined) {
     return {};
   }
 
