@@ -5,6 +5,9 @@
   "type": "module",
   "ghost": {
     "displayName": "Keybindings",
+    "activationEvents": [
+      "onStartup"
+    ],
     "contributes": {
       "parts": [
         {
