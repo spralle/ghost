@@ -9,6 +9,32 @@ import type {
 } from "./service-gateway-contract.js";
 import { isStatefulService } from "./stateful-service-registration.js";
 
+/** Check if return value contains non-serializable patterns */
+function validateRpcResponse(tokenId: string, method: string, value: unknown): void {
+  if (value === null || value === undefined) return;
+  if (typeof value === "function") {
+    throw new Error(
+      `Service "${tokenId}.${method}()" returned a function. ` +
+        `Auto-proxy cannot serialize functions. ` +
+        `Define an "activations" entry in the plugin manifest for secondary window behavior.`,
+    );
+  }
+  if (typeof value === "object") {
+    const proto = Object.getPrototypeOf(value);
+    if (proto !== Object.prototype && proto !== Array.prototype && proto !== null) {
+      const keys = Object.getOwnPropertyNames(value);
+      const hasMethods = keys.some((k) => typeof (value as Record<string, unknown>)[k] === "function");
+      if (hasMethods) {
+        throw new Error(
+          `Service "${tokenId}.${method}()" returned an object with methods. ` +
+            `Auto-proxy cannot serialize complex objects. ` +
+            `Define an "activations" entry in the plugin manifest for secondary window behavior.`,
+        );
+      }
+    }
+  }
+}
+
 /**
  * Extract state from a service if it exposes the StatefulService pattern.
  */
@@ -78,6 +104,7 @@ export function createServiceGatewayHost(registry: ServiceRegistry) {
     }
     try {
       const result = await method.apply(service, request.args);
+      validateRpcResponse(request.tokenId, request.method, result);
       return { ok: true, value: result };
     } catch (err) {
       return { ok: false, error: err instanceof Error ? err.message : String(err) };

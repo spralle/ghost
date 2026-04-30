@@ -95,3 +95,34 @@ describe("ProjectedPluginServices", () => {
     expect(transport.opCallbacks.size).toBe(0);
   });
 });
+
+describe("auto-proxy detection", () => {
+  it("throws when method called with function argument", () => {
+    const transport = createMockTransport();
+    const services = createProjectedPluginServices(transport);
+    const theme = services.getService(ThemeToken)!;
+
+    expect(() => (theme as unknown as Record<string, (...a: unknown[]) => unknown>).setTheme(() => {})).toThrow(
+      /argument 0 is a function/,
+    );
+  });
+
+  it("throws when method called with symbol argument", () => {
+    const transport = createMockTransport();
+    const services = createProjectedPluginServices(transport);
+    const theme = services.getService(ThemeToken)!;
+
+    expect(() => (theme as unknown as Record<string, (...a: unknown[]) => unknown>).setTheme(Symbol("x"))).toThrow(
+      /argument 0 is a symbol/,
+    );
+  });
+
+  it("allows plain serializable arguments", async () => {
+    const transport = createMockTransport();
+    const services = createProjectedPluginServices(transport);
+    const theme = services.getService(ThemeToken)!;
+
+    const result = await theme.setTheme("ocean-dark");
+    expect(result).toBe(true);
+  });
+});
