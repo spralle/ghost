@@ -30,11 +30,11 @@ import { readShellMigrationFlags, type ShellTransportPath, selectCrossWindowDnd 
 import type { ShellRuntime, SourceTabTransferPendingState } from "./types.js";
 import { createWindowId, getCurrentUserId, getStorage, readPopoutParams } from "./utils.js";
 
-export function createShellRuntime(options?: { transportPath?: ShellTransportPath }): ShellRuntime {
+export function createShellRuntime(options?: { transportPath?: ShellTransportPath; windowId?: string }): ShellRuntime {
   const migrationFlags = readShellMigrationFlags();
   const crossWindowDnd = selectCrossWindowDnd(migrationFlags);
   const popoutParams = readPopoutParams();
-  const windowId = createWindowId();
+  const windowId = options?.windowId ?? createWindowId();
   const bridge = createWindowBridge(BRIDGE_CHANNEL);
   const asyncBridge =
     options?.transportPath === "async-scomp-adapter"

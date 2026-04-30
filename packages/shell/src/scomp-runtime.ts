@@ -9,7 +9,7 @@ export interface ScompPeer {
   resolve<T>(contract: ScompContractToken<T>): T;
   /** Register a service implementation */
   register<T>(definition: ScompServiceDefinition<T>): ScompDisposable;
-  /** This peer's participant ID */
+  /** Must equal runtime.windowId — app layer ensures this at boot by passing windowId as transport nodeId */
   readonly participantId: string;
 }
 

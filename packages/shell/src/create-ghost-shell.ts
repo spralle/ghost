@@ -10,6 +10,7 @@
 import type { ContextContributionRegistry, PartRenderer, PartRendererRegistry } from "@ghost-shell/contracts";
 import { createContextContributionRegistry } from "@ghost-shell/plugin-system";
 import { createReactPartRenderer } from "@ghost-shell/react";
+import { resolveWindowIdentity } from "./window-identity.js";
 import type { ShellMigrationFlags } from "./app/migration-flags.js";
 import { readShellMigrationFlags, selectShellTransportPath } from "./app/migration-flags.js";
 import { createShellRuntime } from "./app/runtime.js";
@@ -97,6 +98,10 @@ declare global {
 export function createGhostShell(options: GhostShellOptions): GhostShell {
   const { root, renderers = [], migrationFlags } = options;
 
+  // Resolve unified window identity — this ID is used as both runtime.windowId
+  // and scomp participantId, ensuring a single identity per window.
+  const identity = resolveWindowIdentity();
+
   const flags = migrationFlags ?? readShellMigrationFlags();
   const transportDecision = selectShellTransportPath(flags);
 
@@ -115,6 +120,7 @@ export function createGhostShell(options: GhostShellOptions): GhostShell {
   // Shell runtime (owns persistence, bridge, plugin registry, etc.)
   const runtime = createShellRuntime({
     transportPath: transportDecision.path,
+    windowId: identity.windowId,
   });
 
   // Re-wire partHost to use the shell's renderer registry (includes React renderer).

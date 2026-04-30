@@ -24,6 +24,17 @@ export {
   type PopoutInitResult,
   type PopoutTransport,
 } from "./popout-initialization.js";
+// Popout manifest contract and registry
+export type {
+  PopoutManifest,
+  PopoutManifestContract,
+  PopoutPartDescriptor,
+  PopoutPluginDescriptor,
+} from "./popout-manifest.js";
+export { POPOUT_MANIFEST_CONTRACT_ID } from "./popout-manifest.js";
+export { createPopoutManifestHost, type PopoutManifestHostOptions } from "./popout-manifest-host.js";
+export type { PopoutManifestRegistry } from "./popout-manifest-registry.js";
+export { createPopoutManifestRegistry } from "./popout-manifest-registry.js";
 export { createProjectedPluginServices, type ServiceGatewayTransport } from "./projected-plugin-services.js";
 export type { StateOp, StateSubscriber } from "./reactive-state.js";
 // Reactive state primitives
@@ -49,6 +60,8 @@ export type {
 } from "./service-gateway-contract.js";
 export { SERVICE_GATEWAY_CONTRACT } from "./service-gateway-contract.js";
 export { createServiceGatewayHost, type ServiceRegistry } from "./service-gateway-host.js";
+// Window identity
+export { resolveWindowIdentity, type WindowIdentity } from "./window-identity.js";
 // Scomp peer abstraction
 export type {
   ScompContractToken,
