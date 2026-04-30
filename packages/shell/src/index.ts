@@ -70,6 +70,8 @@ export type {
   ScompRuntimeConfig,
   ScompServiceDefinition,
 } from "./scomp-runtime.js";
+// Part snapshot utilities for popout continuity
+export { capturePartSnapshot, restorePartSnapshot, type PartSnapshot } from "./part-snapshot.js";
 // Legacy — kept for ReactShellHost backward compatibility
 export { startShell } from "./start-shell.js";
 // Stateful service registration utilities

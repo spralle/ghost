@@ -214,5 +214,7 @@ export type {
   ThemeContribution,
   ThemeFonts,
 } from "./types.js";
+export type { SnapshotCapable } from "./snapshot-capable.js";
+export { isSnapshotCapable } from "./snapshot-capable.js";
 export type { WorkspaceInfo, WorkspaceService } from "./workspace-service.js";
 export { WORKSPACE_SERVICE_ID } from "./workspace-service.js";
