@@ -1,18 +1,6 @@
+import { describe, expect, it } from "vitest";
 import type { KeyboardExclusiveManager } from "../input-behavior.js";
 import { createSessionLockManager } from "../session-lock.js";
-
-type TestCase = { name: string; run: () => void };
-const tests: TestCase[] = [];
-
-function test(name: string, run: () => void): void {
-  tests.push({ name, run });
-}
-
-function assertEqual(actual: unknown, expected: unknown, message: string): void {
-  if (actual !== expected) {
-    throw new Error(`${message}. expected=${String(expected)} actual=${String(actual)}`);
-  }
-}
 
 // ---------------------------------------------------------------------------
 // Minimal DOM mocks
@@ -129,248 +117,229 @@ function makeMockKeyboardManager(): KeyboardExclusiveManager & {
 // Tests
 // ---------------------------------------------------------------------------
 
-test("activateLock hides main layer with display:none", () => {
-  const { layerHost, sections } = buildLayerHost();
-  const kbd = makeMockKeyboardManager();
-  const mgr = createSessionLockManager({
-    layerHost: layerHost as unknown as HTMLElement,
-    keyboardExclusiveManager: kbd,
-  });
-  const surface = makeMockDiv();
-  const container = makeMockDiv();
+describe("session-lock", () => {
+  it("activateLock hides main layer with display:none", () => {
+    const { layerHost, sections } = buildLayerHost();
+    const kbd = makeMockKeyboardManager();
+    const mgr = createSessionLockManager({
+      layerHost: layerHost as unknown as HTMLElement,
+      keyboardExclusiveManager: kbd,
+    });
+    const surface = makeMockDiv();
+    const container = makeMockDiv();
 
-  mgr.activateLock("lock-1", surface as unknown as HTMLDivElement, container as unknown as HTMLElement);
+    mgr.activateLock("lock-1", surface as unknown as HTMLDivElement, container as unknown as HTMLElement);
 
-  assertEqual(sections.main.style.display, "none", "main layer should be display:none");
-});
-
-test("activateLock sets visibility:hidden on layers below overlay", () => {
-  const { layerHost, sections } = buildLayerHost();
-  const kbd = makeMockKeyboardManager();
-  const mgr = createSessionLockManager({
-    layerHost: layerHost as unknown as HTMLElement,
-    keyboardExclusiveManager: kbd,
-  });
-  const surface = makeMockDiv();
-  const container = makeMockDiv();
-
-  mgr.activateLock("lock-1", surface as unknown as HTMLDivElement, container as unknown as HTMLElement);
-
-  assertEqual(sections.background.style.visibility, "hidden", "background should be visibility:hidden");
-  assertEqual(sections.background.style.pointerEvents, "none", "background should be pointer-events:none");
-  assertEqual(sections.bottom.style.visibility, "hidden", "bottom should be visibility:hidden");
-  assertEqual(sections.floating.style.visibility, "hidden", "floating should be visibility:hidden");
-  assertEqual(sections.notification.style.visibility, "hidden", "notification should be visibility:hidden");
-  assertEqual(sections.modal.style.visibility, "hidden", "modal should be visibility:hidden");
-  // Overlay should NOT be hidden
-  assertEqual(sections.overlay.style.visibility, "", "overlay should remain visible");
-  assertEqual(sections.overlay.style.pointerEvents, "", "overlay should keep pointer-events");
-});
-
-test("activateLock pushes keyboard exclusive", () => {
-  const { layerHost } = buildLayerHost();
-  const kbd = makeMockKeyboardManager();
-  const mgr = createSessionLockManager({
-    layerHost: layerHost as unknown as HTMLElement,
-    keyboardExclusiveManager: kbd,
-  });
-  const surface = makeMockDiv();
-  const container = makeMockDiv();
-
-  mgr.activateLock("lock-1", surface as unknown as HTMLDivElement, container as unknown as HTMLElement);
-
-  assertEqual(kbd.pushCalls.length, 1, "should push exclusive once");
-  assertEqual(kbd.pushCalls[0].surfaceId, "lock-1", "should push correct surfaceId");
-});
-
-test("canAddSurface returns false for z > 600 when locked", () => {
-  const { layerHost } = buildLayerHost();
-  const kbd = makeMockKeyboardManager();
-  const mgr = createSessionLockManager({
-    layerHost: layerHost as unknown as HTMLElement,
-    keyboardExclusiveManager: kbd,
-  });
-  const surface = makeMockDiv();
-  const container = makeMockDiv();
-
-  mgr.activateLock("lock-1", surface as unknown as HTMLDivElement, container as unknown as HTMLElement);
-
-  assertEqual(mgr.canAddSurface(700), false, "z=700 should be blocked when locked");
-  assertEqual(mgr.canAddSurface(601), false, "z=601 should be blocked when locked");
-});
-
-test("canAddSurface returns true for z <= 600 when locked", () => {
-  const { layerHost } = buildLayerHost();
-  const kbd = makeMockKeyboardManager();
-  const mgr = createSessionLockManager({
-    layerHost: layerHost as unknown as HTMLElement,
-    keyboardExclusiveManager: kbd,
-  });
-  const surface = makeMockDiv();
-  const container = makeMockDiv();
-
-  mgr.activateLock("lock-1", surface as unknown as HTMLDivElement, container as unknown as HTMLElement);
-
-  assertEqual(mgr.canAddSurface(600), true, "z=600 should be allowed when locked");
-  assertEqual(mgr.canAddSurface(100), true, "z=100 should be allowed when locked");
-  assertEqual(mgr.canAddSurface(0), true, "z=0 should be allowed when locked");
-});
-
-test("canAddSurface returns true for any z when not locked", () => {
-  const { layerHost } = buildLayerHost();
-  const kbd = makeMockKeyboardManager();
-  const mgr = createSessionLockManager({
-    layerHost: layerHost as unknown as HTMLElement,
-    keyboardExclusiveManager: kbd,
+    expect(sections.main.style.display).toBe("none");
   });
 
-  assertEqual(mgr.canAddSurface(700), true, "z=700 should be allowed when unlocked");
-  assertEqual(mgr.canAddSurface(600), true, "z=600 should be allowed when unlocked");
-  assertEqual(mgr.canAddSurface(0), true, "z=0 should be allowed when unlocked");
-});
+  it("activateLock sets visibility:hidden on layers below overlay", () => {
+    const { layerHost, sections } = buildLayerHost();
+    const kbd = makeMockKeyboardManager();
+    const mgr = createSessionLockManager({
+      layerHost: layerHost as unknown as HTMLElement,
+      keyboardExclusiveManager: kbd,
+    });
+    const surface = makeMockDiv();
+    const container = makeMockDiv();
 
-test("releaseLock restores main layer display", () => {
-  const { layerHost, sections } = buildLayerHost();
-  const kbd = makeMockKeyboardManager();
-  const mgr = createSessionLockManager({
-    layerHost: layerHost as unknown as HTMLElement,
-    keyboardExclusiveManager: kbd,
+    mgr.activateLock("lock-1", surface as unknown as HTMLDivElement, container as unknown as HTMLElement);
+
+    expect(sections.background.style.visibility).toBe("hidden");
+    expect(sections.background.style.pointerEvents).toBe("none");
+    expect(sections.bottom.style.visibility).toBe("hidden");
+    expect(sections.floating.style.visibility).toBe("hidden");
+    expect(sections.notification.style.visibility).toBe("hidden");
+    expect(sections.modal.style.visibility).toBe("hidden");
+    // Overlay should NOT be hidden
+    expect(sections.overlay.style.visibility).toBe("");
+    expect(sections.overlay.style.pointerEvents).toBe("");
   });
-  const surface = makeMockDiv();
-  const container = makeMockDiv();
 
-  mgr.activateLock("lock-1", surface as unknown as HTMLDivElement, container as unknown as HTMLElement);
-  mgr.releaseLock("lock-1");
+  it("activateLock pushes keyboard exclusive", () => {
+    const { layerHost } = buildLayerHost();
+    const kbd = makeMockKeyboardManager();
+    const mgr = createSessionLockManager({
+      layerHost: layerHost as unknown as HTMLElement,
+      keyboardExclusiveManager: kbd,
+    });
+    const surface = makeMockDiv();
+    const container = makeMockDiv();
 
-  assertEqual(sections.main.style.display, "", "main layer display should be restored");
-});
+    mgr.activateLock("lock-1", surface as unknown as HTMLDivElement, container as unknown as HTMLElement);
 
-test("releaseLock restores visibility on all layers", () => {
-  const { layerHost, sections } = buildLayerHost();
-  const kbd = makeMockKeyboardManager();
-  const mgr = createSessionLockManager({
-    layerHost: layerHost as unknown as HTMLElement,
-    keyboardExclusiveManager: kbd,
+    expect(kbd.pushCalls.length).toBe(1);
+    expect(kbd.pushCalls[0].surfaceId).toBe("lock-1");
   });
-  const surface = makeMockDiv();
-  const container = makeMockDiv();
 
-  mgr.activateLock("lock-1", surface as unknown as HTMLDivElement, container as unknown as HTMLElement);
-  mgr.releaseLock("lock-1");
+  it("canAddSurface returns false for z > 600 when locked", () => {
+    const { layerHost } = buildLayerHost();
+    const kbd = makeMockKeyboardManager();
+    const mgr = createSessionLockManager({
+      layerHost: layerHost as unknown as HTMLElement,
+      keyboardExclusiveManager: kbd,
+    });
+    const surface = makeMockDiv();
+    const container = makeMockDiv();
 
-  assertEqual(sections.background.style.visibility, "", "background visibility should be restored");
-  assertEqual(sections.background.style.pointerEvents, "", "background pointer-events should be restored");
-  assertEqual(sections.bottom.style.visibility, "", "bottom visibility should be restored");
-  assertEqual(sections.floating.style.visibility, "", "floating visibility should be restored");
-  assertEqual(sections.notification.style.visibility, "", "notification visibility should be restored");
-  assertEqual(sections.modal.style.visibility, "", "modal visibility should be restored");
-});
+    mgr.activateLock("lock-1", surface as unknown as HTMLDivElement, container as unknown as HTMLElement);
 
-test("releaseLock pops keyboard exclusive", () => {
-  const { layerHost } = buildLayerHost();
-  const kbd = makeMockKeyboardManager();
-  const mgr = createSessionLockManager({
-    layerHost: layerHost as unknown as HTMLElement,
-    keyboardExclusiveManager: kbd,
+    expect(mgr.canAddSurface(700)).toBe(false);
+    expect(mgr.canAddSurface(601)).toBe(false);
   });
-  const surface = makeMockDiv();
-  const container = makeMockDiv();
 
-  mgr.activateLock("lock-1", surface as unknown as HTMLDivElement, container as unknown as HTMLElement);
-  mgr.releaseLock("lock-1");
+  it("canAddSurface returns true for z <= 600 when locked", () => {
+    const { layerHost } = buildLayerHost();
+    const kbd = makeMockKeyboardManager();
+    const mgr = createSessionLockManager({
+      layerHost: layerHost as unknown as HTMLElement,
+      keyboardExclusiveManager: kbd,
+    });
+    const surface = makeMockDiv();
+    const container = makeMockDiv();
 
-  assertEqual(kbd.popCalls.length, 1, "should pop exclusive once");
-  assertEqual(kbd.popCalls[0], "lock-1", "should pop correct surfaceId");
-});
+    mgr.activateLock("lock-1", surface as unknown as HTMLDivElement, container as unknown as HTMLElement);
 
-test("only the correct surface ID can release the lock", () => {
-  const { layerHost, sections } = buildLayerHost();
-  const kbd = makeMockKeyboardManager();
-  const mgr = createSessionLockManager({
-    layerHost: layerHost as unknown as HTMLElement,
-    keyboardExclusiveManager: kbd,
+    expect(mgr.canAddSurface(600)).toBe(true);
+    expect(mgr.canAddSurface(100)).toBe(true);
+    expect(mgr.canAddSurface(0)).toBe(true);
   });
-  const surface = makeMockDiv();
-  const container = makeMockDiv();
 
-  mgr.activateLock("lock-1", surface as unknown as HTMLDivElement, container as unknown as HTMLElement);
-  mgr.releaseLock("wrong-surface");
+  it("canAddSurface returns true for any z when not locked", () => {
+    const { layerHost } = buildLayerHost();
+    const kbd = makeMockKeyboardManager();
+    const mgr = createSessionLockManager({
+      layerHost: layerHost as unknown as HTMLElement,
+      keyboardExclusiveManager: kbd,
+    });
 
-  // Lock should still be active
-  assertEqual(mgr.isLocked(), true, "lock should still be active");
-  assertEqual(sections.main.style.display, "none", "main should still be hidden");
-  assertEqual(kbd.popCalls.length, 0, "should not pop exclusive for wrong surface");
-});
-
-test("isLocked returns correct state", () => {
-  const { layerHost } = buildLayerHost();
-  const kbd = makeMockKeyboardManager();
-  const mgr = createSessionLockManager({
-    layerHost: layerHost as unknown as HTMLElement,
-    keyboardExclusiveManager: kbd,
+    expect(mgr.canAddSurface(700)).toBe(true);
+    expect(mgr.canAddSurface(600)).toBe(true);
+    expect(mgr.canAddSurface(0)).toBe(true);
   });
-  const surface = makeMockDiv();
-  const container = makeMockDiv();
 
-  assertEqual(mgr.isLocked(), false, "should not be locked initially");
-  mgr.activateLock("lock-1", surface as unknown as HTMLDivElement, container as unknown as HTMLElement);
-  assertEqual(mgr.isLocked(), true, "should be locked after activate");
-  mgr.releaseLock("lock-1");
-  assertEqual(mgr.isLocked(), false, "should not be locked after release");
-});
+  it("releaseLock restores main layer display", () => {
+    const { layerHost, sections } = buildLayerHost();
+    const kbd = makeMockKeyboardManager();
+    const mgr = createSessionLockManager({
+      layerHost: layerHost as unknown as HTMLElement,
+      keyboardExclusiveManager: kbd,
+    });
+    const surface = makeMockDiv();
+    const container = makeMockDiv();
 
-test("getActiveLockSurfaceId returns correct value", () => {
-  const { layerHost } = buildLayerHost();
-  const kbd = makeMockKeyboardManager();
-  const mgr = createSessionLockManager({
-    layerHost: layerHost as unknown as HTMLElement,
-    keyboardExclusiveManager: kbd,
+    mgr.activateLock("lock-1", surface as unknown as HTMLDivElement, container as unknown as HTMLElement);
+    mgr.releaseLock("lock-1");
+
+    expect(sections.main.style.display).toBe("");
   });
-  const surface = makeMockDiv();
-  const container = makeMockDiv();
 
-  assertEqual(mgr.getActiveLockSurfaceId(), null, "should be null when unlocked");
-  mgr.activateLock("lock-1", surface as unknown as HTMLDivElement, container as unknown as HTMLElement);
-  assertEqual(mgr.getActiveLockSurfaceId(), "lock-1", "should return lock surface id");
-  mgr.releaseLock("lock-1");
-  assertEqual(mgr.getActiveLockSurfaceId(), null, "should be null after release");
-});
+  it("releaseLock restores visibility on all layers", () => {
+    const { layerHost, sections } = buildLayerHost();
+    const kbd = makeMockKeyboardManager();
+    const mgr = createSessionLockManager({
+      layerHost: layerHost as unknown as HTMLElement,
+      keyboardExclusiveManager: kbd,
+    });
+    const surface = makeMockDiv();
+    const container = makeMockDiv();
 
-test("activateLock is idempotent when already locked", () => {
-  const { layerHost } = buildLayerHost();
-  const kbd = makeMockKeyboardManager();
-  const mgr = createSessionLockManager({
-    layerHost: layerHost as unknown as HTMLElement,
-    keyboardExclusiveManager: kbd,
+    mgr.activateLock("lock-1", surface as unknown as HTMLDivElement, container as unknown as HTMLElement);
+    mgr.releaseLock("lock-1");
+
+    expect(sections.background.style.visibility).toBe("");
+    expect(sections.background.style.pointerEvents).toBe("");
+    expect(sections.bottom.style.visibility).toBe("");
+    expect(sections.floating.style.visibility).toBe("");
+    expect(sections.notification.style.visibility).toBe("");
+    expect(sections.modal.style.visibility).toBe("");
   });
-  const surface1 = makeMockDiv();
-  const surface2 = makeMockDiv();
-  const container = makeMockDiv();
 
-  mgr.activateLock("lock-1", surface1 as unknown as HTMLDivElement, container as unknown as HTMLElement);
-  mgr.activateLock("lock-2", surface2 as unknown as HTMLDivElement, container as unknown as HTMLElement);
+  it("releaseLock pops keyboard exclusive", () => {
+    const { layerHost } = buildLayerHost();
+    const kbd = makeMockKeyboardManager();
+    const mgr = createSessionLockManager({
+      layerHost: layerHost as unknown as HTMLElement,
+      keyboardExclusiveManager: kbd,
+    });
+    const surface = makeMockDiv();
+    const container = makeMockDiv();
 
-  assertEqual(mgr.getActiveLockSurfaceId(), "lock-1", "first lock should remain active");
-  assertEqual(kbd.pushCalls.length, 1, "should only push exclusive once");
+    mgr.activateLock("lock-1", surface as unknown as HTMLDivElement, container as unknown as HTMLElement);
+    mgr.releaseLock("lock-1");
+
+    expect(kbd.popCalls.length).toBe(1);
+    expect(kbd.popCalls[0]).toBe("lock-1");
+  });
+
+  it("only the correct surface ID can release the lock", () => {
+    const { layerHost, sections } = buildLayerHost();
+    const kbd = makeMockKeyboardManager();
+    const mgr = createSessionLockManager({
+      layerHost: layerHost as unknown as HTMLElement,
+      keyboardExclusiveManager: kbd,
+    });
+    const surface = makeMockDiv();
+    const container = makeMockDiv();
+
+    mgr.activateLock("lock-1", surface as unknown as HTMLDivElement, container as unknown as HTMLElement);
+    mgr.releaseLock("wrong-surface");
+
+    // Lock should still be active
+    expect(mgr.isLocked()).toBe(true);
+    expect(sections.main.style.display).toBe("none");
+    expect(kbd.popCalls.length).toBe(0);
+  });
+
+  it("isLocked returns correct state", () => {
+    const { layerHost } = buildLayerHost();
+    const kbd = makeMockKeyboardManager();
+    const mgr = createSessionLockManager({
+      layerHost: layerHost as unknown as HTMLElement,
+      keyboardExclusiveManager: kbd,
+    });
+    const surface = makeMockDiv();
+    const container = makeMockDiv();
+
+    expect(mgr.isLocked()).toBe(false);
+    mgr.activateLock("lock-1", surface as unknown as HTMLDivElement, container as unknown as HTMLElement);
+    expect(mgr.isLocked()).toBe(true);
+    mgr.releaseLock("lock-1");
+    expect(mgr.isLocked()).toBe(false);
+  });
+
+  it("getActiveLockSurfaceId returns correct value", () => {
+    const { layerHost } = buildLayerHost();
+    const kbd = makeMockKeyboardManager();
+    const mgr = createSessionLockManager({
+      layerHost: layerHost as unknown as HTMLElement,
+      keyboardExclusiveManager: kbd,
+    });
+    const surface = makeMockDiv();
+    const container = makeMockDiv();
+
+    expect(mgr.getActiveLockSurfaceId()).toBe(null);
+    mgr.activateLock("lock-1", surface as unknown as HTMLDivElement, container as unknown as HTMLElement);
+    expect(mgr.getActiveLockSurfaceId()).toBe("lock-1");
+    mgr.releaseLock("lock-1");
+    expect(mgr.getActiveLockSurfaceId()).toBe(null);
+  });
+
+  it("activateLock is idempotent when already locked", () => {
+    const { layerHost } = buildLayerHost();
+    const kbd = makeMockKeyboardManager();
+    const mgr = createSessionLockManager({
+      layerHost: layerHost as unknown as HTMLElement,
+      keyboardExclusiveManager: kbd,
+    });
+    const surface1 = makeMockDiv();
+    const surface2 = makeMockDiv();
+    const container = makeMockDiv();
+
+    mgr.activateLock("lock-1", surface1 as unknown as HTMLDivElement, container as unknown as HTMLElement);
+    mgr.activateLock("lock-2", surface2 as unknown as HTMLDivElement, container as unknown as HTMLElement);
+
+    expect(mgr.getActiveLockSurfaceId()).toBe("lock-1");
+    expect(kbd.pushCalls.length).toBe(1);
+  });
 });
-
-// ---------------------------------------------------------------------------
-// Runner
-// ---------------------------------------------------------------------------
-
-let passed = 0;
-let failed = 0;
-
-for (const t of tests) {
-  try {
-    t.run();
-    passed++;
-    console.log(`  ✓ ${t.name}`);
-  } catch (err) {
-    failed++;
-    console.error(`  ✗ ${t.name}: ${(err as Error).message}`);
-  }
-}
-
-console.log(`\n${passed} passed, ${failed} failed, ${tests.length} total`);
-if (failed > 0) process.exit(1);

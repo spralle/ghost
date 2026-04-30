@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { isExpression, isWildcardPath, matchWildcardPath, splitPath, validatePath } from "../path-utils.js";
 
 describe("validatePath", () => {

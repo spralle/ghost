@@ -1,18 +1,6 @@
+import { describe, expect, it } from "vitest";
 import { createFocusGrabManager } from "../focus-grab.js";
 import type { KeyboardExclusiveManager } from "../input-behavior.js";
-
-type TestCase = { name: string; run: () => void };
-const tests: TestCase[] = [];
-
-function test(name: string, run: () => void): void {
-  tests.push({ name, run });
-}
-
-function assertEqual(actual: unknown, expected: unknown, message: string): void {
-  if (actual !== expected) {
-    throw new Error(`${message}. expected=${String(expected)} actual=${String(actual)}`);
-  }
-}
 
 // ---------------------------------------------------------------------------
 // Minimal DOM mocks
@@ -180,316 +168,293 @@ function makeMockKeyboardManager(): KeyboardExclusiveManager & {
 // Tests
 // ---------------------------------------------------------------------------
 
-test("grabFocus creates backdrop element in layer container", () => {
-  setupMocks();
-  try {
-    const km = makeMockKeyboardManager();
-    const manager = createFocusGrabManager(km);
-    const surface = makeDiv();
-    const container = makeDiv();
-    container.children.push(surface);
-    surface.parentNode = container;
+describe("focus-grab", () => {
+  it("grabFocus creates backdrop element in layer container", () => {
+    setupMocks();
+    try {
+      const km = makeMockKeyboardManager();
+      const manager = createFocusGrabManager(km);
+      const surface = makeDiv();
+      const container = makeDiv();
+      container.children.push(surface);
+      surface.parentNode = container;
 
-    manager.grabFocus({
-      surfaceId: "s1",
-      surfaceElement: asHtmlDiv(surface),
-      layerContainer: asHtmlElement(container),
-      config: { backdrop: true },
-    });
+      manager.grabFocus({
+        surfaceId: "s1",
+        surfaceElement: asHtmlDiv(surface),
+        layerContainer: asHtmlElement(container),
+        config: { backdrop: true },
+      });
 
-    // Backdrop inserted before surface
-    assertEqual(container.children.length, 2, "container has 2 children");
-    const backdrop = container.children[0];
-    assertEqual(backdrop.className, "layer-backdrop", "backdrop class");
-    assertEqual(backdrop.dataset.grabSurface, "s1", "data-grab-surface");
-  } finally {
-    teardownMocks();
-  }
+      // Backdrop inserted before surface
+      expect(container.children.length).toBe(2);
+      const backdrop = container.children[0];
+      expect(backdrop.className).toBe("layer-backdrop");
+      expect(backdrop.dataset.grabSurface).toBe("s1");
+    } finally {
+      teardownMocks();
+    }
+  });
+
+  it("backdrop has correct default background color", () => {
+    setupMocks();
+    try {
+      const km = makeMockKeyboardManager();
+      const manager = createFocusGrabManager(km);
+      const surface = makeDiv();
+      const container = makeDiv();
+      container.children.push(surface);
+      surface.parentNode = container;
+
+      manager.grabFocus({
+        surfaceId: "s1",
+        surfaceElement: asHtmlDiv(surface),
+        layerContainer: asHtmlElement(container),
+        config: { backdrop: true },
+      });
+
+      const backdrop = container.children[0];
+      expect(backdrop.style.background).toBe("var(--ghost-backdrop)");
+      expect(backdrop.style.position).toBe("absolute");
+      expect(backdrop.style.inset).toBe("0");
+      expect(backdrop.style.pointerEvents).toBe("auto");
+    } finally {
+      teardownMocks();
+    }
+  });
+
+  it("custom backdrop color is applied", () => {
+    setupMocks();
+    try {
+      const km = makeMockKeyboardManager();
+      const manager = createFocusGrabManager(km);
+      const surface = makeDiv();
+      const container = makeDiv();
+      container.children.push(surface);
+      surface.parentNode = container;
+
+      manager.grabFocus({
+        surfaceId: "s1",
+        surfaceElement: asHtmlDiv(surface),
+        layerContainer: asHtmlElement(container),
+        config: { backdrop: "rgba(255,0,0,0.5)" },
+      });
+
+      const backdrop = container.children[0];
+      expect(backdrop.style.background).toBe("rgba(255,0,0,0.5)");
+    } finally {
+      teardownMocks();
+    }
+  });
+
+  it("dismissOnOutsideClick=true: clicking backdrop calls onDismiss", () => {
+    setupMocks();
+    try {
+      const km = makeMockKeyboardManager();
+      const manager = createFocusGrabManager(km);
+      const surface = makeDiv();
+      const container = makeDiv();
+      container.children.push(surface);
+      surface.parentNode = container;
+
+      let dismissed = false;
+      manager.grabFocus({
+        surfaceId: "s1",
+        surfaceElement: asHtmlDiv(surface),
+        layerContainer: asHtmlElement(container),
+        config: { backdrop: true, dismissOnOutsideClick: true },
+        onDismiss: () => {
+          dismissed = true;
+        },
+      });
+
+      const backdrop = container.children[0];
+      backdrop.click();
+      expect(dismissed).toBe(true);
+    } finally {
+      teardownMocks();
+    }
+  });
+
+  it("dismissOnOutsideClick=false: clicking backdrop does NOT call onDismiss", () => {
+    setupMocks();
+    try {
+      const km = makeMockKeyboardManager();
+      const manager = createFocusGrabManager(km);
+      const surface = makeDiv();
+      const container = makeDiv();
+      container.children.push(surface);
+      surface.parentNode = container;
+
+      let dismissed = false;
+      manager.grabFocus({
+        surfaceId: "s1",
+        surfaceElement: asHtmlDiv(surface),
+        layerContainer: asHtmlElement(container),
+        config: { backdrop: true, dismissOnOutsideClick: false },
+        onDismiss: () => {
+          dismissed = true;
+        },
+      });
+
+      const backdrop = container.children[0];
+      backdrop.click();
+      expect(dismissed).toBe(false);
+    } finally {
+      teardownMocks();
+    }
+  });
+
+  it("backdrop=false: no backdrop element created but still grabs keyboard", () => {
+    setupMocks();
+    try {
+      const km = makeMockKeyboardManager();
+      const manager = createFocusGrabManager(km);
+      const surface = makeDiv();
+      const container = makeDiv();
+      container.children.push(surface);
+      surface.parentNode = container;
+
+      manager.grabFocus({
+        surfaceId: "s1",
+        surfaceElement: asHtmlDiv(surface),
+        layerContainer: asHtmlElement(container),
+        config: { backdrop: false },
+      });
+
+      expect(container.children.length).toBe(1);
+      expect(km._stack.length).toBe(1);
+      expect(km._stack[0].surfaceId).toBe("s1");
+    } finally {
+      teardownMocks();
+    }
+  });
+
+  it("releaseFocus removes backdrop from DOM", () => {
+    setupMocks();
+    try {
+      const km = makeMockKeyboardManager();
+      const manager = createFocusGrabManager(km);
+      const surface = makeDiv();
+      const container = makeDiv();
+      container.children.push(surface);
+      surface.parentNode = container;
+
+      manager.grabFocus({
+        surfaceId: "s1",
+        surfaceElement: asHtmlDiv(surface),
+        layerContainer: asHtmlElement(container),
+        config: { backdrop: true },
+      });
+
+      expect(container.children.length).toBe(2);
+
+      manager.releaseFocus("s1");
+      expect(container.children.length).toBe(1);
+    } finally {
+      teardownMocks();
+    }
+  });
+
+  it("releaseFocus pops keyboard exclusive", () => {
+    setupMocks();
+    try {
+      const km = makeMockKeyboardManager();
+      const manager = createFocusGrabManager(km);
+      const surface = makeDiv();
+      const container = makeDiv();
+      container.children.push(surface);
+      surface.parentNode = container;
+
+      manager.grabFocus({
+        surfaceId: "s1",
+        surfaceElement: asHtmlDiv(surface),
+        layerContainer: asHtmlElement(container),
+        config: { backdrop: true },
+      });
+
+      expect(km._stack.length).toBe(1);
+      manager.releaseFocus("s1");
+      expect(km._stack.length).toBe(0);
+    } finally {
+      teardownMocks();
+    }
+  });
+
+  it("multiple grabs stack correctly", () => {
+    setupMocks();
+    try {
+      const km = makeMockKeyboardManager();
+      const manager = createFocusGrabManager(km);
+
+      const s1 = makeDiv();
+      const s2 = makeDiv();
+      const container = makeDiv();
+      container.children.push(s1);
+      s1.parentNode = container;
+      container.children.push(s2);
+      s2.parentNode = container;
+
+      manager.grabFocus({
+        surfaceId: "s1",
+        surfaceElement: asHtmlDiv(s1),
+        layerContainer: asHtmlElement(container),
+        config: { backdrop: true },
+      });
+
+      manager.grabFocus({
+        surfaceId: "s2",
+        surfaceElement: asHtmlDiv(s2),
+        layerContainer: asHtmlElement(container),
+        config: { backdrop: true },
+      });
+
+      expect(manager.getActiveGrab()?.surfaceId).toBe("s2");
+      expect(km._stack.length).toBe(2);
+
+      manager.releaseFocus("s2");
+      expect(manager.getActiveGrab()?.surfaceId).toBe("s1");
+    } finally {
+      teardownMocks();
+    }
+  });
+
+  it("getActiveGrab returns null when no grabs", () => {
+    setupMocks();
+    try {
+      const km = makeMockKeyboardManager();
+      const manager = createFocusGrabManager(km);
+      expect(manager.getActiveGrab()).toBe(null);
+    } finally {
+      teardownMocks();
+    }
+  });
+
+  it("backdrop opacity transitions from 0 to 1 via requestAnimationFrame", () => {
+    setupMocks();
+    try {
+      const km = makeMockKeyboardManager();
+      const manager = createFocusGrabManager(km);
+      const surface = makeDiv();
+      const container = makeDiv();
+      container.children.push(surface);
+      surface.parentNode = container;
+
+      manager.grabFocus({
+        surfaceId: "s1",
+        surfaceElement: asHtmlDiv(surface),
+        layerContainer: asHtmlElement(container),
+        config: { backdrop: true },
+      });
+
+      const backdrop = container.children[0];
+      expect(backdrop.style.opacity).toBe("0");
+      expect(backdrop.style.transition).toBe("opacity 150ms ease");
+
+      flushRaf();
+      expect(backdrop.style.opacity).toBe("1");
+    } finally {
+      teardownMocks();
+    }
+  });
 });
-
-test("backdrop has correct default background color", () => {
-  setupMocks();
-  try {
-    const km = makeMockKeyboardManager();
-    const manager = createFocusGrabManager(km);
-    const surface = makeDiv();
-    const container = makeDiv();
-    container.children.push(surface);
-    surface.parentNode = container;
-
-    manager.grabFocus({
-      surfaceId: "s1",
-      surfaceElement: asHtmlDiv(surface),
-      layerContainer: asHtmlElement(container),
-      config: { backdrop: true },
-    });
-
-    const backdrop = container.children[0];
-    assertEqual(backdrop.style.background, "rgba(0,0,0,0.4)", "default color");
-    assertEqual(backdrop.style.position, "absolute", "position");
-    assertEqual(backdrop.style.inset, "0", "inset");
-    assertEqual(backdrop.style.pointerEvents, "auto", "pointer-events");
-  } finally {
-    teardownMocks();
-  }
-});
-
-test("custom backdrop color is applied", () => {
-  setupMocks();
-  try {
-    const km = makeMockKeyboardManager();
-    const manager = createFocusGrabManager(km);
-    const surface = makeDiv();
-    const container = makeDiv();
-    container.children.push(surface);
-    surface.parentNode = container;
-
-    manager.grabFocus({
-      surfaceId: "s1",
-      surfaceElement: asHtmlDiv(surface),
-      layerContainer: asHtmlElement(container),
-      config: { backdrop: "rgba(255,0,0,0.5)" },
-    });
-
-    const backdrop = container.children[0];
-    assertEqual(backdrop.style.background, "rgba(255,0,0,0.5)", "custom color");
-  } finally {
-    teardownMocks();
-  }
-});
-
-test("dismissOnOutsideClick=true: clicking backdrop calls onDismiss", () => {
-  setupMocks();
-  try {
-    const km = makeMockKeyboardManager();
-    const manager = createFocusGrabManager(km);
-    const surface = makeDiv();
-    const container = makeDiv();
-    container.children.push(surface);
-    surface.parentNode = container;
-
-    let dismissed = false;
-    manager.grabFocus({
-      surfaceId: "s1",
-      surfaceElement: asHtmlDiv(surface),
-      layerContainer: asHtmlElement(container),
-      config: { backdrop: true, dismissOnOutsideClick: true },
-      onDismiss: () => {
-        dismissed = true;
-      },
-    });
-
-    const backdrop = container.children[0];
-    backdrop.click();
-    assertEqual(dismissed, true, "onDismiss called");
-  } finally {
-    teardownMocks();
-  }
-});
-
-test("dismissOnOutsideClick=false: clicking backdrop does NOT call onDismiss", () => {
-  setupMocks();
-  try {
-    const km = makeMockKeyboardManager();
-    const manager = createFocusGrabManager(km);
-    const surface = makeDiv();
-    const container = makeDiv();
-    container.children.push(surface);
-    surface.parentNode = container;
-
-    let dismissed = false;
-    manager.grabFocus({
-      surfaceId: "s1",
-      surfaceElement: asHtmlDiv(surface),
-      layerContainer: asHtmlElement(container),
-      config: { backdrop: true, dismissOnOutsideClick: false },
-      onDismiss: () => {
-        dismissed = true;
-      },
-    });
-
-    const backdrop = container.children[0];
-    backdrop.click();
-    assertEqual(dismissed, false, "onDismiss NOT called");
-  } finally {
-    teardownMocks();
-  }
-});
-
-test("backdrop=false: no backdrop element created but still grabs keyboard", () => {
-  setupMocks();
-  try {
-    const km = makeMockKeyboardManager();
-    const manager = createFocusGrabManager(km);
-    const surface = makeDiv();
-    const container = makeDiv();
-    container.children.push(surface);
-    surface.parentNode = container;
-
-    manager.grabFocus({
-      surfaceId: "s1",
-      surfaceElement: asHtmlDiv(surface),
-      layerContainer: asHtmlElement(container),
-      config: { backdrop: false },
-    });
-
-    assertEqual(container.children.length, 1, "no backdrop added");
-    assertEqual(km._stack.length, 1, "keyboard exclusive pushed");
-    assertEqual(km._stack[0].surfaceId, "s1", "correct surface");
-  } finally {
-    teardownMocks();
-  }
-});
-
-test("releaseFocus removes backdrop from DOM", () => {
-  setupMocks();
-  try {
-    const km = makeMockKeyboardManager();
-    const manager = createFocusGrabManager(km);
-    const surface = makeDiv();
-    const container = makeDiv();
-    container.children.push(surface);
-    surface.parentNode = container;
-
-    manager.grabFocus({
-      surfaceId: "s1",
-      surfaceElement: asHtmlDiv(surface),
-      layerContainer: asHtmlElement(container),
-      config: { backdrop: true },
-    });
-
-    assertEqual(container.children.length, 2, "backdrop present");
-
-    manager.releaseFocus("s1");
-    assertEqual(container.children.length, 1, "backdrop removed");
-  } finally {
-    teardownMocks();
-  }
-});
-
-test("releaseFocus pops keyboard exclusive", () => {
-  setupMocks();
-  try {
-    const km = makeMockKeyboardManager();
-    const manager = createFocusGrabManager(km);
-    const surface = makeDiv();
-    const container = makeDiv();
-    container.children.push(surface);
-    surface.parentNode = container;
-
-    manager.grabFocus({
-      surfaceId: "s1",
-      surfaceElement: asHtmlDiv(surface),
-      layerContainer: asHtmlElement(container),
-      config: { backdrop: true },
-    });
-
-    assertEqual(km._stack.length, 1, "pushed");
-    manager.releaseFocus("s1");
-    assertEqual(km._stack.length, 0, "popped");
-  } finally {
-    teardownMocks();
-  }
-});
-
-test("multiple grabs stack correctly", () => {
-  setupMocks();
-  try {
-    const km = makeMockKeyboardManager();
-    const manager = createFocusGrabManager(km);
-
-    const s1 = makeDiv();
-    const s2 = makeDiv();
-    const container = makeDiv();
-    container.children.push(s1);
-    s1.parentNode = container;
-    container.children.push(s2);
-    s2.parentNode = container;
-
-    manager.grabFocus({
-      surfaceId: "s1",
-      surfaceElement: asHtmlDiv(s1),
-      layerContainer: asHtmlElement(container),
-      config: { backdrop: true },
-    });
-
-    manager.grabFocus({
-      surfaceId: "s2",
-      surfaceElement: asHtmlDiv(s2),
-      layerContainer: asHtmlElement(container),
-      config: { backdrop: true },
-    });
-
-    assertEqual(manager.getActiveGrab()?.surfaceId, "s2", "s2 is active");
-    assertEqual(km._stack.length, 2, "two exclusives");
-
-    manager.releaseFocus("s2");
-    assertEqual(manager.getActiveGrab()?.surfaceId, "s1", "s1 is now active");
-  } finally {
-    teardownMocks();
-  }
-});
-
-test("getActiveGrab returns null when no grabs", () => {
-  setupMocks();
-  try {
-    const km = makeMockKeyboardManager();
-    const manager = createFocusGrabManager(km);
-    assertEqual(manager.getActiveGrab(), null, "null when empty");
-  } finally {
-    teardownMocks();
-  }
-});
-
-test("backdrop opacity transitions from 0 to 1 via requestAnimationFrame", () => {
-  setupMocks();
-  try {
-    const km = makeMockKeyboardManager();
-    const manager = createFocusGrabManager(km);
-    const surface = makeDiv();
-    const container = makeDiv();
-    container.children.push(surface);
-    surface.parentNode = container;
-
-    manager.grabFocus({
-      surfaceId: "s1",
-      surfaceElement: asHtmlDiv(surface),
-      layerContainer: asHtmlElement(container),
-      config: { backdrop: true },
-    });
-
-    const backdrop = container.children[0];
-    assertEqual(backdrop.style.opacity, "0", "starts at 0");
-    assertEqual(backdrop.style.transition, "opacity 150ms ease", "transition set");
-
-    flushRaf();
-    assertEqual(backdrop.style.opacity, "1", "faded to 1");
-  } finally {
-    teardownMocks();
-  }
-});
-
-// ---------------------------------------------------------------------------
-// Runner
-// ---------------------------------------------------------------------------
-
-let passed = 0;
-let failed = 0;
-
-console.log("layer-focus-grab tests:");
-for (const t of tests) {
-  try {
-    t.run();
-    passed++;
-    console.log(`  ✓ ${t.name}`);
-  } catch (err) {
-    failed++;
-    console.error(`  ✗ ${t.name}: ${err instanceof Error ? err.message : String(err)}`);
-  }
-}
-
-console.log(`\n${passed} passed, ${failed} failed`);
-
-if (failed > 0) {
-  process.exit(1);
-}

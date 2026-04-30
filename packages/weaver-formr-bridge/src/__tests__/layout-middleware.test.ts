@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import type { LayoutMiddlewareContext, LayoutNode } from "@ghost-shell/formr-from-schema";
 import type { SchemaFieldInfo } from "@ghost-shell/schema-core";
 import { createGovernanceMiddleware } from "../layout-middleware.js";

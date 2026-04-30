@@ -1,18 +1,6 @@
+import { describe, expect, it } from "vitest";
 import { InputBehavior, KeyboardInteractivity } from "@ghost-shell/contracts/layer";
 import { applyInputBehavior, applyKeyboardInteractivity, createKeyboardExclusiveManager } from "../input-behavior.js";
-
-type TestCase = { name: string; run: () => void };
-const tests: TestCase[] = [];
-
-function test(name: string, run: () => void): void {
-  tests.push({ name, run });
-}
-
-function assertEqual(actual: unknown, expected: unknown, message: string): void {
-  if (actual !== expected) {
-    throw new Error(`${message}. expected=${String(expected)} actual=${String(actual)}`);
-  }
-}
 
 // ---------------------------------------------------------------------------
 // Minimal DOM mocks (no jsdom/happy-dom dependency)
@@ -123,247 +111,224 @@ function makeFocusableDiv(): MockDiv {
   return div;
 }
 
-// ---------------------------------------------------------------------------
-// applyInputBehavior
-// ---------------------------------------------------------------------------
+describe("input-behavior", () => {
+  // ---------------------------------------------------------------------------
+  // applyInputBehavior
+  // ---------------------------------------------------------------------------
 
-test("applyInputBehavior opaque sets pointer-events auto", () => {
-  const el = makeDiv();
-  applyInputBehavior(asHtmlDiv(el), InputBehavior.Opaque);
-  assertEqual(el.style.pointerEvents, "auto", "pointer-events");
-  assertEqual(el.dataset.contentAware, undefined, "no content-aware marker");
-});
+  it("applyInputBehavior opaque sets pointer-events auto", () => {
+    const el = makeDiv();
+    applyInputBehavior(asHtmlDiv(el), InputBehavior.Opaque);
+    expect(el.style.pointerEvents).toBe("auto");
+    expect(el.dataset.contentAware).toBe(undefined);
+  });
 
-test("applyInputBehavior passthrough sets pointer-events none", () => {
-  const el = makeDiv();
-  applyInputBehavior(asHtmlDiv(el), InputBehavior.Passthrough);
-  assertEqual(el.style.pointerEvents, "none", "pointer-events");
-});
+  it("applyInputBehavior passthrough sets pointer-events none", () => {
+    const el = makeDiv();
+    applyInputBehavior(asHtmlDiv(el), InputBehavior.Passthrough);
+    expect(el.style.pointerEvents).toBe("none");
+  });
 
-test("applyInputBehavior content_aware sets pointer-events auto with marker", () => {
-  const el = makeDiv();
-  applyInputBehavior(asHtmlDiv(el), InputBehavior.ContentAware);
-  assertEqual(el.style.pointerEvents, "auto", "pointer-events");
-  assertEqual(el.dataset.contentAware, "true", "content-aware marker");
-});
+  it("applyInputBehavior content_aware sets pointer-events auto with marker", () => {
+    const el = makeDiv();
+    applyInputBehavior(asHtmlDiv(el), InputBehavior.ContentAware);
+    expect(el.style.pointerEvents).toBe("auto");
+    expect(el.dataset.contentAware).toBe("true");
+  });
 
-test("applyInputBehavior switching from content_aware to opaque removes marker", () => {
-  const el = makeDiv();
-  applyInputBehavior(asHtmlDiv(el), InputBehavior.ContentAware);
-  applyInputBehavior(asHtmlDiv(el), InputBehavior.Opaque);
-  assertEqual(el.dataset.contentAware, undefined, "marker removed");
-});
+  it("applyInputBehavior switching from content_aware to opaque removes marker", () => {
+    const el = makeDiv();
+    applyInputBehavior(asHtmlDiv(el), InputBehavior.ContentAware);
+    applyInputBehavior(asHtmlDiv(el), InputBehavior.Opaque);
+    expect(el.dataset.contentAware).toBe(undefined);
+  });
 
-// ---------------------------------------------------------------------------
-// applyKeyboardInteractivity
-// ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // applyKeyboardInteractivity
+  // ---------------------------------------------------------------------------
 
-test("applyKeyboardInteractivity none sets tabindex -1", () => {
-  setupDocumentMock();
-  try {
-    const el = makeFocusableDiv();
-    applyKeyboardInteractivity(asHtmlDiv(el), KeyboardInteractivity.None);
-    assertEqual(el.getAttribute("tabindex"), "-1", "tabindex");
-  } finally {
-    teardownDocumentMock();
-  }
-});
+  it("applyKeyboardInteractivity none sets tabindex -1", () => {
+    setupDocumentMock();
+    try {
+      const el = makeFocusableDiv();
+      applyKeyboardInteractivity(asHtmlDiv(el), KeyboardInteractivity.None);
+      expect(el.getAttribute("tabindex")).toBe("-1");
+    } finally {
+      teardownDocumentMock();
+    }
+  });
 
-test("applyKeyboardInteractivity on_demand sets tabindex 0", () => {
-  setupDocumentMock();
-  try {
-    const el = makeFocusableDiv();
-    applyKeyboardInteractivity(asHtmlDiv(el), KeyboardInteractivity.OnDemand);
-    assertEqual(el.getAttribute("tabindex"), "0", "tabindex");
-  } finally {
-    teardownDocumentMock();
-  }
-});
+  it("applyKeyboardInteractivity on_demand sets tabindex 0", () => {
+    setupDocumentMock();
+    try {
+      const el = makeFocusableDiv();
+      applyKeyboardInteractivity(asHtmlDiv(el), KeyboardInteractivity.OnDemand);
+      expect(el.getAttribute("tabindex")).toBe("0");
+    } finally {
+      teardownDocumentMock();
+    }
+  });
 
-test("applyKeyboardInteractivity exclusive focuses element", () => {
-  setupDocumentMock();
-  try {
-    const el = makeFocusableDiv();
-    applyKeyboardInteractivity(asHtmlDiv(el), KeyboardInteractivity.Exclusive);
-    assertEqual(el.getAttribute("tabindex"), "0", "tabindex");
-    assertEqual(el.focused, true, "element is focused");
-  } finally {
-    teardownDocumentMock();
-  }
-});
+  it("applyKeyboardInteractivity exclusive focuses element", () => {
+    setupDocumentMock();
+    try {
+      const el = makeFocusableDiv();
+      applyKeyboardInteractivity(asHtmlDiv(el), KeyboardInteractivity.Exclusive);
+      expect(el.getAttribute("tabindex")).toBe("0");
+      expect(el.focused).toBe(true);
+    } finally {
+      teardownDocumentMock();
+    }
+  });
 
-test("applyKeyboardInteractivity none blurs focused element", () => {
-  setupDocumentMock();
-  try {
-    const el = makeFocusableDiv();
-    el.focus();
-    assertEqual(currentlyFocused, el, "precondition: focused");
-    applyKeyboardInteractivity(asHtmlDiv(el), KeyboardInteractivity.None);
-    assertEqual(el.focused, false, "element is blurred");
-  } finally {
-    teardownDocumentMock();
-  }
-});
+  it("applyKeyboardInteractivity none blurs focused element", () => {
+    setupDocumentMock();
+    try {
+      const el = makeFocusableDiv();
+      el.focus();
+      expect(currentlyFocused).toBe(el);
+      applyKeyboardInteractivity(asHtmlDiv(el), KeyboardInteractivity.None);
+      expect(el.focused).toBe(false);
+    } finally {
+      teardownDocumentMock();
+    }
+  });
 
-// ---------------------------------------------------------------------------
-// KeyboardExclusiveManager
-// ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // KeyboardExclusiveManager
+  // ---------------------------------------------------------------------------
 
-test("pushExclusive installs capturing listeners on document", () => {
-  setupDocumentMock();
-  try {
+  it("pushExclusive installs capturing listeners on document", () => {
+    setupDocumentMock();
+    try {
+      const manager = createKeyboardExclusiveManager();
+      const el = makeFocusableDiv();
+      manager.pushExclusive("s1", asHtmlDiv(el));
+
+      const doc = (globalThis as Record<string, unknown>).document as {
+        _listeners: Array<{ type: string; capture: boolean }>;
+      };
+      const capturingKeydown = doc._listeners.filter((l) => l.type === "keydown" && l.capture);
+      expect(capturingKeydown.length > 0).toBe(true);
+
+      manager.dispose();
+    } finally {
+      teardownDocumentMock();
+    }
+  });
+
+  it("popExclusive removes listeners when stack empty", () => {
+    setupDocumentMock();
+    try {
+      const manager = createKeyboardExclusiveManager();
+      const el = makeFocusableDiv();
+      manager.pushExclusive("s1", asHtmlDiv(el));
+      manager.popExclusive("s1");
+
+      expect(manager.getActiveExclusive()).toBe(null);
+
+      const doc = (globalThis as Record<string, unknown>).document as {
+        _listeners: Array<{ type: string; capture: boolean }>;
+      };
+      const capturingKeydown = doc._listeners.filter((l) => l.type === "keydown" && l.capture);
+      expect(capturingKeydown.length).toBe(0);
+
+      manager.dispose();
+    } finally {
+      teardownDocumentMock();
+    }
+  });
+
+  it("multiple exclusives stack correctly — last wins", () => {
+    setupDocumentMock();
+    try {
+      const manager = createKeyboardExclusiveManager();
+      const el1 = makeFocusableDiv();
+      const el2 = makeFocusableDiv();
+
+      manager.pushExclusive("s1", asHtmlDiv(el1));
+      manager.pushExclusive("s2", asHtmlDiv(el2));
+
+      expect(manager.getActiveExclusive()?.surfaceId).toBe("s2");
+
+      manager.popExclusive("s2");
+      expect(manager.getActiveExclusive()?.surfaceId).toBe("s1");
+
+      manager.dispose();
+    } finally {
+      teardownDocumentMock();
+    }
+  });
+
+  it("getActiveExclusive returns null when stack is empty", () => {
     const manager = createKeyboardExclusiveManager();
-    const el = makeFocusableDiv();
-    manager.pushExclusive("s1", asHtmlDiv(el));
-
-    const doc = (globalThis as Record<string, unknown>).document as {
-      _listeners: Array<{ type: string; capture: boolean }>;
-    };
-    const capturingKeydown = doc._listeners.filter((l) => l.type === "keydown" && l.capture);
-    assertEqual(capturingKeydown.length > 0, true, "capturing keydown listener installed");
-
+    expect(manager.getActiveExclusive()).toBe(null);
     manager.dispose();
-  } finally {
-    teardownDocumentMock();
-  }
+  });
+
+  it("capturing listener suppresses events outside exclusive surface", () => {
+    setupDocumentMock();
+    try {
+      const manager = createKeyboardExclusiveManager();
+      const el = makeFocusableDiv();
+      manager.pushExclusive("s1", asHtmlDiv(el));
+
+      // Simulate the capturing handler behavior:
+      // Get the installed handler and call it with a mock event outside the surface
+      const doc = (globalThis as Record<string, unknown>).document as {
+        _listeners: Array<{ type: string; handler: (e: unknown) => void; capture: boolean }>;
+      };
+      const capHandler = doc._listeners.find((l) => l.type === "keydown" && l.capture);
+
+      let stopPropCalled = false;
+      let stopImmediateCalled = false;
+      const mockEvent = {
+        target: { notTheSurface: true }, // not contained by el
+        stopPropagation() {
+          stopPropCalled = true;
+        },
+        stopImmediatePropagation() {
+          stopImmediateCalled = true;
+        },
+      };
+
+      capHandler?.handler(mockEvent);
+      expect(stopPropCalled).toBe(true);
+      expect(stopImmediateCalled).toBe(true);
+
+      manager.dispose();
+    } finally {
+      teardownDocumentMock();
+    }
+  });
+
+  it("capturing listener allows events inside exclusive surface", () => {
+    setupDocumentMock();
+    try {
+      const manager = createKeyboardExclusiveManager();
+      const el = makeFocusableDiv();
+      manager.pushExclusive("s1", asHtmlDiv(el));
+
+      const doc = (globalThis as Record<string, unknown>).document as {
+        _listeners: Array<{ type: string; handler: (e: unknown) => void; capture: boolean }>;
+      };
+      const capHandler = doc._listeners.find((l) => l.type === "keydown" && l.capture);
+
+      let stopPropCalled = false;
+      const mockEvent = {
+        target: asHtmlDiv(el), // the surface itself — contains returns true
+        stopPropagation() {
+          stopPropCalled = true;
+        },
+        stopImmediatePropagation() {},
+      };
+
+      capHandler?.handler(mockEvent);
+      expect(stopPropCalled).toBe(false);
+
+      manager.dispose();
+    } finally {
+      teardownDocumentMock();
+    }
+  });
 });
-
-test("popExclusive removes listeners when stack empty", () => {
-  setupDocumentMock();
-  try {
-    const manager = createKeyboardExclusiveManager();
-    const el = makeFocusableDiv();
-    manager.pushExclusive("s1", asHtmlDiv(el));
-    manager.popExclusive("s1");
-
-    assertEqual(manager.getActiveExclusive(), null, "no active exclusive");
-
-    const doc = (globalThis as Record<string, unknown>).document as {
-      _listeners: Array<{ type: string; capture: boolean }>;
-    };
-    const capturingKeydown = doc._listeners.filter((l) => l.type === "keydown" && l.capture);
-    assertEqual(capturingKeydown.length, 0, "listeners removed");
-
-    manager.dispose();
-  } finally {
-    teardownDocumentMock();
-  }
-});
-
-test("multiple exclusives stack correctly — last wins", () => {
-  setupDocumentMock();
-  try {
-    const manager = createKeyboardExclusiveManager();
-    const el1 = makeFocusableDiv();
-    const el2 = makeFocusableDiv();
-
-    manager.pushExclusive("s1", asHtmlDiv(el1));
-    manager.pushExclusive("s2", asHtmlDiv(el2));
-
-    assertEqual(manager.getActiveExclusive()?.surfaceId, "s2", "last pushed is active");
-
-    manager.popExclusive("s2");
-    assertEqual(manager.getActiveExclusive()?.surfaceId, "s1", "s1 is now active");
-
-    manager.dispose();
-  } finally {
-    teardownDocumentMock();
-  }
-});
-
-test("getActiveExclusive returns null when stack is empty", () => {
-  const manager = createKeyboardExclusiveManager();
-  assertEqual(manager.getActiveExclusive(), null, "empty stack");
-  manager.dispose();
-});
-
-test("capturing listener suppresses events outside exclusive surface", () => {
-  setupDocumentMock();
-  try {
-    const manager = createKeyboardExclusiveManager();
-    const el = makeFocusableDiv();
-    manager.pushExclusive("s1", asHtmlDiv(el));
-
-    // Simulate the capturing handler behavior:
-    // Get the installed handler and call it with a mock event outside the surface
-    const doc = (globalThis as Record<string, unknown>).document as {
-      _listeners: Array<{ type: string; handler: (e: unknown) => void; capture: boolean }>;
-    };
-    const capHandler = doc._listeners.find((l) => l.type === "keydown" && l.capture);
-
-    let stopPropCalled = false;
-    let stopImmediateCalled = false;
-    const mockEvent = {
-      target: { notTheSurface: true }, // not contained by el
-      stopPropagation() {
-        stopPropCalled = true;
-      },
-      stopImmediatePropagation() {
-        stopImmediateCalled = true;
-      },
-    };
-
-    capHandler?.handler(mockEvent);
-    assertEqual(stopPropCalled, true, "stopPropagation called");
-    assertEqual(stopImmediateCalled, true, "stopImmediatePropagation called");
-
-    manager.dispose();
-  } finally {
-    teardownDocumentMock();
-  }
-});
-
-test("capturing listener allows events inside exclusive surface", () => {
-  setupDocumentMock();
-  try {
-    const manager = createKeyboardExclusiveManager();
-    const el = makeFocusableDiv();
-    manager.pushExclusive("s1", asHtmlDiv(el));
-
-    const doc = (globalThis as Record<string, unknown>).document as {
-      _listeners: Array<{ type: string; handler: (e: unknown) => void; capture: boolean }>;
-    };
-    const capHandler = doc._listeners.find((l) => l.type === "keydown" && l.capture);
-
-    let stopPropCalled = false;
-    const mockEvent = {
-      target: asHtmlDiv(el), // the surface itself — contains returns true
-      stopPropagation() {
-        stopPropCalled = true;
-      },
-      stopImmediatePropagation() {},
-    };
-
-    capHandler?.handler(mockEvent);
-    assertEqual(stopPropCalled, false, "stopPropagation NOT called for inside event");
-
-    manager.dispose();
-  } finally {
-    teardownDocumentMock();
-  }
-});
-
-// ---------------------------------------------------------------------------
-// Runner
-// ---------------------------------------------------------------------------
-
-let passed = 0;
-let failed = 0;
-
-console.log("layer-input-behavior tests:");
-for (const t of tests) {
-  try {
-    t.run();
-    passed++;
-    console.log(`  ✓ ${t.name}`);
-  } catch (err) {
-    failed++;
-    console.error(`  ✗ ${t.name}: ${err instanceof Error ? err.message : String(err)}`);
-  }
-}
-
-console.log(`\n${passed} passed, ${failed} failed`);
-
-if (failed > 0) {
-  process.exit(1);
-}

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { clearChildFieldMeta, shiftFieldMeta, swapFieldMeta } from "../field-meta-shift.js";
 import type { FieldMetaEntry } from "../state.js";
 

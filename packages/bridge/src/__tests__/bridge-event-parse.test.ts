@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { parseBridgeEvent } from "../window-bridge-parse.js";
 
 describe("parseBridgeEvent", () => {

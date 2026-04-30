@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { createActiveViewCodec } from "../codec/active-view-codec.js";
 import type { UrlCodecState } from "../codec/codec-types.js";
 

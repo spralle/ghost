@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import type { ValidationIssue } from "@ghost-shell/formr-core";
 import type { LayoutNode } from "@ghost-shell/formr-from-schema";
 import { renderLayoutTree } from "../render-tree.js";

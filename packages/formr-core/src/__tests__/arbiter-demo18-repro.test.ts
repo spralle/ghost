@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import type { ProductionRule } from "@ghost-shell/arbiter";
 import { createForm } from "../create-form.js";
 

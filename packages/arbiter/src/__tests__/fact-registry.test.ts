@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import type { FactTypeDefinition } from "../fact-registry.js";
 import { createFactRegistry } from "../fact-registry.js";
 

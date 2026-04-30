@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import type { CreateFormOptions, ExprNode, FormState, ValidationIssue } from "../index.js";
 
 describe("FormState shape", () => {

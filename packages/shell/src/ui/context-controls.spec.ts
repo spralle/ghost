@@ -1,22 +1,6 @@
+import { describe, expect, it } from "vitest";
 import type { ShellRuntime } from "../app/types.js";
 import { updateWindowReadOnlyState } from "./context-controls.js";
-
-type TestCase = {
-  name: string;
-  run: () => void;
-};
-
-const tests: TestCase[] = [];
-
-function test(name: string, run: () => void): void {
-  tests.push({ name, run });
-}
-
-function assertEqual(actual: unknown, expected: unknown, message: string): void {
-  if (actual !== expected) {
-    throw new Error(`${message}. expected=${String(expected)} actual=${String(actual)}`);
-  }
-}
 
 class FakeControl {
   readonly id: string;
@@ -95,57 +79,46 @@ function createRuntime(overrides: Partial<ShellRuntime> = {}): ShellRuntime {
   } as ShellRuntime;
 }
 
-test("publish-failed degraded mode applies read-only styling and mutating control disablement", () => {
-  const applyButton = new FakeControl({ id: "context-apply" });
-  const input = new FakeControl({ id: "context-value-input" });
-  const nonMutating = new FakeControl({ id: "some-other-control" });
-  const shellNode = new FakeShellNode([applyButton, input, nonMutating]);
-  const root = new FakeRoot(shellNode);
+describe("context-controls", () => {
+  it("publish-failed degraded mode applies read-only styling and mutating control disablement", () => {
+    const applyButton = new FakeControl({ id: "context-apply" });
+    const input = new FakeControl({ id: "context-value-input" });
+    const nonMutating = new FakeControl({ id: "some-other-control" });
+    const shellNode = new FakeShellNode([applyButton, input, nonMutating]);
+    const root = new FakeRoot(shellNode);
 
-  updateWindowReadOnlyState(
-    root as unknown as HTMLElement,
-    createRuntime({
-      syncDegraded: true,
-      syncDegradedReason: "publish-failed",
-    }),
-  );
+    updateWindowReadOnlyState(
+      root as unknown as HTMLElement,
+      createRuntime({
+        syncDegraded: true,
+        syncDegradedReason: "publish-failed",
+      }),
+    );
 
-  assertEqual(shellNode.classNames.has("sync-degraded"), true, "publish-failed should set sync-degraded class");
-  assertEqual(applyButton.getAttribute("disabled"), "disabled", "context apply should be disabled when degraded");
-  assertEqual(input.getAttribute("disabled"), "disabled", "context input should be disabled when degraded");
-  assertEqual(nonMutating.getAttribute("disabled"), null, "non-mutating controls should remain enabled");
+    expect(shellNode.classNames.has("sync-degraded")).toBe(true);
+    expect(applyButton.getAttribute("disabled")).toBe("disabled");
+    expect(input.getAttribute("disabled")).toBe("disabled");
+    expect(nonMutating.getAttribute("disabled")).toBe(null);
+  });
+
+  it("unavailable bridge keeps shell interactive in local-only mode", () => {
+    const applyButton = new FakeControl({ id: "context-apply" });
+    const input = new FakeControl({ id: "context-value-input" });
+    const nonMutating = new FakeControl({ id: "some-other-control" });
+    const shellNode = new FakeShellNode([applyButton, input, nonMutating]);
+    const root = new FakeRoot(shellNode);
+
+    updateWindowReadOnlyState(
+      root as unknown as HTMLElement,
+      createRuntime({
+        syncDegraded: true,
+        syncDegradedReason: "unavailable",
+      }),
+    );
+
+    expect(shellNode.classNames.has("sync-degraded")).toBe(false);
+    expect(applyButton.getAttribute("disabled")).toBe(null);
+    expect(input.getAttribute("disabled")).toBe(null);
+    expect(nonMutating.getAttribute("disabled")).toBe(null);
+  });
 });
-
-test("unavailable bridge keeps shell interactive in local-only mode", () => {
-  const applyButton = new FakeControl({ id: "context-apply" });
-  const input = new FakeControl({ id: "context-value-input" });
-  const nonMutating = new FakeControl({ id: "some-other-control" });
-  const shellNode = new FakeShellNode([applyButton, input, nonMutating]);
-  const root = new FakeRoot(shellNode);
-
-  updateWindowReadOnlyState(
-    root as unknown as HTMLElement,
-    createRuntime({
-      syncDegraded: true,
-      syncDegradedReason: "unavailable",
-    }),
-  );
-
-  assertEqual(shellNode.classNames.has("sync-degraded"), false, "unavailable should not set sync-degraded class");
-  assertEqual(applyButton.getAttribute("disabled"), null, "context apply should stay enabled when unavailable");
-  assertEqual(input.getAttribute("disabled"), null, "context input should stay enabled when unavailable");
-  assertEqual(nonMutating.getAttribute("disabled"), null, "other controls should stay enabled when unavailable");
-});
-
-let passed = 0;
-for (const caseItem of tests) {
-  try {
-    caseItem.run();
-    passed += 1;
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    throw new Error(`context-controls spec failed: ${caseItem.name} :: ${message}`);
-  }
-}
-
-console.log(`context-controls specs passed (${passed}/${tests.length})`);

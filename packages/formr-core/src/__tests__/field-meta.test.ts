@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { createForm } from "../create-form.js";
 
 describe("field metadata", () => {

@@ -1,14 +1,12 @@
+import { describe, expect, it } from "vitest";
 import { createEventEmitter } from "@ghost-shell/plugin-system";
 import { createInitialWorkspaceManagerState } from "@ghost-shell/state";
 import type { ShellRuntime } from "../app/types.js";
 import { createInitialShellContextState } from "../context-state.js";
-import type { SpecHarness } from "../context-state.spec-harness.js";
 import { createWorkspaceService } from "./workspace-service-impl.js";
 
-export function registerWorkspaceServiceImplSpecs(harness: SpecHarness): void {
-  const { test, assertEqual } = harness;
-
-  test("workspace-service: onDidChangeWorkspaces uses shared runtime emitter", () => {
+describe("workspace service impl", () => {
+  it("workspace-service: onDidChangeWorkspaces uses shared runtime emitter", () => {
     const runtime = createRuntimeFixture();
     const serviceA = createWorkspaceService({
       getRuntime: () => runtime,
@@ -34,13 +32,13 @@ export function registerWorkspaceServiceImplSpecs(harness: SpecHarness): void {
 
     runtime.workspaceEvents.fireDidChangeWorkspaces();
 
-    assertEqual(callsA, 1, "listener A should receive shared event");
-    assertEqual(callsB, 1, "listener B should receive shared event");
+    expect(callsA).toBe(1);
+    expect(callsB).toBe(1);
 
     disposeA.dispose();
     disposeB.dispose();
   });
-}
+});
 
 function createRuntimeFixture(): ShellRuntime {
   const contextState = createInitialShellContextState({

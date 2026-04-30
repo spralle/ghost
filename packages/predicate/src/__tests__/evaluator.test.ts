@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import type { ExprNode } from "../ast.js";
 import { PredicateError } from "../errors.js";
 import { evaluate } from "../evaluator.js";

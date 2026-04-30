@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { FormrError } from "../errors.js";
 import { parsePath, toDot, toPointer } from "../path-parser.js";
 

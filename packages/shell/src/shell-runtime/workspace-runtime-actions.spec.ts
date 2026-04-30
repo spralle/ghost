@@ -1,15 +1,13 @@
+import { describe, expect, it } from "vitest";
 import { createEventEmitter } from "@ghost-shell/plugin-system";
 import { createInitialWorkspaceManagerState } from "@ghost-shell/state";
 import type { ShellRuntime } from "../app/types.js";
 import { createInitialShellContextState } from "../context-state.js";
-import type { SpecHarness } from "../context-state.spec-harness.js";
 import type { WorkspaceSwitchDeps } from "../ui/workspace-switch.js";
 import { registerWorkspaceRuntimeActions } from "./workspace-runtime-actions.js";
 
-export function registerWorkspaceRuntimeActionSpecs(harness: SpecHarness): void {
-  const { test, assertEqual } = harness;
-
-  test("workspace runtime actions: delete persists and emits workspace change", () => {
+describe("workspace runtime action", () => {
+  it("workspace runtime actions: delete persists and emits workspace change", () => {
     const runtime = createRuntimeFixture();
 
     let saves = 0;
@@ -63,12 +61,12 @@ export function registerWorkspaceRuntimeActionSpecs(harness: SpecHarness): void 
     const handler = runtime.runtimeActionRegistry.get("shell.workspace.delete");
     const executed = handler ? handler() : false;
 
-    assertEqual(executed, true, "delete action should execute");
-    assertEqual(saves, 1, "delete action should persist workspace state once");
-    assertEqual(events, 1, "delete action should emit shared workspace change event");
+    expect(executed).toBe(true);
+    expect(saves).toBe(1);
+    expect(events).toBe(1);
   });
 
-  test("workspace runtime actions: switch by index maps to action id semantics", () => {
+  it("workspace runtime actions: switch by index maps to action id semantics", () => {
     const runtime = createRuntimeFixture();
     runtime.workspaceManager = {
       ...runtime.workspaceManager,
@@ -108,10 +106,10 @@ export function registerWorkspaceRuntimeActionSpecs(harness: SpecHarness): void 
     const switchTwo = runtime.runtimeActionRegistry.get("shell.workspace.switch.2");
     const executed = switchTwo ? switchTwo() : false;
 
-    assertEqual(executed, true, "switch action should execute");
-    assertEqual(switchedTo, "2", "switch.2 should target second workspace in order");
+    expect(executed).toBe(true);
+    expect(switchedTo).toBe("2");
   });
-}
+});
 
 function createRuntimeFixture(): ShellRuntime {
   const contextState = createInitialShellContextState({

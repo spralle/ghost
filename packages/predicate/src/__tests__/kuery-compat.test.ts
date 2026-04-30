@@ -2,7 +2,7 @@
  * Kuery compatibility test suite.
  * Ports all 62 tests from kuery's test suite (kuery.js: 52, skip.js: 7, compiler.js: 3).
  */
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { compileFilter } from "../filter-compiler.js";
 import { Predicate } from "../predicate.js";
 import { collection, collectionWithNull, skipCollection } from "./fixtures/kuery-data.js";

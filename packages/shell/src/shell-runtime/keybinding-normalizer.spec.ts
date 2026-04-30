@@ -1,67 +1,64 @@
+import { describe, expect, it } from "vitest";
 import { normalizeConfiguredChord, normalizeConfiguredSequence } from "@ghost-shell/commands";
-import type { SpecHarness } from "../context-state.spec-harness.js";
-
-export function registerKeybindingNormalizerSpecs(harness: SpecHarness): void {
-  const { test, assertEqual, assertTruthy } = harness;
-
-  test("normalizeConfiguredSequence parses two-chord sequence", () => {
+describe("keybinding normalizer", () => {
+  it("normalizeConfiguredSequence parses two-chord sequence", () => {
     const result = normalizeConfiguredSequence("ctrl+k c");
-    assertTruthy(result, "should return a sequence");
-    assertEqual(result?.chords.length, 2, "should have 2 chords");
-    assertEqual(result?.chords[0]?.value, "ctrl+k", "first chord should be ctrl+k");
-    assertEqual(result?.chords[1]?.value, "c", "second chord should be c");
-    assertEqual(result?.value, "ctrl+k c", "sequence value should join chords with space");
+    expect(result).toBeTruthy();
+    expect(result?.chords.length).toBe(2);
+    expect(result?.chords[0]?.value).toBe("ctrl+k");
+    expect(result?.chords[1]?.value).toBe("c");
+    expect(result?.value).toBe("ctrl+k c");
   });
 
-  test("normalizeConfiguredSequence parses three-chord sequence", () => {
+  it("normalizeConfiguredSequence parses three-chord sequence", () => {
     const result = normalizeConfiguredSequence("ctrl+shift+alt+g o d");
-    assertTruthy(result, "should return a sequence");
-    assertEqual(result?.chords.length, 3, "should have 3 chords");
-    assertEqual(result?.value, "ctrl+shift+alt+g o d", "sequence value should be canonical");
+    expect(result).toBeTruthy();
+    expect(result?.chords.length).toBe(3);
+    expect(result?.value).toBe("ctrl+shift+alt+g o d");
   });
 
-  test("normalizeConfiguredSequence parses single-chord sequence", () => {
+  it("normalizeConfiguredSequence parses single-chord sequence", () => {
     const result = normalizeConfiguredSequence("ctrl+shift+p");
-    assertTruthy(result, "should return a sequence");
-    assertEqual(result?.chords.length, 1, "should have 1 chord");
-    assertEqual(result?.value, "ctrl+shift+p", "sequence value should match chord value");
+    expect(result).toBeTruthy();
+    expect(result?.chords.length).toBe(1);
+    expect(result?.value).toBe("ctrl+shift+p");
   });
 
-  test("normalizeConfiguredSequence returns null for empty string", () => {
-    assertEqual(normalizeConfiguredSequence(""), null, "empty string should return null");
+  it("normalizeConfiguredSequence returns null for empty string", () => {
+    expect(normalizeConfiguredSequence("")).toBe(null);
   });
 
-  test("normalizeConfiguredSequence returns null for whitespace-only string", () => {
-    assertEqual(normalizeConfiguredSequence("   "), null, "whitespace-only should return null");
+  it("normalizeConfiguredSequence returns null for whitespace-only string", () => {
+    expect(normalizeConfiguredSequence("   ")).toBe(null);
   });
 
-  test("normalizeConfiguredSequence returns null when any token is invalid", () => {
-    assertEqual(normalizeConfiguredSequence("ctrl+k +++"), null, "invalid token should make entire sequence null");
+  it("normalizeConfiguredSequence returns null when any token is invalid", () => {
+    expect(normalizeConfiguredSequence("ctrl+k +++")).toBe(null);
   });
 
-  test("normalizeConfiguredSequence normalizes each token independently", () => {
+  it("normalizeConfiguredSequence normalizes each token independently", () => {
     const result = normalizeConfiguredSequence("Shift + Ctrl + P");
-    assertTruthy(result, "should return a sequence");
-    assertEqual(result?.chords.length, 1, "should have 1 chord after normalization");
-    assertEqual(result?.value, "ctrl+shift+p", "should apply canonical ordering per token");
+    expect(result).toBeTruthy();
+    expect(result?.chords.length).toBe(1);
+    expect(result?.value).toBe("ctrl+shift+p");
   });
 
-  test("normalizeConfiguredSequence handles multiple spaces between tokens", () => {
+  it("normalizeConfiguredSequence handles multiple spaces between tokens", () => {
     const result = normalizeConfiguredSequence("ctrl+k  c");
-    assertTruthy(result, "should return a sequence");
-    assertEqual(result?.chords.length, 2, "should have 2 chords");
-    assertEqual(result?.value, "ctrl+k c", "should normalize spacing in value");
+    expect(result).toBeTruthy();
+    expect(result?.chords.length).toBe(2);
+    expect(result?.value).toBe("ctrl+k c");
   });
 
-  test("normalizeConfiguredChord regression: canonical ordering", () => {
+  it("normalizeConfiguredChord regression: canonical ordering", () => {
     const result = normalizeConfiguredChord("ctrl+shift+p");
-    assertTruthy(result, "should return a chord");
-    assertEqual(result?.value, "ctrl+shift+p", "should match expected value");
+    expect(result).toBeTruthy();
+    expect(result?.value).toBe("ctrl+shift+p");
   });
 
-  test("normalizeConfiguredChord regression: reorders modifiers canonically", () => {
+  it("normalizeConfiguredChord regression: reorders modifiers canonically", () => {
     const result = normalizeConfiguredChord("Shift+Ctrl+P");
-    assertTruthy(result, "should return a chord");
-    assertEqual(result?.value, "ctrl+shift+p", "should enforce canonical modifier order");
+    expect(result).toBeTruthy();
+    expect(result?.value).toBe("ctrl+shift+p");
   });
-}
+});

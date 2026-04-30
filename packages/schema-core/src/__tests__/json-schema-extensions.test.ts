@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { extractFromJsonSchema } from "../adapters/json-schema-extractor.js";
 import type { JsonSchema } from "../adapters/json-schema-types.js";
 

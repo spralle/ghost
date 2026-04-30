@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import type { CompiledRule, TmsConfig, WriteRecord } from "../contracts.js";
 import type { ScopeManager } from "../scope.js";
 import { createTms } from "../tms.js";

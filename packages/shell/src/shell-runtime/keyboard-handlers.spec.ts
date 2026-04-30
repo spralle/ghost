@@ -1,8 +1,8 @@
+import { describe, expect, it } from "vitest";
 import { createInitialWorkspaceManagerState } from "@ghost-shell/state";
 import { buildActionSurface } from "../action-surface.js";
 import type { ShellRuntime } from "../app/types.js";
 import { createInitialShellContextState, registerTab, setActiveTab } from "../context-state.js";
-import type { SpecHarness } from "../context-state.spec-harness.js";
 import {
   createDefaultShellKeybindingContract,
   DEFAULT_SHELL_KEYBINDING_PLUGIN_ID,
@@ -68,10 +68,8 @@ class FakeElement {
   dataset: Record<string, string> = {};
 }
 
-export function registerKeyboardHandlersSpecs(harness: SpecHarness): void {
-  const { test, assertEqual, assertTruthy } = harness;
-
-  test("keyboard handler resolves browser-safe shell keybinding and executes action path", async () => {
+describe("keyboard handlers", () => {
+  it("keyboard handler resolves browser-safe shell keybinding and executes action path", async () => {
     const root = new FakeRoot();
     const runtime = createRuntimeFixture();
     const bindings = createBindings(runtime);
@@ -85,14 +83,14 @@ export function registerKeyboardHandlersSpecs(harness: SpecHarness): void {
       target,
     });
 
-    assertEqual(result.prevented, true, "mapped shell keybinding should prevent browser default");
-    assertEqual(runtime.contextState.tabs["tab-a"], undefined, "close action should remove active tab");
-    assertTruthy(runtime.actionNotice.includes("shell.view.close"), "action notice should reference handled action id");
+    expect(result.prevented).toBe(true);
+    expect(runtime.contextState.tabs["tab-a"]).toBe(undefined);
+    expect(runtime.actionNotice.includes("shell.view.close")).toBeTruthy();
 
     dispose();
   });
 
-  test("keyboard handler blocks command when activation boundary rejects plugin", async () => {
+  it("keyboard handler blocks command when activation boundary rejects plugin", async () => {
     const root = new FakeRoot();
     const runtime = createRuntimeFixture();
     let activationCalls = 0;
@@ -112,16 +110,13 @@ export function registerKeyboardHandlersSpecs(harness: SpecHarness): void {
       target,
     });
 
-    assertEqual(result.prevented, false, "blocked activation should not consume key event");
-    assertEqual(activationCalls, 1, "activation boundary should be consulted once");
-    assertTruthy(runtime.actionNotice.includes("blocked"), "blocked action should surface explicit notice");
-    assertTruthy(
-      runtime.actionNotice.includes("com.ghost.shell.keybindings.default"),
-      "blocked notice should use ghost keybinding plugin id",
-    );
+    expect(result.prevented).toBe(false);
+    expect(activationCalls).toBe(1);
+    expect(runtime.actionNotice.includes("blocked")).toBeTruthy();
+    expect(runtime.actionNotice.includes("com.ghost.shell.keybindings.default")).toBeTruthy();
   });
 
-  test("keyboard handler resolves keybinding when target is not an HTMLElement (Bug B)", async () => {
+  it("keyboard handler resolves keybinding when target is not an HTMLElement (Bug B)", async () => {
     const root = new FakeRoot();
     const runtime = createRuntimeFixture();
     const bindings = createBindings(runtime);
@@ -136,19 +131,12 @@ export function registerKeyboardHandlersSpecs(harness: SpecHarness): void {
       target: nonHtmlTarget,
     });
 
-    assertEqual(result.prevented, true, "keybinding should resolve even with non-HTMLElement target");
-    assertEqual(
-      runtime.contextState.tabs["tab-a"],
-      undefined,
-      "close action should execute despite non-HTMLElement target",
-    );
-    assertTruthy(
-      runtime.actionNotice.includes("shell.view.close"),
-      "action notice should reference action for non-HTMLElement target",
-    );
+    expect(result.prevented).toBe(true);
+    expect(runtime.contextState.tabs["tab-a"]).toBe(undefined);
+    expect(runtime.actionNotice.includes("shell.view.close")).toBeTruthy();
   });
 
-  test("keyboard handler does not preventDefault for unavailable shell actions (Bug C)", async () => {
+  it("keyboard handler does not preventDefault for unavailable shell actions (Bug C)", async () => {
     const root = new FakeRoot();
     const runtime = createRuntimeFixture();
     // shell.window.mode.toggle is no longer in DEFAULT_SHELL_KEYBINDINGS, so provide
@@ -169,15 +157,12 @@ export function registerKeyboardHandlersSpecs(harness: SpecHarness): void {
       target,
     });
 
-    assertEqual(result.prevented, false, "unavailable shell action should not consume keypress");
-    assertTruthy(
-      runtime.actionNotice.includes("shell.window.mode.toggle"),
-      "action notice should reference the unavailable action",
-    );
-    assertTruthy(runtime.actionNotice.includes("no-op"), "action notice should indicate action is a no-op");
+    expect(result.prevented).toBe(false);
+    expect(runtime.actionNotice.includes("shell.window.mode.toggle")).toBeTruthy();
+    expect(runtime.actionNotice.includes("no-op")).toBeTruthy();
   });
 
-  test("keyboard handler invalidates cache when override content changes but count stays the same (Bug A)", async () => {
+  it("keyboard handler invalidates cache when override content changes but count stays the same (Bug A)", async () => {
     const root = new FakeRoot();
     const runtime = createRuntimeFixture();
     let overrideSet: { action: string; keybinding: string; pluginId: string }[] = [
@@ -192,8 +177,8 @@ export function registerKeyboardHandlersSpecs(harness: SpecHarness): void {
 
     // First dispatch with override chord shift+alt+z — should resolve and close tab-a
     const result1 = await root.dispatch({ key: "z", altKey: true, shiftKey: true, target });
-    assertEqual(result1.prevented, true, "first override chord should resolve and execute");
-    assertEqual(runtime.contextState.tabs["tab-a"], undefined, "first override should close tab-a");
+    expect(result1.prevented).toBe(true);
+    expect(runtime.contextState.tabs["tab-a"]).toBe(undefined);
 
     // Now change override to different chord (same count=1) — remap close to shift+alt+x
     overrideSet = [
@@ -202,18 +187,15 @@ export function registerKeyboardHandlersSpecs(harness: SpecHarness): void {
 
     // The old override chord should no longer resolve (defaults don't have shift+alt+z)
     const resultOld = await root.dispatch({ key: "z", altKey: true, shiftKey: true, target });
-    assertEqual(resultOld.prevented, false, "old override chord should no longer match after content change");
+    expect(resultOld.prevented).toBe(false);
 
     // The new override chord should resolve
     const resultNew = await root.dispatch({ key: "x", altKey: true, shiftKey: true, target });
-    assertEqual(resultNew.prevented, true, "new override chord should match after content change");
-    assertTruthy(
-      runtime.actionNotice.includes("shell.view.close"),
-      "new override chord should dispatch the remapped close action",
-    );
+    expect(resultNew.prevented).toBe(true);
+    expect(runtime.actionNotice.includes("shell.view.close")).toBeTruthy();
   });
 
-  test("escape key cancels pending chord sequence", async () => {
+  it("escape key cancels pending chord sequence", async () => {
     const root = new FakeRoot();
     const runtime = createRuntimeFixture();
     // Set up a multi-chord binding: ctrl+k ctrl+c → shell.view.close
@@ -228,21 +210,21 @@ export function registerKeyboardHandlersSpecs(harness: SpecHarness): void {
 
     // Press first chord of sequence (ctrl+k) — should enter pending state
     const result1 = await root.dispatch({ key: "k", ctrlKey: true, target });
-    assertEqual(result1.prevented, true, "first chord of sequence should be consumed");
+    expect(result1.prevented).toBe(true);
 
     // Press Escape — should cancel the pending sequence
     const result2 = await root.dispatch({ key: "Escape", target });
-    assertEqual(result2.prevented, true, "escape should be consumed during pending sequence");
+    expect(result2.prevented).toBe(true);
 
     // Now press ctrl+c — should NOT resolve the multi-chord binding
     // (sequence was cancelled, so ctrl+c alone shouldn't match ctrl+k ctrl+c)
     const result3 = await root.dispatch({ key: "c", ctrlKey: true, target });
-    assertEqual(result3.prevented, false, "chord after escape cancellation should not match multi-chord binding");
+    expect(result3.prevented).toBe(false);
 
     dispose();
   });
 
-  test("keyboard handler routes workspace delete to runtime action registry", async () => {
+  it("keyboard handler routes workspace delete to runtime action registry", async () => {
     const root = new FakeRoot();
     const runtime = createRuntimeFixture();
     let calls = 0;
@@ -261,16 +243,13 @@ export function registerKeyboardHandlersSpecs(harness: SpecHarness): void {
       target,
     });
 
-    assertEqual(result.prevented, true, "workspace keybinding should be consumed");
-    assertEqual(calls, 1, "workspace delete should execute runtime action handler");
-    assertTruthy(
-      runtime.actionNotice.includes("shell.workspace.delete"),
-      "action notice should reference workspace action",
-    );
+    expect(result.prevented).toBe(true);
+    expect(calls).toBe(1);
+    expect(runtime.actionNotice.includes("shell.workspace.delete")).toBeTruthy();
 
     dispose();
   });
-}
+});
 
 function createRuntimeFixture(): ShellRuntime {
   let contextState = createInitialShellContextState({

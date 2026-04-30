@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { createForm } from "../index.js";
 
 describe("F7: API parity conformance", () => {

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import type { ThenStage } from "../contracts.js";
 import { compileThenActions } from "../then-compiler.js";
 

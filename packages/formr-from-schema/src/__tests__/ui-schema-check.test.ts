@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 
 import { FromSchemaError } from "../errors.js";
 import { hasUiPaths, isValidUiSchema, validateUiSchemaRequirement } from "../ui-schema-check.js";

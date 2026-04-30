@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { createAlphaNetwork } from "../alpha-network.js";
 import type { CompiledRule, CompiledStage, ProductionRule } from "../contracts.js";
 

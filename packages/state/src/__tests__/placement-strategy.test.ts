@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import type { DockSplitNode, DockStackNode, DockTreeState } from "../dock-tree-types.js";
 import { createDwindlePlacementStrategy } from "../placement-strategy/dwindle.js";
 import { createStackPlacementStrategy } from "../placement-strategy/stack.js";

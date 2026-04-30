@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { ingestSchema } from "../../../formr-from-schema/src/index.js";
 import { compile, evaluate } from "../../../predicate/src/index.js";
 import {

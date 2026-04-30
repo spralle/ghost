@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import type { PredicateEvaluationResult } from "../predicate.js";
 import { createDefaultContributionPredicateMatcher, evaluateContributionPredicate } from "../predicate.js";
 

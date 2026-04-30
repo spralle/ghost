@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { createAgenda } from "../agenda.js";
 import type { CompiledRule, ProductionRule } from "../contracts.js";
 

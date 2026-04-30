@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import type { ValidatorFn } from "../contracts.js";
 import { createForm } from "../create-form.js";
 import type { ValidationIssue } from "../state.js";

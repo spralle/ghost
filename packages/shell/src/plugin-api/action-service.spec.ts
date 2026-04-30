@@ -1,6 +1,6 @@
+import { describe, expect, it } from "vitest";
 import type { IntentRuntime } from "@ghost-shell/intents";
 import type { ActionSurface } from "../action-surface.js";
-import type { SpecHarness } from "../context-state.spec-harness.js";
 import { type ActionServiceDependencies, createActionService } from "./action-service.js";
 
 function createTestSurface(): ActionSurface {
@@ -76,31 +76,29 @@ function createTestDeps(overrides: Partial<ActionServiceDependencies> = {}): Act
   };
 }
 
-export function registerActionServiceSpecs(harness: SpecHarness): void {
-  const { test, assertEqual, assertTruthy } = harness;
-
+describe("action service", () => {
   // ─── getActions() ───
 
-  test("action-service: getActions returns descriptors with enabled state", async () => {
+  it("action-service: getActions returns descriptors with enabled state", async () => {
     const deps = createTestDeps({
       getActionContext: () => ({ dirty: true, role: "admin" }),
     });
     const { service } = createActionService(deps);
 
     const actions = await service.getActions();
-    assertEqual(actions.length, 3, "should return all 3 actions");
+    expect(actions.length).toBe(3);
 
     const openAction = actions.find((a) => a.id === "shell.action.open");
-    assertTruthy(openAction, "open action should be present");
-    assertEqual(openAction?.enabled, true, "action without predicate should be enabled");
-    assertEqual(openAction?.disabledReason, undefined, "enabled action should have no disabled reason");
+    expect(openAction).toBeTruthy();
+    expect(openAction?.enabled).toBe(true);
+    expect(openAction?.disabledReason).toBe(undefined);
 
     const saveAction = actions.find((a) => a.id === "shell.action.save");
-    assertTruthy(saveAction, "save action should be present");
-    assertEqual(saveAction?.enabled, true, "save action with matching predicate should be enabled");
+    expect(saveAction).toBeTruthy();
+    expect(saveAction?.enabled).toBe(true);
   });
 
-  test("action-service: getActions marks disabled actions with reason", async () => {
+  it("action-service: getActions marks disabled actions with reason", async () => {
     const deps = createTestDeps({
       getActionContext: () => ({ dirty: false }),
     });
@@ -109,45 +107,41 @@ export function registerActionServiceSpecs(harness: SpecHarness): void {
     const actions = await service.getActions();
 
     const saveAction = actions.find((a) => a.id === "shell.action.save");
-    assertTruthy(saveAction, "save action should be present");
-    assertEqual(saveAction?.enabled, false, "save action with non-matching predicate should be disabled");
-    assertEqual(
-      saveAction?.disabledReason,
-      "Action 'Save File' is not available in current context",
-      "disabled action should have reason text",
-    );
+    expect(saveAction).toBeTruthy();
+    expect(saveAction?.enabled).toBe(false);
+    expect(saveAction?.disabledReason).toBe("Action 'Save File' is not available in current context");
   });
 
-  test("action-service: getActions includes keybinding hints", async () => {
+  it("action-service: getActions includes keybinding hints", async () => {
     const { service } = createActionService(createTestDeps());
 
     const actions = await service.getActions();
 
     const openAction = actions.find((a) => a.id === "shell.action.open");
-    assertEqual(openAction?.keybinding, "ctrl+o", "open action should have keybinding hint");
+    expect(openAction?.keybinding).toBe("ctrl+o");
 
     const deployAction = actions.find((a) => a.id === "plugin.action.deploy");
-    assertEqual(deployAction?.keybinding, "ctrl+shift+d", "deploy action should have keybinding hint");
+    expect(deployAction?.keybinding).toBe("ctrl+shift+d");
 
     const saveAction = actions.find((a) => a.id === "shell.action.save");
-    assertEqual(saveAction?.keybinding, undefined, "save action without keybinding should be undefined");
+    expect(saveAction?.keybinding).toBe(undefined);
   });
 
-  test("action-service: getActions preserves pluginId", async () => {
+  it("action-service: getActions preserves pluginId", async () => {
     const { service } = createActionService(createTestDeps());
 
     const actions = await service.getActions();
 
     const openAction = actions.find((a) => a.id === "shell.action.open");
-    assertEqual(openAction?.pluginId, "shell.core", "open action should preserve pluginId");
+    expect(openAction?.pluginId).toBe("shell.core");
 
     const deployAction = actions.find((a) => a.id === "plugin.action.deploy");
-    assertEqual(deployAction?.pluginId, "plugin.deploy", "deploy action should preserve pluginId");
+    expect(deployAction?.pluginId).toBe("plugin.deploy");
   });
 
   // ─── registerAction() ───
 
-  test("action-service: registerAction fires onDidChangeActions", () => {
+  it("action-service: registerAction fires onDidChangeActions", () => {
     const { service } = createActionService(createTestDeps());
 
     let fired = 0;
@@ -156,10 +150,10 @@ export function registerActionServiceSpecs(harness: SpecHarness): void {
     });
 
     service.registerAction("custom.action", () => "result");
-    assertEqual(fired, 1, "onDidChangeActions should fire once on register");
+    expect(fired).toBe(1);
   });
 
-  test("action-service: registerAction disposable removes action and fires event", () => {
+  it("action-service: registerAction disposable removes action and fires event", () => {
     const { service } = createActionService(createTestDeps());
 
     let fired = 0;
@@ -168,15 +162,15 @@ export function registerActionServiceSpecs(harness: SpecHarness): void {
     });
 
     const disposable = service.registerAction("custom.action", () => "result");
-    assertEqual(fired, 1, "should fire on register");
+    expect(fired).toBe(1);
 
     disposable.dispose();
-    assertEqual(fired, 2, "should fire again on dispose");
+    expect(fired).toBe(2);
   });
 
   // ─── executeAction() ───
 
-  test("action-service: executeAction calls activation then dispatch", async () => {
+  it("action-service: executeAction calls activation then dispatch", async () => {
     let activatedPluginId = "";
     let activatedTriggerId = "";
 
@@ -191,11 +185,11 @@ export function registerActionServiceSpecs(harness: SpecHarness): void {
 
     await service.executeAction("shell.action.open");
 
-    assertEqual(activatedPluginId, "shell.core", "should activate the correct plugin");
-    assertEqual(activatedTriggerId, "shell.action.open", "should pass the action ID as trigger");
+    expect(activatedPluginId).toBe("shell.core");
+    expect(activatedTriggerId).toBe("shell.action.open");
   });
 
-  test("action-service: executeAction throws when action not found", async () => {
+  it("action-service: executeAction throws when action not found", async () => {
     const { service } = createActionService(createTestDeps());
 
     let threw = false;
@@ -203,16 +197,13 @@ export function registerActionServiceSpecs(harness: SpecHarness): void {
       await service.executeAction("nonexistent.action");
     } catch (error) {
       threw = true;
-      assertTruthy(
-        error instanceof Error && error.message.includes("nonexistent.action"),
-        "error should mention the missing action ID",
-      );
+      expect(error instanceof Error && error.message.includes("nonexistent.action")).toBeTruthy();
     }
 
-    assertEqual(threw, true, "should throw for nonexistent action");
+    expect(threw).toBe(true);
   });
 
-  test("action-service: executeAction throws when plugin activation fails", async () => {
+  it("action-service: executeAction throws when plugin activation fails", async () => {
     const deps = createTestDeps({
       activatePlugin: async () => false,
     });
@@ -223,16 +214,13 @@ export function registerActionServiceSpecs(harness: SpecHarness): void {
       await service.executeAction("shell.action.open");
     } catch (error) {
       threw = true;
-      assertTruthy(
-        error instanceof Error && error.message.includes("blocked"),
-        "error should mention activation blocked",
-      );
+      expect(error instanceof Error && error.message.includes("blocked")).toBeTruthy();
     }
 
-    assertEqual(threw, true, "should throw when plugin cannot be activated");
+    expect(threw).toBe(true);
   });
 
-  test("action-service: executeAction executes runtime-registered actions directly", async () => {
+  it("action-service: executeAction executes runtime-registered actions directly", async () => {
     const { service } = createActionService(createTestDeps());
 
     let handlerCalled = false;
@@ -242,10 +230,10 @@ export function registerActionServiceSpecs(harness: SpecHarness): void {
     });
 
     await service.executeAction("runtime.action");
-    assertEqual(handlerCalled, true, "runtime handler should be called");
+    expect(handlerCalled).toBe(true);
   });
 
-  test("action-service: executeAction uses shared runtimeActionRegistry handlers", async () => {
+  it("action-service: executeAction uses shared runtimeActionRegistry handlers", async () => {
     const sharedRuntimeRegistry = new Map<string, (...args: unknown[]) => unknown>();
     let called = false;
     sharedRuntimeRegistry.set("shell.workspace.create", () => {
@@ -260,12 +248,12 @@ export function registerActionServiceSpecs(harness: SpecHarness): void {
     );
 
     await service.executeAction("shell.workspace.create");
-    assertEqual(called, true, "shared runtime registry handler should execute");
+    expect(called).toBe(true);
   });
 
   // ─── fireChanged() ───
 
-  test("action-service: fireChanged notifies onDidChangeActions listeners", () => {
+  it("action-service: fireChanged notifies onDidChangeActions listeners", () => {
     const result = createActionService(createTestDeps());
 
     let fired = 0;
@@ -274,13 +262,13 @@ export function registerActionServiceSpecs(harness: SpecHarness): void {
     });
 
     result.fireChanged();
-    assertEqual(fired, 1, "fireChanged should notify listeners");
+    expect(fired).toBe(1);
 
     result.fireChanged();
-    assertEqual(fired, 2, "fireChanged should notify on each call");
+    expect(fired).toBe(2);
   });
 
-  test("action-service: dispose clears all listeners", () => {
+  it("action-service: dispose clears all listeners", () => {
     const result = createActionService(createTestDeps());
 
     let fired = 0;
@@ -289,10 +277,10 @@ export function registerActionServiceSpecs(harness: SpecHarness): void {
     });
 
     result.fireChanged();
-    assertEqual(fired, 1, "should fire before dispose");
+    expect(fired).toBe(1);
 
     result.dispose();
     result.fireChanged();
-    assertEqual(fired, 1, "should not fire after dispose");
+    expect(fired).toBe(1);
   });
-}
+});

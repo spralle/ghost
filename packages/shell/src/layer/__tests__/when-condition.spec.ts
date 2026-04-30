@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import type { PluginLayerSurfaceContribution } from "@ghost-shell/contracts";
 import { evaluateContributionPredicate } from "@ghost-shell/plugin-system";
 

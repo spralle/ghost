@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import type { ContextContribution, ProviderContribution } from "@ghost-shell/contracts/context";
 import type { Disposable } from "@ghost-shell/contracts/plugin";
 import { createContextContributionRegistry } from "../context-contribution-registry.js";

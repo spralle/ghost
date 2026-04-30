@@ -1,68 +1,35 @@
-export type TestCase = {
-  name: string;
-  run: () => void | Promise<void>;
-};
+import { expect, it } from "vitest";
 
 export interface SpecHarness {
-  test: (name: string, run: () => void | Promise<void>) => void;
-  assertEqual: (actual: unknown, expected: unknown, message: string) => void;
-  assertTruthy: (value: unknown, message: string) => void;
+	test: (name: string, run: () => void | Promise<void>) => void;
+	assertEqual: (actual: unknown, expected: unknown, message: string) => void;
+	assertTruthy: (value: unknown, message: string) => void;
 }
 
 export class MemoryStorage {
-  private readonly map = new Map<string, string>();
+	private readonly map = new Map<string, string>();
 
-  getItem(key: string): string | null {
-    return this.map.has(key) ? (this.map.get(key) ?? null) : null;
-  }
+	getItem(key: string): string | null {
+		return this.map.has(key) ? (this.map.get(key) ?? null) : null;
+	}
 
-  setItem(key: string, value: string): void {
-    this.map.set(key, value);
-  }
+	setItem(key: string, value: string): void {
+		this.map.set(key, value);
+	}
 }
 
-export function createSpecHarness(): {
-  harness: SpecHarness;
-  runAll: () => Promise<{ passed: number; total: number }>;
-} {
-  const tests: TestCase[] = [];
-
-  const harness: SpecHarness = {
-    test(name, run) {
-      tests.push({ name, run });
-    },
-    assertEqual(actual, expected, message) {
-      if (actual !== expected) {
-        throw new Error(`${message}. expected=${String(expected)} actual=${String(actual)}`);
-      }
-    },
-    assertTruthy(value, message) {
-      if (!value) {
-        throw new Error(message);
-      }
-    },
-  };
-
-  async function runAll(): Promise<{ passed: number; total: number }> {
-    let passed = 0;
-    for (const caseItem of tests) {
-      try {
-        await caseItem.run();
-        passed += 1;
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        throw new Error(`context-state spec failed: ${caseItem.name} :: ${message}`);
-      }
-    }
-
-    return {
-      passed,
-      total: tests.length,
-    };
-  }
-
-  return {
-    harness,
-    runAll,
-  };
+/**
+ * Creates a spec harness that bridges to vitest primitives.
+ * Each `test()` call registers a vitest `it()`, and assertions use `expect()`.
+ */
+export function createSpecHarness(): SpecHarness {
+	return {
+		test: it,
+		assertEqual(actual, expected, _message) {
+			expect(actual).toBe(expected);
+		},
+		assertTruthy(value, _message) {
+			expect(value).toBeTruthy();
+		},
+	};
 }

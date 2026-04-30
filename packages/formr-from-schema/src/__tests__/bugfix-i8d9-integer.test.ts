@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import type { JsonSchema } from "@ghost-shell/schema-core";
 import { extractFromJsonSchema } from "@ghost-shell/schema-core";
 

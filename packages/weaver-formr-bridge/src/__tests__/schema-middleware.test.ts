@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import type { JsonSchema } from "@ghost-shell/schema-core";
 import type { WeaverFormrContext } from "../schema-middleware.js";
 import { weaverToFormrMiddleware } from "../schema-middleware.js";

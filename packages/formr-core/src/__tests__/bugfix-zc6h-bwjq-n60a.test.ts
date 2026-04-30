@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { deleteNestedValue, setNestedValue } from "../nested-utils.js";
 import { parsePath } from "../path-parser.js";
 import type { FormState } from "../state.js";

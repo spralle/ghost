@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { compileFilter } from "../filter-compiler.js";
 import { Predicate } from "../predicate.js";
 

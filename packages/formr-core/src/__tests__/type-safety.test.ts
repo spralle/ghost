@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import type { FormState } from "../contracts.js";
 import { createForm } from "../create-form.js";
 import type { DeepKeys } from "../type-utils.js";
