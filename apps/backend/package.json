@@ -3,7 +3,14 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@ghost-shell/contracts": "file:../../packages/plugin-contracts"
+    "@ghost-shell/config-plugin-runtime": "file:../../packages/config-plugin-runtime",
+    "@ghost-shell/contracts": "file:../../packages/plugin-contracts",
+    "@weaver/config-engine": "link:@weaver/config-engine",
+    "@weaver/config-policy": "link:@weaver/config-policy",
+    "@weaver/config-providers": "link:@weaver/config-providers",
+    "@weaver/config-server": "link:@weaver/config-server",
+    "@weaver/config-sessions": "link:@weaver/config-sessions",
+    "@weaver/config-types": "link:@weaver/config-types"
   },
   "devDependencies": {
     "@types/node": "^22.0.0"

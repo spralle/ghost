@@ -7,15 +7,11 @@
  * to existing localStorage persistence.
  */
 
-// @weaver/config-types, @weaver/config-providers, @weaver/config-sessions removed.
-// Stub types preserve the public API so downstream TypeScript is happy.
-
 import type { ConfigurationService } from "@ghost-shell/contracts";
-
-/** Stub for OverrideSessionController (@weaver/config-sessions removed). */
-interface OverrideSessionController {
-  [key: string]: unknown;
-}
+import {
+  type OverrideSessionController,
+  createOverrideSessionProvider,
+} from "@weaver/config-sessions";
 
 import {
   createContextConfigBridge,
@@ -114,12 +110,12 @@ function createInMemoryConfigService(): ConfigurationService {
 }
 
 /**
- * Create the shell's ConfigurationService.
- * Returns a no-op stub since @weaver packages were removed.
+ * Create the shell's ConfigurationService with a real OverrideSessionController.
  * Hydration continues normally; config-dependent features degrade gracefully.
  */
 export async function createShellConfigService(): Promise<ShellConfigServiceResult> {
-  return { configService: createInMemoryConfigService(), sessionController: {} };
+  const sessionController = createOverrideSessionProvider();
+  return { configService: createInMemoryConfigService(), sessionController };
 }
 
 // ---------------------------------------------------------------------------
