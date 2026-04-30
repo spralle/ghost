@@ -6,11 +6,12 @@
 
 import type { FullThemePalette, PluginContract, ThemeBackgroundEntry } from "@ghost-shell/contracts";
 import { type ComposedThemeContribution, composeThemeContributions } from "@ghost-shell/plugin-system";
+import type { LayerRegistry } from "@ghost-shell/layer";
 import {
   clearBackgroundPreference,
   deriveFullPalette,
   GHOST_THEME_CSS_VARS,
-  manageBackgroundImage,
+
   preloadBackgroundUrls,
   readBackgroundPreference,
   readUserThemePreference,
@@ -18,6 +19,7 @@ import {
   writeUserThemePreference,
 } from "@ghost-shell/theme";
 import type { ShellPluginRegistry } from "./plugin-registry-types.js";
+import { createBackgroundLayerController } from "./theme-background-layer.js";
 import { activateAllThemePlugins } from "./theme-activation.js";
 
 // ---------------------------------------------------------------------------
@@ -27,6 +29,7 @@ import { activateAllThemePlugins } from "./theme-activation.js";
 export interface ThemeRegistryOptions {
   pluginRegistry: ShellPluginRegistry;
   tenantDefaultThemeId?: string | undefined;
+  layerRegistry?: LayerRegistry | undefined;
 }
 
 export interface AvailableTheme {
@@ -153,10 +156,11 @@ export { manageBackgroundImage } from "@ghost-shell/theme";
 // ---------------------------------------------------------------------------
 
 export function createThemeRegistry(options: ThemeRegistryOptions): ThemeRegistry {
-  const { pluginRegistry, tenantDefaultThemeId } = options;
+  const { pluginRegistry, tenantDefaultThemeId, layerRegistry } = options;
   let discoveredThemes: ComposedThemeContribution[] = [];
   let activeThemeId: string | null = null;
   let activeBackground: ActiveBackground | null = null;
+  const backgroundController = createBackgroundLayerController(layerRegistry);
 
   function mergeThemes(
     existing: ComposedThemeContribution[],
@@ -179,7 +183,7 @@ export function createThemeRegistry(options: ThemeRegistryOptions): ThemeRegistr
   }
 
   function applyBackgroundEntry(entry: ThemeBackgroundEntry, source: "theme" | "custom", index: number | null): void {
-    manageBackgroundImage([entry]);
+    backgroundController.apply(entry);
     activeBackground = {
       url: entry.url,
       mode: entry.mode ?? "cover",
@@ -214,7 +218,7 @@ export function createThemeRegistry(options: ThemeRegistryOptions): ThemeRegistr
     if (backgrounds.length > 0) {
       applyBackgroundEntry(backgrounds[0]!, "theme", 0);
     } else {
-      manageBackgroundImage(undefined);
+      backgroundController.apply(undefined);
       activeBackground = null;
     }
   }
@@ -328,7 +332,7 @@ export function createThemeRegistry(options: ThemeRegistryOptions): ThemeRegistr
         if (backgrounds.length > 0) {
           applyBackgroundEntry(backgrounds[0]!, "theme", 0);
         } else {
-          manageBackgroundImage(undefined);
+          backgroundController.apply(undefined);
           activeBackground = null;
         }
       }

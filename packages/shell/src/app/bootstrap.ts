@@ -1,4 +1,5 @@
 import type { PluginContract } from "@ghost-shell/contracts";
+import { LayerRegistry } from "@ghost-shell/layer";
 import { readUserThemePreference } from "@ghost-shell/theme";
 import { registerBuiltinServices } from "../builtin-service-descriptors.js";
 import { createPluginConfigSyncController, deriveNamespace } from "../plugin-config-sync-controller.js";
@@ -52,8 +53,16 @@ export async function bootstrapShellWithTenantManifest(options: ShellBootstrapOp
   const rawManifest = await fetchManifest(manifestUrl);
   const parsedManifest = parseTenantManifestFallback(rawManifest);
 
+  // Create LayerRegistry before plugin activation so layer contributions
+  // are registered when plugins activate (not deferred until mount).
+  const layerRegistry = options.layerRegistry ?? new LayerRegistry();
+  if (!options.layerRegistry) {
+    layerRegistry.registerBuiltinLayers();
+  }
+
   const registry = createShellPluginRegistry({
     apiDeps: options.apiDeps,
+    layerRegistry,
   });
   registry.registerManifestDescriptors(parsedManifest.tenantId, parsedManifest.plugins);
   options.onProgress?.(registry);
@@ -88,9 +97,22 @@ export async function bootstrapShellWithTenantManifest(options: ShellBootstrapOp
   const themeRegistry = createThemeRegistry({
     pluginRegistry: registry,
     tenantDefaultThemeId: options.defaultThemeId,
+    layerRegistry,
   });
   themeRegistry.discoverThemes();
   themeRegistry.applyInitialTheme();
+
+  // Register main content as a shell surface for API visibility.
+  // The actual rendering is handled by renderParts/edgeSlotRenderer.
+  layerRegistry.registerShellSurface({
+    id: "shell-main-content",
+    layer: "main",
+    order: 0,
+    mount: () => {
+      // No-op: the main layer container IS the dock grid host.
+      // This registration exists for getAllShellSurfaces() visibility.
+    },
+  });
 
   // Register all builtin services (config, theme, plugin-registry,
   // plugin-management, activity-status, sync-status, context, keybinding,
@@ -129,6 +151,7 @@ export async function bootstrapShellWithTenantManifest(options: ShellBootstrapOp
       .map((plugin) => plugin.contract)
       .filter((plugin): plugin is PluginContract => plugin !== null),
     registry,
+    layerRegistry,
     themeRegistry,
     disposePluginConfigSync,
   };
@@ -137,9 +160,13 @@ export async function bootstrapShellWithTenantManifest(options: ShellBootstrapOp
 const emptyRegistry = createShellPluginRegistry();
 emptyRegistry.registerManifestDescriptors("local", []);
 
+const defaultLayerRegistry = new LayerRegistry();
+defaultLayerRegistry.registerBuiltinLayers();
+
 export const shellBootstrapState: ShellBootstrapState = {
   mode: "inner-loop",
   loadedPlugins: [],
   registry: emptyRegistry,
+  layerRegistry: defaultLayerRegistry,
   disposePluginConfigSync: null,
 };

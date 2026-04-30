@@ -10,7 +10,8 @@ export {
   createKeyboardExclusiveManager,
 } from "./input-behavior.js";
 export { createLayerContainer, removeLayerContainer } from "./layer-dom.js";
-export { BUILTIN_LAYERS, LayerRegistry } from "./registry.js";
+export type { ShellLayerSurface } from "./registry.js";
+export { BUILTIN_LAYERS, LayerRegistry, SHELL_SURFACE_OWNER } from "./registry.js";
 
 export type { SessionLockManager, SessionLockManagerOptions } from "./session-lock.js";
 export { createSessionLockManager } from "./session-lock.js";

@@ -34,6 +34,8 @@ export async function hydratePluginRegistry(
       getWorkspaceSwitchDeps: () => createWorkspaceSwitchDeps(root, runtime),
     });
 
+    const bootstrap = getShellBootstrap(runtime);
+
     const { configService } = await createShellConfigService();
 
     const state = await bootstrapShellWithTenantManifest({
@@ -42,6 +44,7 @@ export async function hydratePluginRegistry(
       enableByDefault: true,
       defaultThemeId: options.defaultThemeId,
       apiDeps,
+      layerRegistry: bootstrap.layerRegistry,
       syncStatusDeps: {
         isSyncDegraded: () => runtime.syncDegraded,
       },

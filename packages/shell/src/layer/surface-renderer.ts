@@ -1,6 +1,6 @@
 import type { ElementTransitionHook, PluginLayerSurfaceContribution } from "@ghost-shell/contracts";
 import { ELEMENT_TRANSITION_HOOK_ID, HOOK_REGISTRY_SERVICE_ID } from "@ghost-shell/contracts";
-import type { LayerRegistry } from "@ghost-shell/layer";
+import type { LayerRegistry, ShellLayerSurface } from "@ghost-shell/layer";
 import {
   computeExclusiveZones,
   createFocusGrabManager,
@@ -60,6 +60,7 @@ export function createLayerSurfaceRenderer(options: LayerSurfaceRendererOptions)
   const onSurfaceMounted = options.onSurfaceMounted;
   const onSurfaceMountError = options.onSurfaceMountError;
   const mounted = new Map<string, SurfaceMountState>();
+  const mountedShellSurfaces = new Map<string, { element: HTMLElement; cleanup: (() => void) | null }>();
   const registeredRemoteIds = new Set<string>();
   const builtInSurfaceMounts = new Map<string, MountSurfaceComponentFn>();
   let generation = 0;
@@ -208,6 +209,9 @@ export function createLayerSurfaceRenderer(options: LayerSurfaceRendererOptions)
       const sorted = [...surfaces].sort((a, b) => (a.surface.order ?? 0) - (b.surface.order ?? 0));
       reconcileLayerContainer(ctx, container, sorted, runtime, currentGeneration);
     }
+
+    // Reconcile shell surfaces (imperative mount)
+    reconcileShellSurfaces(layerHost, layerRegistry, mountedShellSurfaces);
   }
 
   function dispose(): void {
@@ -220,6 +224,13 @@ export function createLayerSurfaceRenderer(options: LayerSurfaceRendererOptions)
       state.element.remove();
     }
     mounted.clear();
+
+    for (const [, state] of mountedShellSurfaces) {
+      if (state.cleanup) state.cleanup();
+      state.element.remove();
+    }
+    mountedShellSurfaces.clear();
+
     registeredRemoteIds.clear();
     keyboardExclusiveManager.dispose();
     generation += 1;
@@ -264,4 +275,46 @@ function groupByLayer(
     list.push(entry);
   }
   return map;
+}
+
+// ---------------------------------------------------------------------------
+// Shell surface reconciliation
+// ---------------------------------------------------------------------------
+
+function reconcileShellSurfaces(
+  layerHost: HTMLElement,
+  layerRegistry: LayerRegistry,
+  mountedShellSurfaces: Map<string, { element: HTMLElement; cleanup: (() => void) | null }>,
+): void {
+  const allShell = layerRegistry.getAllShellSurfaces();
+  const desiredIds = new Set(allShell.map((s) => s.id));
+
+  // Remove stale shell surfaces
+  for (const [id, state] of mountedShellSurfaces) {
+    if (!desiredIds.has(id)) {
+      if (state.cleanup) state.cleanup();
+      state.element.remove();
+      mountedShellSurfaces.delete(id);
+    }
+  }
+
+  // Mount new shell surfaces
+  for (const surface of allShell) {
+    if (mountedShellSurfaces.has(surface.id)) continue;
+
+    const container = layerHost.querySelector<HTMLElement>(`.shell-layer[data-layer="${surface.layer}"]`);
+    if (!container) continue;
+
+    const el = document.createElement("div");
+    el.className = "layer-surface layer-surface--shell";
+    el.dataset.shellSurface = surface.id;
+    el.style.position = "absolute";
+    el.style.inset = "0";
+    el.style.pointerEvents = "auto";
+    container.appendChild(el);
+
+    const cleanupResult = surface.mount(el);
+    const cleanup = typeof cleanupResult === "function" ? cleanupResult : null;
+    mountedShellSurfaces.set(surface.id, { element: el, cleanup });
+  }
 }
