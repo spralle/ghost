@@ -76,7 +76,7 @@ export function createShellRuntime(options?: { transportPath?: ShellTransportPat
     selectedPartId: null,
     selectedPartTitle: null,
     contextState: createInitialShellContextState({
-      initialTabId: "tab-main",
+      initialTabId: popoutParams.isPopout && popoutParams.tabId ? popoutParams.tabId : "tab-main",
       initialGroupId: DEFAULT_GROUP_ID,
       initialGroupColor: DEFAULT_GROUP_COLOR,
     }),
@@ -138,6 +138,16 @@ export function createShellRuntime(options?: { transportPath?: ShellTransportPat
       activatedAt: null,
     },
   };
+
+  // Popout tab needs the correct definitionId (strip instance suffix ~N)
+  if (popoutParams.isPopout && popoutParams.tabId) {
+    const tab = runtime.contextState.tabs[popoutParams.tabId];
+    if (tab) {
+      const definitionId = popoutParams.tabId.replace(/~\d+$/, "");
+      tab.definitionId = definitionId;
+      tab.partDefinitionId = definitionId;
+    }
+  }
 
   runtime.partHost = createShellPartHostAdapter(runtime);
   runtime.keybindingOverrideManager = createKeybindingOverrideManager({

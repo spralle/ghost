@@ -180,12 +180,13 @@ export function createGhostShell(options: GhostShellOptions): GhostShell {
       await ctx.primeEnabledPluginActivations();
 
       // Plugin hydration (tenant manifest, config, themes)
-      if (options.tenant && !runtime.isPopout) {
+      if (options.tenant) {
         await hydratePluginRegistry(root, runtime, () => !disposed, {
           tenantId: options.tenant.id,
           defaultThemeId: options.theme ?? "ghost.theme.tokyo-night",
         });
-      } else if (runtime.isPopout && options.popoutTransport) {
+      }
+      if (runtime.isPopout && options.popoutTransport) {
         const { initializePopout } = await import("./popout-initialization.js");
         const popoutInit = await initializePopout(options.popoutTransport, document);
         runtime.services = popoutInit.services;
