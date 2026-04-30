@@ -2,6 +2,9 @@ import { federation } from "@module-federation/vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({
+  resolve: {
+    conditions: ["source"],
+  },
   plugins: [
     federation({
       name: "ghost.appearance-settings",

@@ -3,6 +3,7 @@ import path from 'path'
 
 export default defineConfig({
   resolve: {
+    conditions: ["source"],
     alias: {
       // Sub-path exports must come before base aliases
       '@ghost-shell/contracts/plugin': path.resolve(__dirname, './packages/plugin-contracts/src/plugin.ts'),
