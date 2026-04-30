@@ -9,6 +9,7 @@ export interface TenantPluginDescriptor {
     pluginContract: string;
   };
   pluginDependencies?: string[];
+  activationEvents?: string[];
 }
 
 export interface TenantPluginManifestResponse {
@@ -56,6 +57,7 @@ export function createCanonicalLocalTenantDescriptors(extraPluginsDirs?: readonl
       pluginContract: "^1.0.0",
     },
     pluginDependencies: plugin.pluginDependencies,
+    activationEvents: plugin.activationEvents,
   }));
 }
 

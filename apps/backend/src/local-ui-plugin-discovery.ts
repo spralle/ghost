@@ -8,6 +8,7 @@ export interface CanonicalLocalUiPluginDefinition {
   version: string;
   entryPath: string;
   pluginDependencies?: string[];
+  activationEvents?: string[];
 }
 
 export interface DiscoveredLocalUiPlugin {
@@ -17,6 +18,7 @@ export interface DiscoveredLocalUiPlugin {
   version: string;
   entry: string;
   pluginDependencies?: string[];
+  activationEvents?: string[];
 }
 
 export interface DiscoverLocalUiPluginsOptions {
@@ -101,10 +103,14 @@ export function discoverPluginDefinitions(pluginsDir: string, startPort?: number
           displayName?: string;
           dependsOn?: { plugins?: { pluginId: string }[] };
           pluginDependencies?: string[]; // TODO: remove after migration
+          activationEvents?: string[];
         }
       | undefined;
 
     const pluginDependencies = ghost?.dependsOn?.plugins?.map((p) => p.pluginId) ?? ghost?.pluginDependencies; // TODO: remove fallback after migration
+    const activationEvents = Array.isArray(ghost?.activationEvents)
+      ? ghost.activationEvents.filter((e: unknown) => typeof e === "string")
+      : undefined;
 
     const devPort = nextAutoPort;
     nextAutoPort += 1;
@@ -118,6 +124,7 @@ export function discoverPluginDefinitions(pluginsDir: string, startPort?: number
       version,
       entryPath: "/mf-manifest.json",
       pluginDependencies,
+      activationEvents,
     });
   }
 
@@ -196,6 +203,7 @@ export function discoverLocalUiPlugins(
       version: definition.version,
       entry,
       pluginDependencies: definition.pluginDependencies,
+      activationEvents: definition.activationEvents,
     });
   }
 

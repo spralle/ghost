@@ -250,6 +250,7 @@ export async function primeEnabledPluginActivations(root: HTMLElement, runtime: 
     .filter(
       (plugin) =>
         plugin.enabled &&
+        plugin.descriptor.activationEvents?.includes("onStartup") &&
         plugin.lifecycle.state !== "active" &&
         plugin.lifecycle.state !== "activating" &&
         plugin.lifecycle.state !== "failed",
