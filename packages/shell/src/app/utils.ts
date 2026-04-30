@@ -120,16 +120,32 @@ export function parseTenantManifestFallback(input: unknown): TenantPluginManifes
 
     if (descriptor.contributes && typeof descriptor.contributes === "object" && !Array.isArray(descriptor.contributes)) {
       const raw = descriptor.contributes as Record<string, unknown>;
+      const contributes: Record<string, unknown> = {};
+
+      // Validate known array contribution types
       const actions = filterContributionArray(raw.actions, "id");
       const keybindings = filterContributionArray(raw.keybindings, "action");
       const menus = filterContributionArray(raw.menus, "action");
+      const parts = filterContributionArray(raw.parts, "id");
 
-      if (actions || keybindings || menus) {
-        result.contributes = {
-          ...(actions && { actions }),
-          ...(keybindings && { keybindings }),
-          ...(menus && { menus }),
-        } as typeof result.contributes;
+      if (actions) contributes.actions = actions;
+      if (keybindings) contributes.keybindings = keybindings;
+      if (menus) contributes.menus = menus;
+      if (parts) contributes.parts = parts;
+
+      // Pass through unknown contribution sections opaquely (future-proofing)
+      const validatedKeys = ["actions", "keybindings", "menus", "parts"];
+      for (const key of Object.keys(raw)) {
+        if (!validatedKeys.includes(key)) {
+          contributes[key] = raw[key];
+        }
+      }
+
+      if (Object.keys(contributes).length > 0) {
+        // Cast justified: known keys (actions, keybindings, menus, parts) are validated above;
+        // unknown keys pass through opaquely for future-proofing. The type system cannot represent
+        // "partially validated + opaque remainder" so we assert after construction.
+        result.contributes = contributes as typeof result.contributes;
       }
     }
 
