@@ -1,3 +1,4 @@
+import type { PluginPartContribution } from "@ghost-shell/contracts";
 import { composeEnabledPluginContributions } from "@ghost-shell/plugin-system";
 import type { BridgeHost, PluginHost, ShellRuntime, StateHost } from "../app/types.js";
 import { escapeHtml } from "../app/utils.js";
@@ -40,13 +41,49 @@ export function composePartDefinitionsFromRegistrySnapshot(
     })),
   );
 
-  return composed.parts.map((part) => ({
+  const contractParts = composed.parts.map((part) => ({
     definitionId: part.id,
     title: part.title,
     slot: resolveSlotFromDockContainer(readDockContainer(part)),
     component: part.component,
     pluginId: part.pluginId,
   }));
+
+  // Eager discovery: include parts from unloaded plugin descriptors
+  const loadedPluginIds = new Set(
+    snapshot.plugins.filter((p) => p.enabled && p.contract !== null).map((p) => p.id),
+  );
+
+  const descriptorParts = extractDescriptorParts(snapshot.plugins, loadedPluginIds);
+
+  // Loaded contracts take precedence over descriptor-sourced parts
+  const loadedPartIds = new Set(contractParts.map((p) => p.definitionId));
+  const newParts = descriptorParts.filter((p) => !loadedPartIds.has(p.definitionId));
+
+  return [...contractParts, ...newParts];
+}
+
+function extractDescriptorParts(
+  plugins: ReturnType<PluginHost["registry"]["getSnapshot"]>["plugins"],
+  loadedPluginIds: Set<string>,
+): ComposedPartDefinition[] {
+  return plugins
+    .filter(
+      (plugin) =>
+        plugin.enabled && plugin.contract === null && !loadedPluginIds.has(plugin.id) &&
+        plugin.descriptor.contributes?.parts,
+    )
+    .flatMap((plugin) => {
+      const parts = plugin.descriptor.contributes?.parts;
+      if (!parts) return [];
+      return parts.map((part: PluginPartContribution) => ({
+        definitionId: part.id,
+        title: part.title,
+        slot: resolveSlotFromDockContainer(readDockContainer(part)),
+        component: part.component,
+        pluginId: plugin.id,
+      }));
+    });
 }
 
 function readDockContainer(part: unknown): string | undefined {
