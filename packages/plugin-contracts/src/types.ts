@@ -290,6 +290,7 @@ export interface TenantPluginDescriptor {
   compatibility: PluginCompatibilityMetadata;
   pluginDependencies?: string[];
   activationEvents?: string[];
+  contributes?: PluginContributions;
 }
 
 export interface TenantPluginManifestResponse {

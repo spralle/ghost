@@ -8,6 +8,7 @@
  */
 
 import type { WindowBridgeEvent } from "@ghost-shell/bridge";
+import type { PluginContract } from "@ghost-shell/contracts";
 import { buildActionSurface } from "./action-surface.js";
 import type { ShellRuntime } from "./app/types.js";
 import { createWindowId } from "./app/utils.js";
@@ -130,13 +131,33 @@ export function summarizeSelectionPriorities(runtime: ShellRuntime): string {
 }
 
 export function refreshActionContributions(runtime: ShellRuntime): void {
-  const contracts = runtime.registry
-    .getSnapshot()
-    .plugins.filter((plugin) => plugin.enabled && plugin.contract !== null)
-    .map((plugin) => plugin.contract)
-    .filter((plugin): plugin is NonNullable<typeof plugin> => plugin !== null);
+  const snapshot = runtime.registry.getSnapshot();
 
-  runtime.actionSurface = buildActionSurface(contracts);
+  // Loaded plugins: use their full contract (richer, validated data)
+  const loadedContracts = snapshot.plugins
+    .filter((plugin) => plugin.enabled && plugin.contract !== null)
+    .map((plugin) => plugin.contract)
+    .filter((c): c is NonNullable<typeof c> => c !== null);
+
+  const loadedPluginIds = new Set(loadedContracts.map((c) => c.manifest.id));
+
+  // Unloaded plugins with descriptor contributes: create synthetic contracts
+  // so their actions/keybindings are visible in the action surface without
+  // loading the plugin's JS bundle.
+  const descriptorContracts: PluginContract[] = snapshot.plugins
+    .filter(
+      (plugin) =>
+        plugin.enabled &&
+        plugin.contract === null &&
+        plugin.descriptor.contributes &&
+        !loadedPluginIds.has(plugin.id),
+    )
+    .map((plugin) => ({
+      manifest: { id: plugin.id, name: plugin.id, version: plugin.descriptor.version },
+      contributes: plugin.descriptor.contributes,
+    }));
+
+  runtime.actionSurface = buildActionSurface([...loadedContracts, ...descriptorContracts]);
 }
 
 export function renderParts(root: HTMLElement, runtime: ShellRuntime): void {

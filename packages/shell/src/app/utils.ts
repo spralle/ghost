@@ -54,6 +54,15 @@ export function readPopoutParams(): {
   };
 }
 
+function filterContributionArray(arr: unknown, requiredKey: string): Record<string, unknown>[] | undefined {
+  if (!Array.isArray(arr)) return undefined;
+  const filtered = arr.filter(
+    (item): item is Record<string, unknown> =>
+      !!item && typeof item === "object" && typeof (item as Record<string, unknown>)[requiredKey] === "string",
+  );
+  return filtered.length > 0 ? filtered : undefined;
+}
+
 export function parseTenantManifestFallback(input: unknown): TenantPluginManifestResponse {
   if (!input || typeof input !== "object") {
     throw new Error("Invalid tenant manifest response: expected object");
@@ -107,6 +116,21 @@ export function parseTenantManifestFallback(input: unknown): TenantPluginManifes
       descriptor.activationEvents.every((e): e is string => typeof e === "string")
     ) {
       result.activationEvents = descriptor.activationEvents;
+    }
+
+    if (descriptor.contributes && typeof descriptor.contributes === "object" && !Array.isArray(descriptor.contributes)) {
+      const raw = descriptor.contributes as Record<string, unknown>;
+      const actions = filterContributionArray(raw.actions, "id");
+      const keybindings = filterContributionArray(raw.keybindings, "action");
+      const menus = filterContributionArray(raw.menus, "action");
+
+      if (actions || keybindings || menus) {
+        result.contributes = {
+          ...(actions && { actions }),
+          ...(keybindings && { keybindings }),
+          ...(menus && { menus }),
+        } as typeof result.contributes;
+      }
     }
 
     return result;

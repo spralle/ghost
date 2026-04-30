@@ -10,6 +10,7 @@ export interface TenantPluginDescriptor {
   };
   pluginDependencies?: string[];
   activationEvents?: string[];
+  contributes?: Record<string, unknown>;
 }
 
 export interface TenantPluginManifestResponse {
@@ -58,6 +59,7 @@ export function createCanonicalLocalTenantDescriptors(extraPluginsDirs?: readonl
     },
     pluginDependencies: plugin.pluginDependencies,
     activationEvents: plugin.activationEvents,
+    contributes: plugin.contributes,
   }));
 }
 

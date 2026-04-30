@@ -1,3 +1,5 @@
+import type { PluginContributions } from "@ghost-shell/contracts";
+
 export interface TenantPluginDescriptor {
   id: string;
   version: string;
@@ -8,6 +10,7 @@ export interface TenantPluginDescriptor {
   };
   pluginDependencies?: string[];
   activationEvents?: string[];
+  contributes?: PluginContributions;
 }
 
 export interface TenantPluginManifestResponse {
