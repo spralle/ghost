@@ -1,3 +1,4 @@
+import { createLazySubscriptionManager, type LazySubscriptionManager } from "./lazy-subscription-manager.js";
 import { getStateSnapshot, isManagedState, subscribeState } from "./reactive-state.js";
 import type {
   GatewayStateOp,
@@ -54,13 +55,39 @@ export interface ServiceRegistry {
   getRegisteredTokenIds(): string[];
 }
 
+export interface ServiceGatewayHostOptions {
+  registry: ServiceRegistry;
+  /** Returns true if the service should defer state replication until first access */
+  isLazy?: (tokenId: string) => boolean;
+}
+
 /**
  * Creates the host-side service gateway implementation.
  * Handles incoming RPC calls from popouts and streams state ops.
  */
-export function createServiceGatewayHost(registry: ServiceRegistry) {
+export function createServiceGatewayHost(
+  registryOrOptions: ServiceRegistry | ServiceGatewayHostOptions,
+) {
+  const registry: ServiceRegistry =
+    "registry" in registryOrOptions ? registryOrOptions.registry : registryOrOptions;
+  const isLazy =
+    "isLazy" in registryOrOptions ? registryOrOptions.isLazy : undefined;
+
   const opSubscribers = new Set<(batch: StateOpBatch) => void>();
   const stateUnsubscribers = new Map<string, () => void>();
+
+  const lazyManager: LazySubscriptionManager = createLazySubscriptionManager({
+    onActivate: (tokenId) => {
+      wireStateSubscription(tokenId);
+      return () => {
+        const unsub = stateUnsubscribers.get(tokenId);
+        if (unsub) {
+          unsub();
+          stateUnsubscribers.delete(tokenId);
+        }
+      };
+    },
+  });
 
   function wireStateSubscription(tokenId: string): void {
     const state = registry.getServiceState(tokenId);
@@ -89,11 +116,16 @@ export function createServiceGatewayHost(registry: ServiceRegistry) {
 
   function wireAllServices(): void {
     for (const tokenId of registry.getRegisteredTokenIds()) {
+      if (isLazy?.(tokenId)) continue;
       wireStateSubscription(tokenId);
     }
   }
 
   async function callService(request: ServiceCallRequest): Promise<ServiceCallResponse> {
+    if (isLazy?.(request.tokenId) && !lazyManager.isActive(request.tokenId)) {
+      lazyManager.acquire(request.tokenId);
+    }
+
     const service = registry.getService(request.tokenId);
     if (!service) {
       return { ok: false, error: `Service not found: ${request.tokenId}` };
@@ -127,6 +159,7 @@ export function createServiceGatewayHost(registry: ServiceRegistry) {
   }
 
   function dispose(): void {
+    lazyManager.disposeAll();
     for (const unsub of stateUnsubscribers.values()) {
       unsub();
     }
@@ -134,5 +167,5 @@ export function createServiceGatewayHost(registry: ServiceRegistry) {
     opSubscribers.clear();
   }
 
-  return { callService, getSnapshot, subscribeOps, wireAllServices, wireStateSubscription, dispose };
+  return { callService, getSnapshot, subscribeOps, wireAllServices, wireStateSubscription, lazyManager, dispose };
 }

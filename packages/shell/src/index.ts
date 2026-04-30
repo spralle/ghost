@@ -66,7 +66,17 @@ export type {
   StateSnapshotResponse,
 } from "./service-gateway-contract.js";
 export { SERVICE_GATEWAY_CONTRACT } from "./service-gateway-contract.js";
-export { createServiceGatewayHost, type ServiceRegistry } from "./service-gateway-host.js";
+export {
+  createLazySubscriptionManager,
+  type LazySubscription,
+  type LazySubscriptionManager,
+  type LazySubscriptionManagerOptions,
+} from "./lazy-subscription-manager.js";
+export {
+  createServiceGatewayHost,
+  type ServiceGatewayHostOptions,
+  type ServiceRegistry,
+} from "./service-gateway-host.js";
 // Window identity
 export { resolveWindowIdentity, type WindowIdentity } from "./window-identity.js";
 // Scomp peer abstraction
