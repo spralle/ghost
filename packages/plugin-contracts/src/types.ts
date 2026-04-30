@@ -289,6 +289,7 @@ export interface TenantPluginDescriptor {
   entry: string;
   compatibility: PluginCompatibilityMetadata;
   pluginDependencies?: string[];
+  activationEvents?: string[];
 }
 
 export interface TenantPluginManifestResponse {
