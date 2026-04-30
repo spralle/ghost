@@ -1,4 +1,4 @@
-import type { PluginContract, PluginServices } from "@ghost-shell/contracts";
+import type { PluginContract, PluginServices, ServiceRegistrationOptions } from "@ghost-shell/contracts";
 import type { CapabilityRegistry } from "./capability-registry.js";
 import { createCapabilityRegistry, pickServiceModuleExport } from "./capability-registry.js";
 import { createRuntimeFirstPluginLoader } from "./plugin-loader.js";
@@ -115,6 +115,7 @@ export function createShellPluginRegistry(options: ShellPluginRegistryOptions = 
     contract: PluginContract;
     serviceInstances?: Record<string, unknown>;
     module?: unknown;
+    serviceOptions?: Record<string, ServiceRegistrationOptions>;
   }> = [];
 
   async function activateByTrigger(pluginId: string, trigger: { type: string; id: string }): Promise<boolean> {
@@ -127,9 +128,11 @@ export function createShellPluginRegistry(options: ShellPluginRegistryOptions = 
     contract: PluginContract,
     serviceInstances?: Record<string, unknown>,
     module?: unknown,
+    serviceOptions?: Record<string, ServiceRegistrationOptions>,
   ): void {
     const pluginId = contract.manifest.id;
     const instanceMap = serviceInstances ? new Map(Object.entries(serviceInstances)) : null;
+    const optionsMap = serviceOptions ? new Map(Object.entries(serviceOptions)) : null;
     states.set(pluginId, {
       descriptor: {
         id: pluginId,
@@ -155,14 +158,20 @@ export function createShellPluginRegistry(options: ShellPluginRegistryOptions = 
       deactivate: null,
       exports: {},
       builtinServiceInstances: instanceMap,
+      builtinServiceOptions: optionsMap,
       builtinModule: module ?? null,
     });
   }
 
   return {
-    registerBuiltinPlugin(contract: PluginContract, serviceInstances?: Record<string, unknown>, module?: unknown) {
-      builtinContracts.push({ contract, serviceInstances, module });
-      seedBuiltinState(contract, serviceInstances, module);
+    registerBuiltinPlugin(
+      contract: PluginContract,
+      serviceInstances?: Record<string, unknown>,
+      module?: unknown,
+      serviceOptions?: Record<string, ServiceRegistrationOptions>,
+    ) {
+      builtinContracts.push({ contract, serviceInstances, module, serviceOptions });
+      seedBuiltinState(contract, serviceInstances, module, serviceOptions);
       capabilityRegistry.registerPlugin(contract.manifest.id, contract);
       notifyListeners();
     },
@@ -172,7 +181,7 @@ export function createShellPluginRegistry(options: ShellPluginRegistryOptions = 
       capabilityRegistry.clear();
       // Re-register builtin plugins after clear
       for (const entry of builtinContracts) {
-        seedBuiltinState(entry.contract, entry.serviceInstances, entry.module);
+        seedBuiltinState(entry.contract, entry.serviceInstances, entry.module, entry.serviceOptions);
         capabilityRegistry.registerPlugin(entry.contract.manifest.id, entry.contract);
       }
       for (const descriptor of descriptors) {
@@ -196,6 +205,7 @@ export function createShellPluginRegistry(options: ShellPluginRegistryOptions = 
           deactivate: null,
           exports: {},
           builtinServiceInstances: null,
+          builtinServiceOptions: null,
           builtinModule: null,
         });
       }
@@ -280,6 +290,12 @@ export function createShellPluginRegistry(options: ShellPluginRegistryOptions = 
     },
     getService<T = unknown>(serviceId: string): T | null {
       return resolveServiceFromRegistry<T>(serviceId, capabilityRegistry, states);
+    },
+    getServiceOptions(serviceId: string): ServiceRegistrationOptions | null {
+      const provider = capabilityRegistry.resolveService(serviceId, { requesterPluginId: "shell" });
+      if (!provider) return null;
+      const state = states.get(provider.providerPluginId);
+      return state?.builtinServiceOptions?.get(serviceId) ?? null;
     },
     hasService(serviceId: string): boolean {
       return this.getService(serviceId) !== null;
