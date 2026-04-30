@@ -7,6 +7,7 @@ export interface TenantPluginDescriptor {
     pluginContract: string;
   };
   pluginDependencies?: string[];
+  activationEvents?: string[];
 }
 
 export interface TenantPluginManifestResponse {

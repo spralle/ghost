@@ -102,6 +102,13 @@ export function parseTenantManifestFallback(input: unknown): TenantPluginManifes
       result.pluginDependencies = descriptor.pluginDependencies;
     }
 
+    if (
+      Array.isArray(descriptor.activationEvents) &&
+      descriptor.activationEvents.every((e): e is string => typeof e === "string")
+    ) {
+      result.activationEvents = descriptor.activationEvents;
+    }
+
     return result;
   });
 
