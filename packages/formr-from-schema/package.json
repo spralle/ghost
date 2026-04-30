@@ -27,7 +27,7 @@
     "@ghost-shell/schema-core": "workspace:*"
   },
   "peerDependencies": {
-    "zod": "^3.24.0"
+    "zod": "^4.0.0"
   },
   "peerDependenciesMeta": {
     "zod": {
