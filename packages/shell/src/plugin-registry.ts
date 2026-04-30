@@ -153,6 +153,7 @@ export function createShellPluginRegistry(options: ShellPluginRegistryOptions = 
       activationSubscriptions: [],
       ghostApiInstance: null,
       deactivate: null,
+      exports: {},
       builtinServiceInstances: instanceMap,
       builtinModule: module ?? null,
     });
@@ -193,6 +194,7 @@ export function createShellPluginRegistry(options: ShellPluginRegistryOptions = 
           activationSubscriptions: [],
           ghostApiInstance: null,
           deactivate: null,
+          exports: {},
           builtinServiceInstances: null,
           builtinModule: null,
         });
