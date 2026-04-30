@@ -37,6 +37,19 @@ export interface ShellConfigServiceResult {
 // Factory
 // ---------------------------------------------------------------------------
 
+function notifyListeners(
+  listeners: Map<string, Set<(value: unknown) => void>>,
+  key: string,
+  value: unknown,
+): void {
+  const keyListeners = listeners.get(key);
+  if (keyListeners) {
+    for (const listener of keyListeners) {
+      listener(value);
+    }
+  }
+}
+
 /**
  * In-memory ConfigurationService for degraded operation.
  * Stores values in a Map and notifies listeners on changes.
@@ -51,15 +64,31 @@ function createInMemoryConfigService(): ConfigurationService {
     get<T = unknown>(key: string): T | undefined {
       return store.get(key) as T | undefined;
     },
+    getWithDefault<T>(key: string, defaultValue: T): T {
+      return (store.get(key) as T) ?? defaultValue;
+    },
+    getAtLayer<T>(_layer: unknown, key: string): T | undefined {
+      return store.get(key) as T | undefined;
+    },
+    getForScope<T>(key: string, _scopePath: unknown[]): T | undefined {
+      return store.get(key) as T | undefined;
+    },
+    inspect<T>(key: string) {
+      const value = store.get(key) as T | undefined;
+      return {
+        key,
+        effectiveValue: value,
+        effectiveLayer: "memory" as const,
+        layerValues: { memory: value },
+      };
+    },
     set(key: string, value: unknown): void {
-      // Note: layer parameter ignored in in-memory fallback — single-layer store
       store.set(key, value);
-      const keyListeners = listeners.get(key);
-      if (keyListeners) {
-        for (const listener of keyListeners) {
-          listener(value);
-        }
-      }
+      notifyListeners(listeners, key, value);
+    },
+    remove(key: string, _layer: unknown): void {
+      store.delete(key);
+      notifyListeners(listeners, key, undefined);
     },
     onChange(key: string, listener: (value: unknown) => void): () => void {
       let keyListeners = listeners.get(key);
@@ -71,6 +100,15 @@ function createInMemoryConfigService(): ConfigurationService {
       return () => {
         keyListeners.delete(listener);
       };
+    },
+    getNamespace(prefix: string): Record<string, unknown> {
+      const result: Record<string, unknown> = {};
+      for (const [k, v] of store) {
+        if (k.startsWith(prefix)) {
+          result[k] = v;
+        }
+      }
+      return result;
     },
   };
 }
