@@ -147,7 +147,15 @@ async function mountPart(options: MountPartOptions): Promise<void> {
     target,
   } = options;
 
+  // Skip federation load for plugins that haven't been activated yet.
+  // The tab remains visible (from descriptor discovery) with fallback content;
+  // on-demand activation happens when the user clicks the tab.
   const builtinModule = runtime.registry.getBuiltinModule(part.pluginId);
+
+  if (!builtinModule && (!pluginSnapshot || !pluginSnapshot.contract)) {
+    showFallback(target, fallbackTarget);
+    return;
+  }
 
   if (!builtinModule) {
     ensureRemoteRegistered(

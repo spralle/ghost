@@ -4,7 +4,13 @@
 // are activated on demand when the user opens the Appearance tab or switches
 // themes. This avoids eagerly loading all theme plugins at bootstrap.
 
+import type { TenantPluginDescriptor } from "@ghost-shell/contracts";
 import type { ShellPluginRegistry } from "./plugin-registry-types.js";
+
+/** Check whether a plugin descriptor declares theme contributions. */
+function hasThemeContributions(descriptor: TenantPluginDescriptor): boolean {
+  return Array.isArray(descriptor.contributes?.themes) && descriptor.contributes.themes.length > 0;
+}
 
 /** Default theme plugin ID — the fallback when no preference exists. */
 export const DEFAULT_THEME_PLUGIN_ID = "ghost.theme.default";
@@ -41,7 +47,7 @@ export async function activatePreferredThemePlugin(
 export async function activateAllThemePlugins(registry: ShellPluginRegistry): Promise<void> {
   const snapshot = registry.getSnapshot();
   const activationPromises = snapshot.plugins
-    .filter((p) => p.enabled && !p.contract)
+    .filter((p) => p.enabled && !p.contract && hasThemeContributions(p.descriptor))
     .map(async (p) => {
       try {
         await registry.activateByEvent(p.id, "onThemeNeeded");

@@ -150,6 +150,25 @@ export function renderParts(root: HTMLElement, runtime: ShellRuntime, bindings: 
   runtime.closeableTabIds = deriveCloseableTabIds(visibleParts);
   updateContextState(runtime, ensureTabsRegistered(runtime.contextState, visibleParts));
   reconcileActiveTab(runtime);
+
+  // On-demand activation: if the active tab's plugin isn't activated yet,
+  // trigger activation. The registry subscription will re-render once loaded.
+  const activeTabId = runtime.contextState.activeTabId;
+  if (activeTabId) {
+    const activePart = visibleParts.find((p) => p.instanceId === activeTabId || p.definitionId === activeTabId);
+    if (activePart) {
+      const snapshot = runtime.registry.getSnapshot();
+      const pluginEntry = snapshot.plugins.find((p) => p.id === activePart.pluginId);
+      if (pluginEntry && !pluginEntry.contract) {
+        void bindings.activatePluginForBoundary({
+          pluginId: activePart.pluginId,
+          triggerType: "view",
+          triggerId: activePart.definitionId,
+        });
+      }
+    }
+  }
+
   renderPartsView(root, runtime, {
     applySelection: (event) => bindings.applySelection(event),
     partHost: runtime.partHost,
