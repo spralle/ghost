@@ -1,4 +1,5 @@
 import type { WindowBridgeEvent } from "@ghost-shell/bridge";
+import { LayerRegistry } from "@ghost-shell/layer";
 import type { ShellCoreApi } from "./app/contracts.js";
 import type { ShellMigrationFlags } from "./app/migration-flags.js";
 import { selectShellTransportPath } from "./app/migration-flags.js";
@@ -44,6 +45,7 @@ export interface ShellBootstrap {
   transportPath: "legacy-bridge" | "async-scomp-adapter";
   transportReason: "kill-switch-force-legacy" | "async-flag-enabled" | "default-legacy";
   core: ShellCoreApi;
+  layerRegistry: LayerRegistry;
   initialize: (root: HTMLElement, runtime: ShellRuntime) => void;
   mountMainWindow: (root: HTMLElement, deps: MountDeps) => () => void;
   mountPopout: (root: HTMLElement, runtime: ShellRuntime, deps: MountDeps) => () => void;
@@ -94,6 +96,10 @@ export function createShellBootstrap(
   const federationRuntime = createShellFederationRuntime();
   const edgeSlotRenderer = createEdgeSlotRenderer({ federationRuntime });
 
+  // Create LayerRegistry early so it can be shared with plugin activation and mount.
+  const layerRegistry = new LayerRegistry();
+  layerRegistry.registerBuiltinLayers();
+
   let layerSurfaceRendererInstance: import("./layer/surface-renderer.js").LayerSurfaceRenderer | null = null;
 
   const effects = buildEffectsPort(deps, () => bootstrap);
@@ -114,10 +120,11 @@ export function createShellBootstrap(
     transportPath: transportDecision.path,
     transportReason: transportDecision.reason,
     core,
+    layerRegistry,
     initialize: (viewRoot, viewRuntime) => {
       initializeReactPanels(viewRoot, viewRuntime, buildPanelDeps(deps, core, effects));
     },
-    mountMainWindow: (viewRoot, mountDeps) => mountMainWindow(viewRoot, mountDeps),
+    mountMainWindow: (viewRoot, mountDeps) => mountMainWindow(viewRoot, { ...mountDeps, layerRegistry }),
     mountPopout: (viewRoot, viewRuntime, mountDeps) => mountPopout(viewRoot, viewRuntime, mountDeps),
     renderPanels: (viewRoot, viewRuntime) => renderPanelsView(viewRoot, viewRuntime),
     renderParts: (viewRoot, viewRuntime) => {

@@ -1,4 +1,5 @@
 import type { ConfigurationService, PluginContract } from "@ghost-shell/contracts";
+import type { LayerRegistry } from "@ghost-shell/layer";
 import type { ContextServiceDeps } from "../../context-service-registration.js";
 import type { KeybindingServiceDeps } from "../../keybinding-service-registration.js";
 import type { GhostApiFactoryDependencies } from "../../plugin-api/ghost-api-factory.js";
@@ -13,6 +14,7 @@ export interface ShellBootstrapState {
   mode: "inner-loop" | "integration";
   loadedPlugins: PluginContract[];
   registry: ShellPluginRegistry;
+  layerRegistry: LayerRegistry;
   themeRegistry?: ThemeRegistry | undefined;
   disposePluginConfigSync: (() => void) | null;
 }
@@ -33,4 +35,6 @@ export interface ShellBootstrapOptions {
   contextServiceDeps?: ContextServiceDeps | undefined;
   /** Dependencies for KeybindingService — registered before plugin activation. */
   keybindingServiceDeps?: KeybindingServiceDeps | undefined;
+  /** Pre-created LayerRegistry for wiring layer contributions during plugin activation. */
+  layerRegistry?: LayerRegistry | undefined;
 }

@@ -1,4 +1,4 @@
-import { LayerRegistry } from "@ghost-shell/layer";
+import type { LayerRegistry } from "@ghost-shell/layer";
 import { DEFAULT_DARK_PALETTE, injectThemeVariables } from "@ghost-shell/theme";
 import type { ShellRuntime } from "../app/types.js";
 
@@ -47,6 +47,7 @@ type MountDeps = {
   updateWindowReadOnlyState: () => void;
   setupResize: () => () => void;
   publishRestoreRequestOnUnload: () => void;
+  layerRegistry: LayerRegistry;
 };
 
 let _layerRegistry: LayerRegistry | undefined;
@@ -59,8 +60,7 @@ export function getLayerRegistry(): LayerRegistry | undefined {
 export function mountMainWindow(root: HTMLElement, deps: MountDeps): () => void {
   injectThemeVariables(DEFAULT_DARK_PALETTE);
 
-  const layerRegistry = new LayerRegistry();
-  layerRegistry.registerBuiltinLayers();
+  const layerRegistry = deps.layerRegistry;
   _layerRegistry = layerRegistry;
 
   root.innerHTML = `
