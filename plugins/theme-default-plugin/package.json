@@ -296,22 +296,7 @@
             }
           ]
         }
-      ],
-      "configuration": {
-        "properties": {
-          "ghost.theme.activeThemeId": {
-            "type": "string",
-            "title": "Active Theme",
-            "description": "The ID of the currently active theme"
-          },
-          "ghost.theme.backgroundIndex": {
-            "type": "integer",
-            "title": "Background Index",
-            "description": "Index of the selected background for the active theme",
-            "default": 0
-          }
-        }
-      }
+      ]
     }
   },
   "scripts": {

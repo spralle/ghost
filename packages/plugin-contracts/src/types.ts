@@ -1,21 +1,9 @@
+import type { ConfigurationPropertySchema } from "@weaver/config-types";
 import type { PluginLayerDefinition, PluginLayerSurfaceContribution } from "./layer-types.js";
 import type { ActivationRule } from "./schemas.js";
 import type { PartialThemePalette, TerminalPalette } from "./theme-types.js";
-/** Configuration property schema (JSON Schema subset with extension fields). */
-export interface ConfigurationPropertySchema {
-  type?: string | readonly string[] | undefined;
-  title?: string | undefined;
-  description?: string | undefined;
-  default?: unknown;
-  enum?: readonly unknown[] | undefined;
-  format?: string | undefined;
-  pattern?: string | undefined;
-  properties?: Readonly<Record<string, ConfigurationPropertySchema>> | undefined;
-  items?: ConfigurationPropertySchema | readonly ConfigurationPropertySchema[] | undefined;
-  oneOf?: readonly ConfigurationPropertySchema[] | undefined;
-  anyOf?: readonly ConfigurationPropertySchema[] | undefined;
-  [key: string]: unknown;
-}
+
+export type { ConfigurationPropertySchema } from "@weaver/config-types";
 
 export interface PluginGalleryBanner {
   color?: string | undefined;
@@ -186,10 +174,6 @@ export interface BrandingContribution {
   loadingScreen?: BrandingLoadingScreen | undefined;
 }
 
-export interface PluginConfigurationContribution {
-  properties: Record<string, ConfigurationPropertySchema>;
-}
-
 /** Edge slot position for shell chrome areas */
 export type ShellEdgeSlot = "top" | "bottom" | "left" | "right";
 
@@ -237,7 +221,7 @@ export interface PluginContributions {
   popoutCapabilities?: PluginPopoutCapabilityFlags | undefined;
   themes?: ThemeContribution[] | undefined;
   branding?: BrandingContribution | undefined;
-  configuration?: PluginConfigurationContribution | undefined;
+  configuration?: ConfigurationPropertySchema | undefined;
   slots?: PluginSlotContribution[] | undefined;
   sections?: PluginSectionContribution[] | undefined;
   layers?: PluginLayerDefinition[] | undefined;

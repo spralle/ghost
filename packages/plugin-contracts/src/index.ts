@@ -183,7 +183,6 @@ export type {
   PluginCapabilityComponentContribution,
   PluginCapabilityServiceContribution,
   PluginCompatibilityMetadata,
-  PluginConfigurationContribution,
   PluginContract,
   PluginContractInput,
   PluginContributionPredicate,

@@ -33,14 +33,16 @@
         }
       ],
       "configuration": {
+        "type": "object",
+        "title": "Motion",
         "properties": {
-          "ghost.motion.enabled": {
+          "enabled": {
             "type": "boolean",
             "title": "Enable animations",
             "description": "Global kill switch for all animations. When off, zero animation CSS is injected.",
             "default": true
           },
-          "ghost.motion.curves": {
+          "curves": {
             "type": "array",
             "title": "Bezier curves",
             "description": "Named bezier curve registry. Referenced by animation entries.",
@@ -126,7 +128,7 @@
               }
             ]
           },
-          "ghost.motion.animations": {
+          "animations": {
             "type": "object",
             "title": "Animation overrides",
             "description": "Per-animation configuration. Omitted entries inherit from their parent in the animation tree."
