@@ -1,8 +1,8 @@
+import { describe, expect, it } from "vitest";
 import type { DndSessionDeleteEvent, DndSessionUpsertEvent } from "@ghost-shell/bridge";
 import type { ShellRuntime } from "../app/types.js";
 import { updateContextState } from "../context/runtime-state.js";
 import { createInitialShellContextState, registerTab, type ShellContextState, setActiveTab } from "../context-state.js";
-import type { SpecHarness } from "../context-state.spec-harness.js";
 import { applySourceTabTransferTerminal, beginSourceTabTransferPending } from "./source-tab-transfer.js";
 
 function createRuntime(): ShellRuntime {
@@ -61,30 +61,24 @@ function createTerminalEvent(id: string, lifecycle: "commit" | "abort" | "timeou
   };
 }
 
-export function registerSourceTabTransferSpecs(harness: SpecHarness): void {
-  const { test, assertEqual } = harness;
-
-  test("source transfer removes source tab only after commit terminal", () => {
+describe("source tab transfer", () => {
+  it("source transfer removes source tab only after commit terminal", () => {
     const runtime = createRuntime();
     const beforeOrder = runtime.contextState.tabOrder.join(",");
 
     beginSourceTabTransferPending(runtime, createConsumeEvent("session-1", "tab-b"));
-    assertEqual(runtime.contextState.tabs["tab-b"]?.id, "tab-b", "consume should not remove source tab");
+    expect(runtime.contextState.tabs["tab-b"]?.id).toBe("tab-b");
 
     applySourceTabTransferTerminal(runtime, createTerminalEvent("session-1", "commit"));
-    assertEqual(runtime.contextState.tabs["tab-b"], undefined, "commit should remove source tab exactly once");
+    expect(runtime.contextState.tabs["tab-b"]).toBe(undefined);
 
     const orderAfterCommit = runtime.contextState.tabOrder.join(",");
     applySourceTabTransferTerminal(runtime, createTerminalEvent("session-1", "commit"));
-    assertEqual(
-      runtime.contextState.tabOrder.join(","),
-      orderAfterCommit,
-      "duplicate commit should be idempotent no-op",
-    );
-    assertEqual(beforeOrder.includes("tab-b"), true, "fixture should include source tab before commit");
+    expect(runtime.contextState.tabOrder.join(",")).toBe(orderAfterCommit);
+    expect(beforeOrder.includes("tab-b")).toBe(true);
   });
 
-  test("source transfer abort restores active selection deterministically", () => {
+  it("source transfer abort restores active selection deterministically", () => {
     const runtime = createRuntime();
 
     beginSourceTabTransferPending(runtime, createConsumeEvent("session-2", "tab-b"));
@@ -94,13 +88,13 @@ export function registerSourceTabTransferSpecs(harness: SpecHarness): void {
 
     applySourceTabTransferTerminal(runtime, createTerminalEvent("session-2", "abort"));
 
-    assertEqual(runtime.contextState.tabs["tab-b"]?.id, "tab-b", "abort should keep source tab present");
-    assertEqual(runtime.contextState.activeTabId, "tab-b", "abort should restore pre-transfer active tab");
-    assertEqual(runtime.selectedPartId, "tab-b", "abort should restore pre-transfer selected part id");
-    assertEqual(runtime.selectedPartTitle, "Tab B", "abort should restore pre-transfer selected part title");
+    expect(runtime.contextState.tabs["tab-b"]?.id).toBe("tab-b");
+    expect(runtime.contextState.activeTabId).toBe("tab-b");
+    expect(runtime.selectedPartId).toBe("tab-b");
+    expect(runtime.selectedPartTitle).toBe("Tab B");
   });
 
-  test("source transfer timeout rollback is idempotent and ignores late consume", () => {
+  it("source transfer timeout rollback is idempotent and ignores late consume", () => {
     const runtime = createRuntime();
 
     beginSourceTabTransferPending(runtime, createConsumeEvent("session-3", "tab-b"));
@@ -110,36 +104,24 @@ export function registerSourceTabTransferSpecs(harness: SpecHarness): void {
 
     applySourceTabTransferTerminal(runtime, createTerminalEvent("session-3", "timeout"));
 
-    assertEqual(runtime.contextState.tabs["tab-b"]?.id, "tab-b", "timeout should keep source tab present");
-    assertEqual(runtime.contextState.activeTabId, "tab-b", "timeout should restore pre-transfer active tab");
-    assertEqual(runtime.sourceTabTransferPendingBySessionId?.size, 0, "timeout should clear pending transfer session");
+    expect(runtime.contextState.tabs["tab-b"]?.id).toBe("tab-b");
+    expect(runtime.contextState.activeTabId).toBe("tab-b");
+    expect(runtime.sourceTabTransferPendingBySessionId?.size).toBe(0);
 
     applySourceTabTransferTerminal(runtime, createTerminalEvent("session-3", "timeout"));
     beginSourceTabTransferPending(runtime, createConsumeEvent("session-3", "tab-b"));
 
-    assertEqual(
-      runtime.sourceTabTransferPendingBySessionId?.size,
-      0,
-      "late consume after terminal should be ignored idempotently",
-    );
-    assertEqual(runtime.contextState.tabs["tab-b"]?.id, "tab-b", "late events must not remove source tab");
+    expect(runtime.sourceTabTransferPendingBySessionId?.size).toBe(0);
+    expect(runtime.contextState.tabs["tab-b"]?.id).toBe("tab-b");
   });
 
-  test("late commit event before pending is ignored and future pending is blocked", () => {
+  it("late commit event before pending is ignored and future pending is blocked", () => {
     const runtime = createRuntime();
 
     applySourceTabTransferTerminal(runtime, createTerminalEvent("session-late", "commit"));
     beginSourceTabTransferPending(runtime, createConsumeEvent("session-late", "tab-b"));
 
-    assertEqual(
-      runtime.sourceTabTransferPendingBySessionId?.size,
-      0,
-      "late commit tombstone should block future stale consume",
-    );
-    assertEqual(
-      runtime.contextState.tabs["tab-b"]?.id,
-      "tab-b",
-      "late commit should not remove source tab without pending transaction",
-    );
+    expect(runtime.sourceTabTransferPendingBySessionId?.size).toBe(0);
+    expect(runtime.contextState.tabs["tab-b"]?.id).toBe("tab-b");
   });
-}
+});

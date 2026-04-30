@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { compile } from "../compile.js";
 import { clearRegexCache, getRegexCacheSize } from "../evaluator.js";
 import { compileFilter, compileFilterFromAst } from "../filter-compiler.js";

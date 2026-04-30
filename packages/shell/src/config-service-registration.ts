@@ -62,7 +62,9 @@ export function registerConfigurationServiceCapability(
     },
   };
 
-  registry.registerBuiltinPlugin(contract, { [CONFIG_SERVICE_ID]: configService });
+  registry.registerBuiltinPlugin(contract, { [CONFIG_SERVICE_ID]: configService }, undefined, {
+    [CONFIG_SERVICE_ID]: { lazy: true },
+  });
 }
 
 // ---------------------------------------------------------------------------

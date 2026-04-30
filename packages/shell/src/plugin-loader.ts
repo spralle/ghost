@@ -18,6 +18,7 @@ export interface PluginContractLoadResult {
   contract: PluginContract;
   activate: PluginActivateFunction | null;
   deactivate: PluginDeactivateExport | null;
+  exports: Record<string, Function>;
 }
 
 /**
@@ -110,7 +111,7 @@ export function createRuntimeFirstPluginLoader(options: RuntimeFirstPluginLoader
         remoteLoadRetryDelayMs,
         onDiagnostic,
       });
-      const { contractData, activate, deactivate } = extractContractAndActivate(rawContract);
+      const { contractData, activate, deactivate, exports: extractedExports } = extractContractAndActivate(rawContract);
       const parsed = parsePluginContract(contractData);
 
       if (!parsed.success) {
@@ -132,7 +133,7 @@ export function createRuntimeFirstPluginLoader(options: RuntimeFirstPluginLoader
         });
       }
 
-      return { contract: parsed.data, activate, deactivate };
+      return { contract: parsed.data, activate, deactivate, exports: extractedExports };
     },
     async loadPluginComponents(descriptor) {
       federationRuntime.registerRemote({ id: descriptor.id, entry: descriptor.entry });
@@ -351,6 +352,7 @@ interface ExtractedContractModule {
   contractData: unknown;
   activate: PluginActivateFunction | null;
   deactivate: PluginDeactivateExport | null;
+  exports: Record<string, Function>;
 }
 
 /**
@@ -360,10 +362,15 @@ interface ExtractedContractModule {
 function extractContractAndActivate(rawModule: unknown): ExtractedContractModule {
   let activate: PluginActivateFunction | null = null;
   let deactivate: PluginDeactivateExport | null = null;
+  const exports: Record<string, Function> = {};
 
   if (rawModule && typeof rawModule === "object") {
     const record = rawModule as Record<string, unknown>;
-    // Module exports are untyped at the federation boundary; typeof guard above validates shape
+    for (const [key, value] of Object.entries(record)) {
+      if (typeof value === "function") {
+        exports[key] = value as Function;
+      }
+    }
     if (typeof record.activate === "function") {
       activate = record.activate as PluginActivateFunction;
     }
@@ -373,5 +380,5 @@ function extractContractAndActivate(rawModule: unknown): ExtractedContractModule
   }
 
   const contractData = normalizeRemoteContractModule(rawModule);
-  return { contractData, activate, deactivate };
+  return { contractData, activate, deactivate, exports };
 }

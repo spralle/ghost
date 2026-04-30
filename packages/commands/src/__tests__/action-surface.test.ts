@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import type { ActionSurface } from "../action-surface.js";
 import { buildActionSurface, resolveMenuActions } from "../action-surface.js";
 

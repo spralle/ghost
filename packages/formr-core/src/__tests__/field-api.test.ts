@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import type { ValidatorFn } from "../contracts.js";
 import { createFieldApi } from "../field-api.js";
 import type { CanonicalPath } from "../path.js";

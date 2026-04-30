@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 // @ts-expect-error — kuery is CJS with no type declarations
 import Kuery from "kuery";
 import type { ExprNode } from "../ast.js";
@@ -220,24 +220,24 @@ for (const [qName, query] of Object.entries(QUERIES)) {
         for (const size of COLLECTION_SIZES) {
           test(
             `${size.toLocaleString()} items — cold`,
+            { timeout: 60_000 },
             () => {
               const col = generateCollection(factory, size);
               const row = runComparison(`${qName}/${docSize[0]?.toUpperCase()}/${size}`, query, col, "cold");
               allRows.cold.push(row);
               console.log(`  COLD ${row[0]}: pred=${row[1]} kuery=${row[2]} → ${row[3]}`);
             },
-            { timeout: 60_000 },
           );
 
           test(
             `${size.toLocaleString()} items — hot`,
+            { timeout: 60_000 },
             () => {
               const col = generateCollection(factory, size);
               const row = runComparison(`${qName}/${docSize[0]?.toUpperCase()}/${size}`, query, col, "hot");
               allRows.hot.push(row);
               console.log(`  HOT  ${row[0]}: pred=${row[1]} kuery=${row[2]} → ${row[3]}`);
             },
-            { timeout: 60_000 },
           );
         }
       });
@@ -249,24 +249,24 @@ describe("query: $elemMatch", () => {
   for (const size of COLLECTION_SIZES) {
     test(
       `large/${size.toLocaleString()} items — cold`,
+      { timeout: 60_000 },
       () => {
         const col = generateCollection(makeLarge, size);
         const row = runComparison(`$elemMatch/L/${size}`, ELEMATCH_QUERY, col, "cold");
         allRows.cold.push(row);
         console.log(`  COLD ${row[0]}: pred=${row[1]} kuery=${row[2]} → ${row[3]}`);
       },
-      { timeout: 60_000 },
     );
 
     test(
       `large/${size.toLocaleString()} items — hot`,
+      { timeout: 60_000 },
       () => {
         const col = generateCollection(makeLarge, size);
         const row = runComparison(`$elemMatch/L/${size}`, ELEMATCH_QUERY, col, "hot");
         allRows.hot.push(row);
         console.log(`  HOT  ${row[0]}: pred=${row[1]} kuery=${row[2]} → ${row[3]}`);
       },
-      { timeout: 60_000 },
     );
   }
 });

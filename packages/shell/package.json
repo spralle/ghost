@@ -22,9 +22,9 @@
     "build:dist": "tsup"
   },
   "dependencies": {
-    "@ghost-shell/contracts": "workspace:*",
     "@ghost-shell/bridge": "workspace:*",
     "@ghost-shell/commands": "workspace:*",
+    "@ghost-shell/contracts": "workspace:*",
     "@ghost-shell/federation": "workspace:*",
     "@ghost-shell/intents": "workspace:*",
     "@ghost-shell/layer": "workspace:*",
@@ -35,7 +35,8 @@
     "@ghost-shell/state": "workspace:*",
     "@ghost-shell/theme": "workspace:*",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "valtio": "2.3.1"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",

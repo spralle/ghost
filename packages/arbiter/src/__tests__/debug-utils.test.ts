@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import type { FiringResult, ProductionRule } from "../contracts.js";
 import { dumpState, explainResult, formatChanges } from "../debug/index.js";
 import { createTestSession, fireWith } from "../testing/index.js";

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { compile } from "../compile.js";
 import { evaluateWithTrace } from "../failure-trace.js";
 

@@ -1,9 +1,8 @@
+import { describe, expect, it } from "vitest";
 import { createKeybindingService } from "@ghost-shell/commands";
 import type { IntentRuntime } from "@ghost-shell/intents";
 import { createDefaultContributionPredicateMatcher } from "@ghost-shell/plugin-system";
 import type { ActionSurface } from "../action-surface.js";
-import type { SpecHarness } from "../context-state.spec-harness.js";
-
 function createActionSurface(): ActionSurface {
   return {
     actions: [
@@ -80,10 +79,8 @@ function createIntentRuntime(calls: { intent: string; context: Readonly<Record<s
   };
 }
 
-export function registerKeybindingServiceSpecs(harness: SpecHarness): void {
-  const { test, assertEqual, assertTruthy } = harness;
-
-  test("normalizer canonicalizes keyboard events and configured chords", () => {
+describe("keybinding service", () => {
+  it("normalizer canonicalizes keyboard events and configured chords", () => {
     const service = createKeybindingService({
       actionSurface: createActionSurface(),
       intentRuntime: createIntentRuntime([]),
@@ -97,8 +94,8 @@ export function registerKeybindingServiceSpecs(harness: SpecHarness): void {
       metaKey: false,
     } as KeyboardEvent);
 
-    assertTruthy(fromEvent, "normalizer should emit chord for non-modifier key event");
-    assertEqual(fromEvent?.value, "ctrl+shift+p", "event normalizer should enforce canonical modifier order");
+    expect(fromEvent).toBeTruthy();
+    expect(fromEvent?.value).toBe("ctrl+shift+p");
 
     const resolution = service.resolve(
       {
@@ -108,14 +105,10 @@ export function registerKeybindingServiceSpecs(harness: SpecHarness): void {
       },
       {},
     );
-    assertEqual(
-      resolution.match?.action.id,
-      "shell.action.plugin",
-      "configured chord should resolve against canonical key",
-    );
+    expect(resolution.match?.action.id).toBe("shell.action.plugin");
   });
 
-  test("layer precedence resolves user overrides ahead of plugins and defaults", async () => {
+  it("layer precedence resolves user overrides ahead of plugins and defaults", async () => {
     const calls: { intent: string; context: Readonly<Record<string, string>> }[] = [];
     const service = createKeybindingService({
       actionSurface: createActionSurface(),
@@ -144,12 +137,8 @@ export function registerKeybindingServiceSpecs(harness: SpecHarness): void {
       },
       {},
     );
-    assertEqual(
-      result.match?.action.id,
-      "shell.action.plugin",
-      "user override should take precedence for duplicate chord",
-    );
-    assertEqual(result.match?.source.layer, "user-overrides", "resolved metadata should identify winning layer");
+    expect(result.match?.action.id).toBe("shell.action.plugin");
+    expect(result.match?.source.layer).toBe("user-overrides");
 
     await service.dispatch(
       {
@@ -161,11 +150,11 @@ export function registerKeybindingServiceSpecs(harness: SpecHarness): void {
         tabId: "tab-a",
       },
     );
-    assertEqual(calls.length, 1, "dispatch should execute resolved action exactly once");
-    assertEqual(calls[0]?.intent, "shell.intent.plugin", "dispatch should route to selected action intent");
+    expect(calls.length).toBe(1);
+    expect(calls[0]?.intent).toBe("shell.intent.plugin");
   });
 
-  test("resolver respects predicates and reports non-executable dispatch", async () => {
+  it("resolver respects predicates and reports non-executable dispatch", async () => {
     const calls: { intent: string; context: Readonly<Record<string, string>> }[] = [];
     const service = createKeybindingService({
       actionSurface: createActionSurface(),
@@ -184,7 +173,7 @@ export function registerKeybindingServiceSpecs(harness: SpecHarness): void {
         mode: "enabled",
       },
     );
-    assertEqual(denied.match, null, "resolver should skip bindings when predicates do not match");
+    expect(denied.match).toBe(null);
 
     const allowed = await service.dispatch(
       {
@@ -197,16 +186,12 @@ export function registerKeybindingServiceSpecs(harness: SpecHarness): void {
         mode: "enabled",
       },
     );
-    assertEqual(
-      allowed.resolution.match?.action.id,
-      "shell.action.hidden",
-      "resolver should return predicate-valid action",
-    );
-    assertEqual(allowed.executed, false, "dispatch should surface non-executable result from intent runtime");
-    assertEqual(calls.length, 1, "dispatch should attempt execution for allowed binding");
+    expect(allowed.resolution.match?.action.id).toBe("shell.action.hidden");
+    expect(allowed.executed).toBe(false);
+    expect(calls.length).toBe(1);
   });
 
-  test("resolveSequence with single chord works like legacy resolve", () => {
+  it("resolveSequence with single chord works like legacy resolve", () => {
     const service = createKeybindingService({
       actionSurface: createActionSurface(),
       intentRuntime: createIntentRuntime([]),
@@ -223,12 +208,12 @@ export function registerKeybindingServiceSpecs(harness: SpecHarness): void {
       {},
     );
 
-    assertEqual(result.kind, "exact", "single-chord sequence should resolve as exact match");
-    assertEqual(result.match?.action.id, "shell.action.plugin", "single-chord sequence should find the right action");
-    assertEqual(result.chords.length, 1, "result should contain the input chords");
+    expect(result.kind).toBe("exact");
+    expect(result.match?.action.id).toBe("shell.action.plugin");
+    expect(result.chords.length).toBe(1);
   });
 
-  test("resolveSequence with multi-chord sequence returns exact match", () => {
+  it("resolveSequence with multi-chord sequence returns exact match", () => {
     const surface: ActionSurface = {
       actions: [
         {
@@ -261,11 +246,11 @@ export function registerKeybindingServiceSpecs(harness: SpecHarness): void {
       {},
     );
 
-    assertEqual(result.kind, "exact", "full multi-chord sequence should resolve as exact");
-    assertEqual(result.match?.action.id, "shell.action.multi", "multi-chord sequence should find the right action");
+    expect(result.kind).toBe("exact");
+    expect(result.match?.action.id).toBe("shell.action.multi");
   });
 
-  test("resolveSequence with partial sequence returns prefix", () => {
+  it("resolveSequence with partial sequence returns prefix", () => {
     const surface: ActionSurface = {
       actions: [
         {
@@ -292,11 +277,11 @@ export function registerKeybindingServiceSpecs(harness: SpecHarness): void {
 
     const result = service.resolveSequence([{ modifiers: ["ctrl"], key: "k", value: "ctrl+k" }], {});
 
-    assertEqual(result.kind, "prefix", "partial sequence should return prefix");
-    assertTruthy((result.prefixCount ?? 0) > 0, "prefix result should report candidate count");
+    expect(result.kind).toBe("prefix");
+    expect((result.prefixCount ?? 0) > 0).toBeTruthy();
   });
 
-  test("hasPrefix returns true for valid prefix, false for non-prefix", () => {
+  it("hasPrefix returns true for valid prefix, false for non-prefix", () => {
     const surface: ActionSurface = {
       actions: [
         {
@@ -322,13 +307,13 @@ export function registerKeybindingServiceSpecs(harness: SpecHarness): void {
     });
 
     const hasValid = service.hasPrefix([{ modifiers: ["ctrl"], key: "k", value: "ctrl+k" }], {});
-    assertEqual(hasValid, true, "should detect valid prefix");
+    expect(hasValid).toBe(true);
 
     const hasInvalid = service.hasPrefix([{ modifiers: ["ctrl"], key: "z", value: "ctrl+z" }], {});
-    assertEqual(hasInvalid, false, "should reject non-matching prefix");
+    expect(hasInvalid).toBe(false);
   });
 
-  test("dispatchSequence only dispatches on exact match", async () => {
+  it("dispatchSequence only dispatches on exact match", async () => {
     const calls: { intent: string; context: Readonly<Record<string, string>> }[] = [];
     const surface: ActionSurface = {
       actions: [
@@ -356,8 +341,8 @@ export function registerKeybindingServiceSpecs(harness: SpecHarness): void {
 
     // Partial sequence should not dispatch
     const partial = await service.dispatchSequence([{ modifiers: ["ctrl"], key: "k", value: "ctrl+k" }], {});
-    assertEqual(partial.executed, false, "partial sequence should not dispatch");
-    assertEqual(calls.length, 0, "no intent should be invoked for partial sequence");
+    expect(partial.executed).toBe(false);
+    expect(calls.length).toBe(0);
 
     // Full sequence should dispatch
     const full = await service.dispatchSequence(
@@ -367,12 +352,12 @@ export function registerKeybindingServiceSpecs(harness: SpecHarness): void {
       ],
       {},
     );
-    assertEqual(full.resolution.match?.action.id, "shell.action.multi", "full sequence should resolve action");
-    assertEqual(full.executed, true, "full sequence should dispatch successfully");
-    assertEqual(calls.length, 1, "intent should be invoked once for full sequence");
+    expect(full.resolution.match?.action.id).toBe("shell.action.multi");
+    expect(full.executed).toBe(true);
+    expect(calls.length).toBe(1);
   });
 
-  test("service exposes sequence lifecycle event emitters", () => {
+  it("service exposes sequence lifecycle event emitters", () => {
     const service = createKeybindingService({
       actionSurface: createActionSurface(),
       intentRuntime: createIntentRuntime([]),
@@ -384,9 +369,9 @@ export function registerKeybindingServiceSpecs(harness: SpecHarness): void {
       pendingEvents.push(e),
     );
     service.fireKeySequencePending({ pressedChords: ["ctrl+k"], candidateCount: 3 });
-    assertEqual(pendingEvents.length, 1, "pending event should fire once");
-    assertEqual(pendingEvents[0]?.pressedChords[0], "ctrl+k", "pending event should carry pressed chords");
-    assertEqual(pendingEvents[0]?.candidateCount, 3, "pending event should carry candidate count");
+    expect(pendingEvents.length).toBe(1);
+    expect(pendingEvents[0]?.pressedChords[0]).toBe("ctrl+k");
+    expect(pendingEvents[0]?.candidateCount).toBe(3);
     sub1.dispose();
 
     // onDidKeySequenceCompleted
@@ -395,8 +380,8 @@ export function registerKeybindingServiceSpecs(harness: SpecHarness): void {
       completedEvents.push(e),
     );
     service.fireKeySequenceCompleted({ chords: ["ctrl+k", "ctrl+c"], actionId: "test.action" });
-    assertEqual(completedEvents.length, 1, "completed event should fire once");
-    assertEqual(completedEvents[0]?.actionId, "test.action", "completed event should carry action id");
+    expect(completedEvents.length).toBe(1);
+    expect(completedEvents[0]?.actionId).toBe("test.action");
     sub2.dispose();
 
     // onDidKeySequenceCancelled
@@ -405,12 +390,12 @@ export function registerKeybindingServiceSpecs(harness: SpecHarness): void {
       cancelledEvents.push(e),
     );
     service.fireKeySequenceCancelled({ chords: ["ctrl+k"], reason: "timeout" });
-    assertEqual(cancelledEvents.length, 1, "cancelled event should fire once");
-    assertEqual(cancelledEvents[0]?.reason, "timeout", "cancelled event should carry reason");
+    expect(cancelledEvents.length).toBe(1);
+    expect(cancelledEvents[0]?.reason).toBe("timeout");
     sub3.dispose();
 
     // After dispose, events should not fire
     service.fireKeySequencePending({ pressedChords: ["ctrl+x"], candidateCount: 1 });
-    assertEqual(pendingEvents.length, 1, "disposed subscription should not receive events");
+    expect(pendingEvents.length).toBe(1);
   });
-}
+});

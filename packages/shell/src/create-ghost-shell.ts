@@ -36,6 +36,7 @@ import {
   ShellWiringContext,
   summarizeSelectionPriorities,
 } from "./shell-wiring.js";
+import { resolveWindowIdentity } from "./window-identity.js";
 
 // ---------------------------------------------------------------------------
 // Options
@@ -56,6 +57,10 @@ export interface GhostShellOptions {
   readonly debug?: boolean;
   /** Register with HMR window registry for Vite hot reload. Default: false. */
   readonly hmr?: boolean;
+  /** Transport for popout windows — enables projected services and style sync. */
+  readonly popoutTransport?: import("./popout-initialization.js").PopoutTransport;
+  /** Scomp peer for cross-window contract resolution. Injected by app layer. */
+  readonly scomp?: import("./scomp-runtime.js").ScompPeer;
 }
 
 // ---------------------------------------------------------------------------
@@ -93,6 +98,10 @@ declare global {
 export function createGhostShell(options: GhostShellOptions): GhostShell {
   const { root, renderers = [], migrationFlags } = options;
 
+  // Resolve unified window identity — this ID is used as both runtime.windowId
+  // and scomp participantId, ensuring a single identity per window.
+  const identity = resolveWindowIdentity();
+
   const flags = migrationFlags ?? readShellMigrationFlags();
   const transportDecision = selectShellTransportPath(flags);
 
@@ -111,6 +120,7 @@ export function createGhostShell(options: GhostShellOptions): GhostShell {
   // Shell runtime (owns persistence, bridge, plugin registry, etc.)
   const runtime = createShellRuntime({
     transportPath: transportDecision.path,
+    windowId: identity.windowId,
   });
 
   // Re-wire partHost to use the shell's renderer registry (includes React renderer).
@@ -175,6 +185,15 @@ export function createGhostShell(options: GhostShellOptions): GhostShell {
           tenantId: options.tenant.id,
           defaultThemeId: options.theme ?? "ghost.theme.tokyo-night",
         });
+      } else if (runtime.isPopout && options.popoutTransport) {
+        const { initializePopout } = await import("./popout-initialization.js");
+        const popoutInit = await initializePopout(options.popoutTransport, document);
+        runtime.services = popoutInit.services;
+        const originalDispose = disposeMount;
+        disposeMount = () => {
+          popoutInit.dispose();
+          originalDispose?.();
+        };
       }
     },
 

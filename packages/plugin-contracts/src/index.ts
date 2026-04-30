@@ -35,6 +35,7 @@ export type {
   QuickPickItem,
   QuickPickOptions,
   ResolvedMenuAction,
+  ServiceRegistrationOptions,
   ViewDescriptor,
   ViewService,
   WindowDescriptor,
@@ -100,8 +101,11 @@ export { PLUGIN_REGISTRY_SERVICE_ID } from "./plugin-registry-service.js";
 export type { MountPartFn, PartMountCleanup, PluginMountContext, PluginServices } from "./plugin-services.js";
 export type { ResolveMountOptions } from "./resolve-mount.js";
 export { resolveModuleMountFn } from "./resolve-mount.js";
+export type { ActivationRule } from "./schemas.js";
 export {
   activationEventsSchema,
+  activationRuleSchema,
+  activationsSchema,
   brandingContributionSchema,
   pluginActionContributionSchema,
   pluginCapabilityComponentContributionSchema,
@@ -136,6 +140,26 @@ export {
   tenantPluginManifestResponseSchema,
   themeContributionSchema,
 } from "./schemas.js";
+export type { ServiceToken } from "./service-token.js";
+export { createServiceToken } from "./service-token.js";
+export * as ServiceTokens from "./service-tokens.js";
+export {
+  Action,
+  ActivityStatus,
+  Configuration,
+  Context,
+  Keybinding,
+  Menu,
+  PluginManagement,
+  PluginRegistry,
+  SyncStatus,
+  Theme,
+  View,
+  Window,
+  Workspace,
+} from "./service-tokens.js";
+export type { SnapshotCapable } from "./snapshot-capable.js";
+export { isSnapshotCapable } from "./snapshot-capable.js";
 export type { SyncStatusService } from "./sync-status-service.js";
 export { SYNC_STATUS_SERVICE_ID } from "./sync-status-service.js";
 export type { BackgroundInfo, ThemeInfo, ThemeService } from "./theme-service.js";

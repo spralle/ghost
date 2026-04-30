@@ -1,5 +1,5 @@
 import type { ShellRuntime } from "../app/types.js";
-import { sanitizeForWindowName } from "../app/utils.js";
+import { createWindowId, sanitizeForWindowName } from "../app/utils.js";
 import type { PartLifecycleDeps } from "./part-instance-tab-lifecycle.js";
 
 export interface GhostOpenRequest {
@@ -32,10 +32,12 @@ export function openPopout(
     return;
   }
 
+  const popoutWindowId = createWindowId();
   const url = new URL(window.location.href);
   url.searchParams.set("popout", "1");
   url.searchParams.set("partId", partId);
   url.searchParams.set("hostWindowId", runtime.windowId);
+  url.searchParams.set("windowId", popoutWindowId);
 
   const popout = window.open(url.toString(), `armada-popout-${sanitizeForWindowName(partId)}`);
   if (!popout) {

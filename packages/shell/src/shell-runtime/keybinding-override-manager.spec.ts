@@ -1,8 +1,7 @@
+import { describe, expect, it } from "vitest";
 import { createKeybindingOverrideManager } from "@ghost-shell/commands";
 import type { KeybindingOverrideEntryV1, ShellKeybindingPersistence } from "@ghost-shell/persistence";
 import type { ActionKeybinding } from "../action-surface.js";
-import type { SpecHarness } from "../context-state.spec-harness.js";
-
 function createMockPersistence(): ShellKeybindingPersistence & { saved: KeybindingOverrideEntryV1[][] } {
   const saved: KeybindingOverrideEntryV1[][] = [];
   let current: KeybindingOverrideEntryV1[] = [];
@@ -27,10 +26,8 @@ const PLUGIN_BINDINGS: ActionKeybinding[] = [
   { action: "plugin.action.terminal", keybinding: "ctrl+`", pluginId: "com.ghost.plugin.terminal" },
 ];
 
-export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): void {
-  const { test, assertEqual, assertTruthy } = harness;
-
-  test("addOverride with no conflicts succeeds", () => {
+describe("keybinding override manager", () => {
+  it("addOverride with no conflicts succeeds", () => {
     const persistence = createMockPersistence();
     const manager = createKeybindingOverrideManager({
       persistence,
@@ -39,13 +36,13 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
     });
 
     const result = manager.addOverride("shell.focus.left", "ctrl+j");
-    assertEqual(result.success, true, "should succeed");
-    assertEqual(result.conflicts.length, 0, "should have no conflicts");
-    assertEqual(result.warning, null, "should have no warning");
-    assertEqual(persistence.saved.length, 1, "should have persisted once");
+    expect(result.success).toBe(true);
+    expect(result.conflicts.length).toBe(0);
+    expect(result.warning).toBe(null);
+    expect(persistence.saved.length).toBe(1);
   });
 
-  test("addOverride that conflicts with a default binding returns conflict info", () => {
+  it("addOverride that conflicts with a default binding returns conflict info", () => {
     const persistence = createMockPersistence();
     const manager = createKeybindingOverrideManager({
       persistence,
@@ -54,15 +51,15 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
     });
 
     const result = manager.addOverride("custom.action", "ctrl+h");
-    assertEqual(result.success, true, "should still succeed");
-    assertEqual(result.conflicts.length, 1, "should detect one conflict");
-    assertEqual(result.conflicts[0].action, "shell.focus.left", "conflict action");
-    assertEqual(result.conflicts[0].layer, "defaults", "conflict layer");
-    assertEqual(result.conflicts[0].pluginId, "com.ghost.shell.defaults", "conflict pluginId");
-    assertEqual(result.conflicts[0].conflictType, "exact", "conflict type should be exact");
+    expect(result.success).toBe(true);
+    expect(result.conflicts.length).toBe(1);
+    expect(result.conflicts[0].action).toBe("shell.focus.left");
+    expect(result.conflicts[0].layer).toBe("defaults");
+    expect(result.conflicts[0].pluginId).toBe("com.ghost.shell.defaults");
+    expect(result.conflicts[0].conflictType).toBe("exact");
   });
 
-  test("addOverride that conflicts with a plugin binding returns conflict info", () => {
+  it("addOverride that conflicts with a plugin binding returns conflict info", () => {
     const persistence = createMockPersistence();
     const manager = createKeybindingOverrideManager({
       persistence,
@@ -71,15 +68,15 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
     });
 
     const result = manager.addOverride("custom.action", "ctrl+shift+f");
-    assertEqual(result.success, true, "should still succeed");
-    assertEqual(result.conflicts.length, 1, "should detect one conflict");
-    assertEqual(result.conflicts[0].action, "plugin.action.search", "conflict action");
-    assertEqual(result.conflicts[0].layer, "plugins", "conflict layer");
-    assertEqual(result.conflicts[0].pluginId, "com.ghost.plugin.search", "conflict pluginId");
-    assertEqual(result.conflicts[0].conflictType, "exact", "conflict type should be exact");
+    expect(result.success).toBe(true);
+    expect(result.conflicts.length).toBe(1);
+    expect(result.conflicts[0].action).toBe("plugin.action.search");
+    expect(result.conflicts[0].layer).toBe("plugins");
+    expect(result.conflicts[0].pluginId).toBe("com.ghost.plugin.search");
+    expect(result.conflicts[0].conflictType).toBe("exact");
   });
 
-  test("addOverride that conflicts with an existing user override returns conflict info", () => {
+  it("addOverride that conflicts with an existing user override returns conflict info", () => {
     const persistence = createMockPersistence();
     const manager = createKeybindingOverrideManager({
       persistence,
@@ -89,13 +86,13 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
 
     manager.addOverride("first.action", "ctrl+k");
     const result = manager.addOverride("second.action", "ctrl+k");
-    assertEqual(result.success, true, "should still succeed");
-    assertEqual(result.conflicts.length, 1, "should detect one user-override conflict");
-    assertEqual(result.conflicts[0].action, "first.action", "conflict action");
-    assertEqual(result.conflicts[0].layer, "user-overrides", "conflict layer");
+    expect(result.success).toBe(true);
+    expect(result.conflicts.length).toBe(1);
+    expect(result.conflicts[0].action).toBe("first.action");
+    expect(result.conflicts[0].layer).toBe("user-overrides");
   });
 
-  test("removeOverride for existing override succeeds", () => {
+  it("removeOverride for existing override succeeds", () => {
     const persistence = createMockPersistence();
     const manager = createKeybindingOverrideManager({
       persistence,
@@ -104,15 +101,15 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
     });
 
     manager.addOverride("shell.focus.left", "ctrl+j");
-    assertEqual(manager.getOverrides().length, 1, "should have one override before removal");
+    expect(manager.getOverrides().length).toBe(1);
 
     const result = manager.removeOverride("shell.focus.left");
-    assertEqual(result.success, true, "removal should succeed");
-    assertEqual(manager.getOverrides().length, 0, "should have no overrides after removal");
-    assertEqual(persistence.saved.length, 2, "should have persisted twice (add + remove)");
+    expect(result.success).toBe(true);
+    expect(manager.getOverrides().length).toBe(0);
+    expect(persistence.saved.length).toBe(2);
   });
 
-  test("removeOverride for non-existent override is a no-op success", () => {
+  it("removeOverride for non-existent override is a no-op success", () => {
     const persistence = createMockPersistence();
     const manager = createKeybindingOverrideManager({
       persistence,
@@ -121,12 +118,12 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
     });
 
     const result = manager.removeOverride("nonexistent.action");
-    assertEqual(result.success, true, "removal of non-existent should succeed");
-    assertEqual(result.conflicts.length, 0, "should have no conflicts");
-    assertEqual(persistence.saved.length, 0, "should not persist on no-op");
+    expect(result.success).toBe(true);
+    expect(result.conflicts.length).toBe(0);
+    expect(persistence.saved.length).toBe(0);
   });
 
-  test("resetToDefaults clears all overrides", () => {
+  it("resetToDefaults clears all overrides", () => {
     const persistence = createMockPersistence();
     const manager = createKeybindingOverrideManager({
       persistence,
@@ -136,16 +133,16 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
 
     manager.addOverride("action.a", "ctrl+1");
     manager.addOverride("action.b", "ctrl+2");
-    assertEqual(manager.getOverrides().length, 2, "should have two overrides before reset");
+    expect(manager.getOverrides().length).toBe(2);
 
     manager.resetToDefaults();
-    assertEqual(manager.getOverrides().length, 0, "should have no overrides after reset");
+    expect(manager.getOverrides().length).toBe(0);
     const lastSaved = persistence.saved[persistence.saved.length - 1];
-    assertTruthy(lastSaved, "should have persisted after reset");
-    assertEqual(lastSaved.length, 0, "persisted array should be empty after reset");
+    expect(lastSaved).toBeTruthy();
+    expect(lastSaved.length).toBe(0);
   });
 
-  test("listConflicts returns structured conflict info across all layers", () => {
+  it("listConflicts returns structured conflict info across all layers", () => {
     const persistence = createMockPersistence();
     const manager = createKeybindingOverrideManager({
       persistence,
@@ -156,18 +153,18 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
     manager.addOverride("user.action", "ctrl+h");
 
     const conflicts = manager.listConflicts("ctrl+h");
-    assertEqual(conflicts.length, 2, "should detect default and user-override conflicts");
+    expect(conflicts.length).toBe(2);
 
     const defaultConflict = conflicts.find((c) => c.layer === "defaults");
-    assertTruthy(defaultConflict, "should find default layer conflict");
-    assertEqual(defaultConflict?.action, "shell.focus.left", "default conflict action");
+    expect(defaultConflict).toBeTruthy();
+    expect(defaultConflict?.action).toBe("shell.focus.left");
 
     const userConflict = conflicts.find((c) => c.layer === "user-overrides");
-    assertTruthy(userConflict, "should find user-override layer conflict");
-    assertEqual(userConflict?.action, "user.action", "user override conflict action");
+    expect(userConflict).toBeTruthy();
+    expect(userConflict?.action).toBe("user.action");
   });
 
-  test("listConflicts returns empty array for unused chord", () => {
+  it("listConflicts returns empty array for unused chord", () => {
     const persistence = createMockPersistence();
     const manager = createKeybindingOverrideManager({
       persistence,
@@ -176,10 +173,10 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
     });
 
     const conflicts = manager.listConflicts("ctrl+shift+alt+z");
-    assertEqual(conflicts.length, 0, "should return empty array for unused chord");
+    expect(conflicts.length).toBe(0);
   });
 
-  test("getOverrides returns current state as defensive copy", () => {
+  it("getOverrides returns current state as defensive copy", () => {
     const persistence = createMockPersistence();
     const manager = createKeybindingOverrideManager({
       persistence,
@@ -189,16 +186,16 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
 
     manager.addOverride("action.x", "ctrl+x");
     const overrides = manager.getOverrides();
-    assertEqual(overrides.length, 1, "should have one override");
-    assertEqual(overrides[0].action, "action.x", "override action");
-    assertEqual(overrides[0].keybinding, "ctrl+x", "override keybinding is normalized");
+    expect(overrides.length).toBe(1);
+    expect(overrides[0].action).toBe("action.x");
+    expect(overrides[0].keybinding).toBe("ctrl+x");
 
     // Mutating the returned array should not affect the manager
     overrides.push({ action: "action.y", keybinding: "ctrl+y" });
-    assertEqual(manager.getOverrides().length, 1, "mutation should not affect internal state");
+    expect(manager.getOverrides().length).toBe(1);
   });
 
-  test("overrides persist via persistence layer", () => {
+  it("overrides persist via persistence layer", () => {
     const persistence = createMockPersistence();
     const manager = createKeybindingOverrideManager({
       persistence,
@@ -210,14 +207,14 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
     manager.addOverride("action.b", "ctrl+2");
     manager.removeOverride("action.a");
 
-    assertEqual(persistence.saved.length, 3, "should have three save calls (2 adds + 1 remove)");
+    expect(persistence.saved.length).toBe(3);
     const lastSaved = persistence.saved[2];
-    assertEqual(lastSaved.length, 1, "last persisted state should have one entry");
-    assertEqual(lastSaved[0].action, "action.b", "remaining override action");
-    assertEqual(lastSaved[0].keybinding, "ctrl+2", "remaining override keybinding");
+    expect(lastSaved.length).toBe(1);
+    expect(lastSaved[0].action).toBe("action.b");
+    expect(lastSaved[0].keybinding).toBe("ctrl+2");
   });
 
-  test("addOverride with invalid keybinding fails gracefully", () => {
+  it("addOverride with invalid keybinding fails gracefully", () => {
     const persistence = createMockPersistence();
     const manager = createKeybindingOverrideManager({
       persistence,
@@ -226,12 +223,12 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
     });
 
     const result = manager.addOverride("action.a", "+++");
-    assertEqual(result.success, false, "should fail for invalid chord");
-    assertEqual(result.warning, "Invalid keybinding sequence", "should report warning");
-    assertEqual(persistence.saved.length, 0, "should not persist invalid override");
+    expect(result.success).toBe(false);
+    expect(result.warning).toBe("Invalid keybinding sequence");
+    expect(persistence.saved.length).toBe(0);
   });
 
-  test("addOverride normalizes chord before storing", () => {
+  it("addOverride normalizes chord before storing", () => {
     const persistence = createMockPersistence();
     const manager = createKeybindingOverrideManager({
       persistence,
@@ -241,11 +238,11 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
 
     manager.addOverride("action.a", "Shift + Ctrl + P");
     const overrides = manager.getOverrides();
-    assertEqual(overrides.length, 1, "should have one override");
-    assertEqual(overrides[0].keybinding, "ctrl+shift+p", "chord should be normalized");
+    expect(overrides.length).toBe(1);
+    expect(overrides[0].keybinding).toBe("ctrl+shift+p");
   });
 
-  test("addOverride updates existing override for same action", () => {
+  it("addOverride updates existing override for same action", () => {
     const persistence = createMockPersistence();
     const manager = createKeybindingOverrideManager({
       persistence,
@@ -256,11 +253,11 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
     manager.addOverride("action.a", "ctrl+1");
     manager.addOverride("action.a", "ctrl+2");
     const overrides = manager.getOverrides();
-    assertEqual(overrides.length, 1, "should have one override (updated, not duplicated)");
-    assertEqual(overrides[0].keybinding, "ctrl+2", "keybinding should be updated");
+    expect(overrides.length).toBe(1);
+    expect(overrides[0].keybinding).toBe("ctrl+2");
   });
 
-  test("listConflicts with invalid chord returns empty array", () => {
+  it("listConflicts with invalid chord returns empty array", () => {
     const persistence = createMockPersistence();
     const manager = createKeybindingOverrideManager({
       persistence,
@@ -269,10 +266,10 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
     });
 
     const conflicts = manager.listConflicts("+++");
-    assertEqual(conflicts.length, 0, "invalid chord should return empty conflicts");
+    expect(conflicts.length).toBe(0);
   });
 
-  test("manager initializes overrides from persistence.load()", () => {
+  it("manager initializes overrides from persistence.load()", () => {
     const persistence = createMockPersistence();
     // Pre-populate persistence with saved data via save
     persistence.save([{ action: "preloaded.action", keybinding: "ctrl+p" }]);
@@ -284,12 +281,12 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
     });
 
     const overrides = manager.getOverrides();
-    assertEqual(overrides.length, 1, "should initialize from persistence");
-    assertEqual(overrides[0].action, "preloaded.action", "should have preloaded action");
-    assertEqual(overrides[0].keybinding, "ctrl+p", "should have preloaded keybinding");
+    expect(overrides.length).toBe(1);
+    expect(overrides[0].action).toBe("preloaded.action");
+    expect(overrides[0].keybinding).toBe("ctrl+p");
   });
 
-  test("listConflicts does not double-count when same binding appears in defaults only", () => {
+  it("listConflicts does not double-count when same binding appears in defaults only", () => {
     const persistence = createMockPersistence();
     // Simulate the FIXED wiring: defaults have ctrl+h, plugins do NOT have it
     const manager = createKeybindingOverrideManager({
@@ -304,11 +301,11 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
     });
 
     const conflicts = manager.listConflicts("ctrl+h");
-    assertEqual(conflicts.length, 1, "should find exactly one binding (no double-count)");
-    assertEqual(conflicts[0].layer, "defaults", "the single match should be from defaults layer");
+    expect(conflicts.length).toBe(1);
+    expect(conflicts[0].layer).toBe("defaults");
   });
 
-  test("listConflicts correctly detects real cross-layer conflict", () => {
+  it("listConflicts correctly detects real cross-layer conflict", () => {
     const persistence = createMockPersistence();
     const manager = createKeybindingOverrideManager({
       persistence,
@@ -322,18 +319,18 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
     });
 
     const conflicts = manager.listConflicts("ctrl+h");
-    assertEqual(conflicts.length, 2, "should detect real cross-layer conflict");
+    expect(conflicts.length).toBe(2);
     const defaultConflict = conflicts.find((c) => c.layer === "defaults");
     const pluginConflict = conflicts.find((c) => c.layer === "plugins");
-    assertTruthy(defaultConflict, "should have default layer conflict");
-    assertTruthy(pluginConflict, "should have plugin layer conflict");
+    expect(defaultConflict).toBeTruthy();
+    expect(pluginConflict).toBeTruthy();
   });
 
   // ---------------------------------------------------------------------------
   // Sequence-aware conflict detection tests
   // ---------------------------------------------------------------------------
 
-  test("addOverride with sequence string succeeds", () => {
+  it("addOverride with sequence string succeeds", () => {
     const persistence = createMockPersistence();
     const manager = createKeybindingOverrideManager({
       persistence,
@@ -342,14 +339,14 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
     });
 
     const result = manager.addOverride("custom.sequence.action", "ctrl+k c");
-    assertEqual(result.success, true, "should succeed with sequence");
-    assertEqual(result.warning, null, "should have no warning");
+    expect(result.success).toBe(true);
+    expect(result.warning).toBe(null);
     const overrides = manager.getOverrides();
-    assertEqual(overrides.length, 1, "should have one override");
-    assertEqual(overrides[0].keybinding, "ctrl+k c", "sequence should be stored normalized");
+    expect(overrides.length).toBe(1);
+    expect(overrides[0].keybinding).toBe("ctrl+k c");
   });
 
-  test("prefix conflict: adding sequence when single-chord prefix exists", () => {
+  it("prefix conflict: adding sequence when single-chord prefix exists", () => {
     const persistence = createMockPersistence();
     const manager = createKeybindingOverrideManager({
       persistence,
@@ -359,14 +356,14 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
 
     manager.addOverride("first.action", "ctrl+k");
     const result = manager.addOverride("second.action", "ctrl+k c");
-    assertEqual(result.success, true, "should succeed");
-    assertEqual(result.conflicts.length, 1, "should detect one prefix conflict");
-    assertEqual(result.conflicts[0].action, "first.action", "conflict action");
-    assertEqual(result.conflicts[0].conflictType, "prefix", "should be prefix conflict");
-    assertEqual(result.conflicts[0].layer, "user-overrides", "conflict layer");
+    expect(result.success).toBe(true);
+    expect(result.conflicts.length).toBe(1);
+    expect(result.conflicts[0].action).toBe("first.action");
+    expect(result.conflicts[0].conflictType).toBe("prefix");
+    expect(result.conflicts[0].layer).toBe("user-overrides");
   });
 
-  test("prefix conflict reverse: adding single-chord when sequence with that prefix exists", () => {
+  it("prefix conflict reverse: adding single-chord when sequence with that prefix exists", () => {
     const persistence = createMockPersistence();
     const manager = createKeybindingOverrideManager({
       persistence,
@@ -376,13 +373,13 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
 
     manager.addOverride("first.action", "ctrl+k c");
     const result = manager.addOverride("second.action", "ctrl+k");
-    assertEqual(result.success, true, "should succeed");
-    assertEqual(result.conflicts.length, 1, "should detect one prefix conflict");
-    assertEqual(result.conflicts[0].action, "first.action", "conflict action");
-    assertEqual(result.conflicts[0].conflictType, "prefix", "should be prefix conflict");
+    expect(result.success).toBe(true);
+    expect(result.conflicts.length).toBe(1);
+    expect(result.conflicts[0].action).toBe("first.action");
+    expect(result.conflicts[0].conflictType).toBe("prefix");
   });
 
-  test("listConflicts with sequence returns proper conflictType", () => {
+  it("listConflicts with sequence returns proper conflictType", () => {
     const persistence = createMockPersistence();
     const manager = createKeybindingOverrideManager({
       persistence,
@@ -393,12 +390,12 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
     });
 
     const conflicts = manager.listConflicts("ctrl+k c");
-    assertEqual(conflicts.length, 1, "should detect one prefix conflict");
-    assertEqual(conflicts[0].conflictType, "prefix", "should be prefix conflict");
-    assertEqual(conflicts[0].action, "shell.chord.action", "conflict action");
+    expect(conflicts.length).toBe(1);
+    expect(conflicts[0].conflictType).toBe("prefix");
+    expect(conflicts[0].action).toBe("shell.chord.action");
   });
 
-  test("no conflict between unrelated sequences", () => {
+  it("no conflict between unrelated sequences", () => {
     const persistence = createMockPersistence();
     const manager = createKeybindingOverrideManager({
       persistence,
@@ -408,7 +405,7 @@ export function registerKeybindingOverrideManagerSpecs(harness: SpecHarness): vo
 
     manager.addOverride("first.action", "ctrl+k c");
     const result = manager.addOverride("second.action", "ctrl+j d");
-    assertEqual(result.success, true, "should succeed");
-    assertEqual(result.conflicts.length, 0, "should have no conflicts between unrelated sequences");
+    expect(result.success).toBe(true);
+    expect(result.conflicts.length).toBe(0);
   });
-}
+});

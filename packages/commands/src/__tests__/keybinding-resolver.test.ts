@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import type { ActionSurfaceContext } from "../action-surface.js";
 import { normalizeConfiguredChord, normalizeConfiguredSequence } from "../keybinding-normalizer.js";
 import type { RegisteredKeybindingRecord } from "../keybinding-resolver.js";

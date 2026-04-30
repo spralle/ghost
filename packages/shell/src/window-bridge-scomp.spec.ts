@@ -1,28 +1,6 @@
 import type { AsyncWindowBridgeRejectReason } from "@ghost-shell/bridge";
 import { createAsyncScompWindowBridge, normalizeScompFailureReason } from "@ghost-shell/bridge";
-
-type TestCase = {
-  name: string;
-  run: () => void | Promise<void>;
-};
-
-const tests: TestCase[] = [];
-
-function test(name: string, run: () => void | Promise<void>): void {
-  tests.push({ name, run });
-}
-
-function assertEqual(actual: unknown, expected: unknown, message: string): void {
-  if (actual !== expected) {
-    throw new Error(`${message}. expected=${String(expected)} actual=${String(actual)}`);
-  }
-}
-
-function assertTruthy(value: unknown, message: string): void {
-  if (!value) {
-    throw new Error(message);
-  }
-}
+import { describe, expect, it } from "vitest";
 
 class FakeScompTransport {
   publishError: unknown = null;
@@ -73,137 +51,118 @@ class FakeScompTransport {
   }
 }
 
-test("scomp adapter publishes accepted and routes parsed events", async () => {
-  const transport = new FakeScompTransport();
-  const bridge = createAsyncScompWindowBridge({
-    channelName: "ghost.test.scomp",
-    loadTransport: async () => transport,
-  });
-
-  const events: string[] = [];
-  bridge.subscribe((event) => {
-    events.push(event.type);
-  });
-
-  const result = await bridge.publish({
-    type: "sync-probe",
-    probeId: "probe-1",
-    sourceWindowId: "window-a",
-  });
-
-  assertEqual(result.status, "accepted", "publish should resolve accepted");
-  if (result.status === "accepted") {
-    assertEqual(result.disposition, "enqueued", "accepted publish should be enqueued");
-  }
-
-  transport.emitEvent({
-    type: "selection",
-    selectedPartId: "tab-a",
-    selectedPartTitle: "Tab A",
-    selectionByEntityType: {},
-    sourceWindowId: "window-b",
-  });
-
-  assertEqual(events.length, 1, "selection event should be parsed and delivered");
-  assertEqual(events[0], "selection", "parsed event type should match payload");
-});
-
-test("scomp adapter normalizes health reasons and close teardown is deterministic", async () => {
-  const transport = new FakeScompTransport();
-  const bridge = createAsyncScompWindowBridge({
-    channelName: "ghost.test.scomp.health",
-    loadTransport: async () => transport,
-  });
-
-  const seen: Array<{ sequence: number; state: string; reason: AsyncWindowBridgeRejectReason | null }> = [];
-  bridge.subscribeHealth((health) => {
-    seen.push({
-      sequence: health.sequence,
-      state: health.state,
-      reason: health.reason,
+describe("window-bridge-scomp", () => {
+  it("scomp adapter publishes accepted and routes parsed events", async () => {
+    const transport = new FakeScompTransport();
+    const bridge = createAsyncScompWindowBridge({
+      channelName: "ghost.test.scomp",
+      loadTransport: async () => transport,
     });
+
+    const events: string[] = [];
+    bridge.subscribe((event) => {
+      events.push(event.type);
+    });
+
+    const result = await bridge.publish({
+      type: "sync-probe",
+      probeId: "probe-1",
+      sourceWindowId: "window-a",
+    });
+
+    expect(result.status).toBe("accepted");
+    if (result.status === "accepted") {
+      expect(result.disposition).toBe("enqueued");
+    }
+
+    transport.emitEvent({
+      type: "selection",
+      selectedPartId: "tab-a",
+      selectedPartTitle: "Tab A",
+      selectionByEntityType: {},
+      sourceWindowId: "window-b",
+    });
+
+    expect(events.length).toBe(1);
+    expect(events[0]).toBe("selection");
   });
 
-  await bridge.publish({
-    type: "sync-probe",
-    probeId: "probe-seed",
-    sourceWindowId: "window-a",
+  it("scomp adapter normalizes health reasons and close teardown is deterministic", async () => {
+    const transport = new FakeScompTransport();
+    const bridge = createAsyncScompWindowBridge({
+      channelName: "ghost.test.scomp.health",
+      loadTransport: async () => transport,
+    });
+
+    const seen: Array<{ sequence: number; state: string; reason: AsyncWindowBridgeRejectReason | null }> = [];
+    bridge.subscribeHealth((health) => {
+      seen.push({
+        sequence: health.sequence,
+        state: health.state,
+        reason: health.reason,
+      });
+    });
+
+    await bridge.publish({
+      type: "sync-probe",
+      probeId: "probe-seed",
+      sourceWindowId: "window-a",
+    });
+
+    transport.emitHealth({ state: "degraded", reason: "channel-error" });
+    transport.emitHealth({ state: "degraded", reason: "channel-error" });
+    transport.emitHealth({ state: "healthy" });
+
+    expect(seen.length >= 3).toBe(true);
+    expect(seen[0]?.state).toBe("healthy");
+    expect(seen[1]?.state).toBe("degraded");
+    expect(seen[1]?.reason).toBe("channel-error");
+
+    bridge.close();
+    bridge.close();
+    expect(transport.closeCalls).toBe(1);
+    expect(transport.disposeCalls).toBe(1);
+
+    const rejectedAfterClose = await bridge.publish({
+      type: "sync-probe",
+      probeId: "probe-after-close",
+      sourceWindowId: "window-a",
+    });
+    expect(rejectedAfterClose.status).toBe("rejected");
+    if (rejectedAfterClose.status === "rejected") {
+      expect(rejectedAfterClose.reason).toBe("closed");
+    }
   });
 
-  transport.emitHealth({ state: "degraded", reason: "channel-error" });
-  transport.emitHealth({ state: "degraded", reason: "channel-error" });
-  transport.emitHealth({ state: "healthy" });
+  it("scomp adapter maps transport publish failures to normalized reject reasons", async () => {
+    const transport = new FakeScompTransport();
+    const bridge = createAsyncScompWindowBridge({
+      channelName: "ghost.test.scomp.errors",
+      loadTransport: async () => transport,
+    });
 
-  assertTruthy(seen.length >= 3, "health stream should include initial, degraded, and healthy states");
-  assertEqual(seen[0]?.state, "healthy", "initial state should be healthy");
-  assertEqual(seen[1]?.state, "degraded", "degraded health should be forwarded");
-  assertEqual(seen[1]?.reason, "channel-error", "degraded health reason should normalize");
+    await bridge.publish({
+      type: "sync-probe",
+      probeId: "probe-ready",
+      sourceWindowId: "window-a",
+    });
 
-  bridge.close();
-  bridge.close();
-  assertEqual(transport.closeCalls, 1, "close should execute once");
-  assertEqual(transport.disposeCalls, 1, "dispose should execute once");
-
-  const rejectedAfterClose = await bridge.publish({
-    type: "sync-probe",
-    probeId: "probe-after-close",
-    sourceWindowId: "window-a",
+    transport.publishError = new Error("channel unavailable during publish");
+    const rejected = await bridge.publish({
+      type: "sync-probe",
+      probeId: "probe-error",
+      sourceWindowId: "window-a",
+    });
+    expect(rejected.status).toBe("rejected");
+    if (rejected.status === "rejected") {
+      expect(rejected.reason).toBe("unavailable");
+    }
   });
-  assertEqual(rejectedAfterClose.status, "rejected", "closed bridge should reject publish");
-  if (rejectedAfterClose.status === "rejected") {
-    assertEqual(rejectedAfterClose.reason, "closed", "closed bridge should normalize closed reason");
-  }
+
+  it("scomp failure normalization maps known error classes", () => {
+    expect(normalizeScompFailureReason(new Error("timed out"))).toBe("timeout");
+    expect(normalizeScompFailureReason(new Error("channel broke"))).toBe("channel-error");
+    expect(normalizeScompFailureReason(new Error("resource unavailable"))).toBe("unavailable");
+    expect(normalizeScompFailureReason(new Error("bridge closed"))).toBe("closed");
+  });
 });
-
-test("scomp adapter maps transport publish failures to normalized reject reasons", async () => {
-  const transport = new FakeScompTransport();
-  const bridge = createAsyncScompWindowBridge({
-    channelName: "ghost.test.scomp.errors",
-    loadTransport: async () => transport,
-  });
-
-  await bridge.publish({
-    type: "sync-probe",
-    probeId: "probe-ready",
-    sourceWindowId: "window-a",
-  });
-
-  transport.publishError = new Error("channel unavailable during publish");
-  const rejected = await bridge.publish({
-    type: "sync-probe",
-    probeId: "probe-error",
-    sourceWindowId: "window-a",
-  });
-  assertEqual(rejected.status, "rejected", "publish failure should reject");
-  if (rejected.status === "rejected") {
-    assertEqual(rejected.reason, "unavailable", "publish failure should normalize reason");
-  }
-});
-
-test("scomp failure normalization maps known error classes", () => {
-  assertEqual(normalizeScompFailureReason(new Error("timed out")), "timeout", "timeout error should normalize");
-  assertEqual(
-    normalizeScompFailureReason(new Error("channel broke")),
-    "channel-error",
-    "channel error should normalize",
-  );
-  assertEqual(
-    normalizeScompFailureReason(new Error("resource unavailable")),
-    "unavailable",
-    "unavailable should normalize",
-  );
-  assertEqual(normalizeScompFailureReason(new Error("bridge closed")), "closed", "closed should normalize");
-});
-
-let passed = 0;
-for (const caseItem of tests) {
-  try {
-    await caseItem.run();
-    passed += 1;
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    throw new Error(`window-bridge-scomp spec failed: ${caseItem.name} :: ${message}`);
-  }
-}
-
-console.log(`window-bridge-scomp specs passed (${passed}/${tests.length})`);

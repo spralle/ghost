@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { extractFromZod } from "@ghost-shell/schema-core";
 
 /** Helper to create a mock Zod-like schema */

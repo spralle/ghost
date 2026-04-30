@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import type { LayoutNode, SchemaIngestionResult } from "../index.js";
 import {
   compileLayout,

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import type { ProductionRule } from "@ghost-shell/arbiter";
 import { createSession } from "@ghost-shell/arbiter";
 import { createArbiterAdapter, createArbiterAdapterFromSession } from "../arbiter-integration.js";

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { createDateEgressTransform, createDateTransform, runTransforms, type TransformDefinition } from "../index.js";
 
 describe("F9: Transform round-trip conformance", () => {

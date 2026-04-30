@@ -1,5 +1,5 @@
+import { describe, expect, it } from "vitest";
 import type { QuickPickItem } from "@ghost-shell/contracts";
-import type { SpecHarness } from "../../context-state.spec-harness.js";
 import {
   computeFuzzyScore,
   createInitialQuickPickState,
@@ -50,193 +50,188 @@ function sampleItems(): readonly TestItem[] {
 // Spec registration
 // ---------------------------------------------------------------------------
 
-export function registerQuickPickStateSpecs(harness: SpecHarness): void {
-  const { test, assertEqual, assertTruthy } = harness;
-
+describe("quick pick state", () => {
   // 1. createInitialQuickPickState returns closed state
-  test("createInitialQuickPickState returns closed state", () => {
+  it("createInitialQuickPickState returns closed state", () => {
     const state = createInitialQuickPickState<TestItem>();
-    assertEqual(state.phase, "closed", "phase should be closed");
-    assertEqual(state.filter, "", "filter should be empty");
-    assertEqual(state.selectedIndex, 0, "selectedIndex should be 0");
-    assertEqual(state.items.length, 0, "items should be empty");
-    assertEqual(state.filteredItems.length, 0, "filteredItems should be empty");
+    expect(state.phase).toBe("closed");
+    expect(state.filter).toBe("");
+    expect(state.selectedIndex).toBe(0);
+    expect(state.items.length).toBe(0);
+    expect(state.filteredItems.length).toBe(0);
   });
 
   // 2. open transitions to open phase with items and filtered list
-  test("open transitions to open phase with items", () => {
+  it("open transitions to open phase with items", () => {
     const items = sampleItems();
     const state = reduceQuickPickState(createInitialQuickPickState<TestItem>(), { type: "open", items });
 
-    assertEqual(state.phase, "open", "phase should be open");
-    assertEqual(state.filter, "", "filter should be empty on open");
-    assertEqual(state.selectedIndex, 0, "selectedIndex should be 0 on open");
-    assertEqual(state.items.length, items.length, "items should be populated");
-    assertEqual(state.filteredItems.length, items.length, "all items should appear in filteredItems");
+    expect(state.phase).toBe("open");
+    expect(state.filter).toBe("");
+    expect(state.selectedIndex).toBe(0);
+    expect(state.items.length).toBe(items.length);
+    expect(state.filteredItems.length).toBe(items.length);
   });
 
   // 3. close returns to initial state
-  test("close returns to initial state", () => {
+  it("close returns to initial state", () => {
     const items = sampleItems();
     const openState = reduceQuickPickState(createInitialQuickPickState<TestItem>(), { type: "open", items });
     const closedState = reduceQuickPickState(openState, { type: "close" });
 
-    assertEqual(closedState.phase, "closed", "phase should be closed");
-    assertEqual(closedState.filter, "", "filter should be empty");
-    assertEqual(closedState.items.length, 0, "items should be empty");
-    assertEqual(closedState.filteredItems.length, 0, "filteredItems should be empty");
+    expect(closedState.phase).toBe("closed");
+    expect(closedState.filter).toBe("");
+    expect(closedState.items.length).toBe(0);
+    expect(closedState.filteredItems.length).toBe(0);
   });
 
   // 4. updateFilter filters items and resets selectedIndex
-  test("updateFilter filters items and resets selectedIndex", () => {
+  it("updateFilter filters items and resets selectedIndex", () => {
     const items = sampleItems();
     let state = reduceQuickPickState(createInitialQuickPickState<TestItem>(), { type: "open", items });
     state = reduceQuickPickState(state, { type: "selectNext" });
-    assertEqual(state.selectedIndex, 1, "selectedIndex should be 1");
+    expect(state.selectedIndex).toBe(1);
 
     state = reduceQuickPickState(state, {
       type: "updateFilter",
       filter: "Focus",
     });
-    assertEqual(state.selectedIndex, 0, "selectedIndex should reset to 0");
-    assertEqual(state.filter, "Focus", "filter should be updated");
-    assertEqual(state.filteredItems.length, 2, "filter should narrow results");
+    expect(state.selectedIndex).toBe(0);
+    expect(state.filter).toBe("Focus");
+    expect(state.filteredItems.length).toBe(2);
   });
 
   // 5. updateFilter with empty string shows all items
-  test("updateFilter with empty string shows all items", () => {
+  it("updateFilter with empty string shows all items", () => {
     const items = sampleItems();
     let state = reduceQuickPickState(createInitialQuickPickState<TestItem>(), { type: "open", items });
     state = reduceQuickPickState(state, {
       type: "updateFilter",
       filter: "Focus",
     });
-    assertEqual(state.filteredItems.length, 2, "filtered should be narrowed");
+    expect(state.filteredItems.length).toBe(2);
 
     state = reduceQuickPickState(state, {
       type: "updateFilter",
       filter: "",
     });
-    assertEqual(state.filteredItems.length, items.length, "empty filter should show all items");
+    expect(state.filteredItems.length).toBe(items.length);
   });
 
   // 6. selectNext wraps around at end
-  test("selectNext wraps around at end", () => {
+  it("selectNext wraps around at end", () => {
     const items = sampleItems();
     let state = reduceQuickPickState(createInitialQuickPickState<TestItem>(), { type: "open", items });
 
     for (let i = 0; i < items.length - 1; i++) {
       state = reduceQuickPickState(state, { type: "selectNext" });
     }
-    assertEqual(state.selectedIndex, items.length - 1, "should be at last");
+    expect(state.selectedIndex).toBe(items.length - 1);
 
     state = reduceQuickPickState(state, { type: "selectNext" });
-    assertEqual(state.selectedIndex, 0, "selectNext should wrap to 0");
+    expect(state.selectedIndex).toBe(0);
   });
 
   // 7. selectPrevious wraps around at start
-  test("selectPrevious wraps around at start", () => {
+  it("selectPrevious wraps around at start", () => {
     const items = sampleItems();
     let state = reduceQuickPickState(createInitialQuickPickState<TestItem>(), { type: "open", items });
-    assertEqual(state.selectedIndex, 0, "should start at 0");
+    expect(state.selectedIndex).toBe(0);
 
     state = reduceQuickPickState(state, { type: "selectPrevious" });
-    assertEqual(state.selectedIndex, state.filteredItems.length - 1, "selectPrevious should wrap to last");
+    expect(state.selectedIndex).toBe(state.filteredItems.length - 1);
   });
 
   // 8. selectIndex clamps to valid range
-  test("selectIndex clamps to valid range", () => {
+  it("selectIndex clamps to valid range", () => {
     const items = sampleItems();
     let state = reduceQuickPickState(createInitialQuickPickState<TestItem>(), { type: "open", items });
 
     state = reduceQuickPickState(state, { type: "selectIndex", index: 999 });
-    assertEqual(state.selectedIndex, state.filteredItems.length - 1, "should clamp to max");
+    expect(state.selectedIndex).toBe(state.filteredItems.length - 1);
 
     state = reduceQuickPickState(state, { type: "selectIndex", index: -5 });
-    assertEqual(state.selectedIndex, 0, "should clamp negative to 0");
+    expect(state.selectedIndex).toBe(0);
   });
 
   // 9. getSelectedItem returns correct item
-  test("getSelectedItem returns correct item", () => {
+  it("getSelectedItem returns correct item", () => {
     const items = sampleItems();
     let state = reduceQuickPickState(createInitialQuickPickState<TestItem>(), { type: "open", items });
 
     const first = getSelectedItem(state);
-    assertTruthy(first, "getSelectedItem should return an item");
+    expect(first).toBeTruthy();
 
     state = reduceQuickPickState(state, { type: "selectNext" });
     const second = getSelectedItem(state);
-    assertTruthy(second, "should return an item after selectNext");
-    assertTruthy(
-      first?.id !== second?.id || first?.label !== second?.label || state.selectedIndex === 0,
-      "selected item should change after selectNext",
-    );
+    expect(second).toBeTruthy();
+    expect(first?.id !== second?.id || first?.label !== second?.label || state.selectedIndex === 0).toBeTruthy();
   });
 
   // 10. getSelectedItem returns null when no items
-  test("getSelectedItem returns null when no items", () => {
+  it("getSelectedItem returns null when no items", () => {
     const state = createInitialQuickPickState<TestItem>();
     const item = getSelectedItem(state);
-    assertEqual(item, null, "should return null when no items");
+    expect(item).toBe(null);
   });
 
   // 11. Fuzzy scoring: exact label match scores highest
-  test("fuzzy scoring: exact label match scores highest", () => {
+  it("fuzzy scoring: exact label match scores highest", () => {
     const item = makeItem({ id: "a", label: "Focus Left Panel" });
     const score = computeFuzzyScore(item, "focus left panel");
-    assertTruthy(score >= 90, "exact label contains should score >= 90");
+    expect(score >= 90).toBeTruthy();
   });
 
   // 12. Fuzzy scoring: prefix match ranks above substring match
-  test("fuzzy scoring: prefix match ranks above substring", () => {
+  it("fuzzy scoring: prefix match ranks above substring", () => {
     const item = makeItem({ id: "a", label: "Focus Left Panel" });
     const prefixScore = computeFuzzyScore(item, "focus");
     const substringScore = computeFuzzyScore(item, "left");
-    assertTruthy(prefixScore > substringScore, `prefix (${prefixScore}) > substring (${substringScore})`);
+    expect(prefixScore > substringScore).toBeTruthy();
   });
 
   // 13. Fuzzy scoring: subsequence match works
-  test("fuzzy scoring: subsequence match works", () => {
+  it("fuzzy scoring: subsequence match works", () => {
     const item = makeItem({ id: "a", label: "Focus Left Panel" });
     const score = computeFuzzyScore(item, "flp");
-    assertTruthy(score > 0, "subsequence 'flp' should match");
-    assertTruthy(score >= 50, "label subsequence should score >= 50");
+    expect(score > 0).toBeTruthy();
+    expect(score >= 50).toBeTruthy();
   });
 
   // 14. Fuzzy scoring: no-match items are excluded
-  test("fuzzy scoring: no-match items are excluded", () => {
+  it("fuzzy scoring: no-match items are excluded", () => {
     const item = makeItem({ id: "a", label: "Focus Left Panel" });
     const score = computeFuzzyScore(item, "zzz");
-    assertEqual(score, 0, "non-matching needle should score 0");
+    expect(score).toBe(0);
   });
 
   // 15. Enabled items sort before disabled when scores are equal
-  test("enabled items sort before disabled when scores equal", () => {
+  it("enabled items sort before disabled when scores equal", () => {
     const items: readonly TestItem[] = [
       makeItem({ id: "b", label: "Beta Action", enabled: false }),
       makeItem({ id: "a", label: "Alpha Action", enabled: true }),
     ];
     const scored = scoreQuickPickItems(items, "");
-    assertEqual(scored[0]?.item.id, "a", "enabled item should sort first");
-    assertEqual(scored[1]?.item.id, "b", "disabled item should sort second");
+    expect(scored[0]?.item.id).toBe("a");
+    expect(scored[1]?.item.id).toBe("b");
   });
 
   // 16. Empty filter returns all items sorted enabled-first then alphabetical
-  test("empty filter returns all items sorted enabled-first alphabetical", () => {
+  it("empty filter returns all items sorted enabled-first alphabetical", () => {
     const items: readonly TestItem[] = [
       makeItem({ id: "z", label: "Zebra Command", enabled: true }),
       makeItem({ id: "a", label: "Alpha Command", enabled: false }),
       makeItem({ id: "m", label: "Middle Command", enabled: true }),
     ];
     const scored = scoreQuickPickItems(items, "");
-    assertEqual(scored.length, 3, "all items should be returned");
-    assertEqual(scored[0]?.item.id, "m", "first enabled alphabetical");
-    assertEqual(scored[1]?.item.id, "z", "second enabled alphabetical");
-    assertEqual(scored[2]?.item.id, "a", "disabled item last");
+    expect(scored.length).toBe(3);
+    expect(scored[0]?.item.id).toBe("m");
+    expect(scored[1]?.item.id).toBe("z");
+    expect(scored[2]?.item.id).toBe("a");
   });
 
   // 17. matchOnDescription enables description matching
-  test("matchOnDescription enables description matching", () => {
+  it("matchOnDescription enables description matching", () => {
     const item = makeItem({
       id: "a",
       label: "Some Action",
@@ -246,12 +241,12 @@ export function registerQuickPickStateSpecs(harness: SpecHarness): void {
     const withOpt = computeFuzzyScore(item, "useful", {
       matchOnDescription: true,
     });
-    assertEqual(withoutOpt, 0, "should not match without option");
-    assertEqual(withOpt, 70, "should match description with option");
+    expect(withoutOpt).toBe(0);
+    expect(withOpt).toBe(70);
   });
 
   // 18. matchOnDetail enables detail matching
-  test("matchOnDetail enables detail matching", () => {
+  it("matchOnDetail enables detail matching", () => {
     const item = makeItem({
       id: "a",
       label: "Some Action",
@@ -261,20 +256,20 @@ export function registerQuickPickStateSpecs(harness: SpecHarness): void {
     const withOpt = computeFuzzyScore(item, "detailed", {
       matchOnDetail: true,
     });
-    assertEqual(withoutOpt, 0, "should not match without option");
-    assertEqual(withOpt, 60, "should match detail with option");
+    expect(withoutOpt).toBe(0);
+    expect(withOpt).toBe(60);
   });
 
   // 19. setItems action updates items and re-scores
-  test("setItems updates items and re-scores", () => {
+  it("setItems updates items and re-scores", () => {
     const items = sampleItems();
     let state = reduceQuickPickState(createInitialQuickPickState<TestItem>(), { type: "open", items });
-    assertEqual(state.items.length, 5, "should have 5 items initially");
+    expect(state.items.length).toBe(5);
 
     const newItems = [makeItem({ id: "new.1", label: "New Item" })];
     state = reduceQuickPickState(state, { type: "setItems", items: newItems });
-    assertEqual(state.items.length, 1, "should have 1 item after setItems");
-    assertEqual(state.filteredItems.length, 1, "filtered should update");
-    assertEqual(state.selectedIndex, 0, "selectedIndex should reset to 0");
+    expect(state.items.length).toBe(1);
+    expect(state.filteredItems.length).toBe(1);
+    expect(state.selectedIndex).toBe(0);
   });
-}
+});

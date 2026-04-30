@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { DEFAULT_MOTION_CONFIG } from "../config-defaults.js";
 import { resolveEntry } from "../config-resolver.js";
 import type { GhostMotionConfig } from "../config-types.js";

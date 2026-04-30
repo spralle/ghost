@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import type { RuleWriteIntent } from "../contracts.js";
 import { applyRuleWrites } from "../expression-integration.js";
 import type { FormState } from "../state.js";

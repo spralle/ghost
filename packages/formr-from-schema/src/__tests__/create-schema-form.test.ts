@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import type { ValidatorFn } from "@ghost-shell/formr-core";
 import { createSchemaForm } from "../create-schema-form.js";
 import type { LayoutNode } from "../layout/layout-types.js";

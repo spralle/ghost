@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import type { AccumulateConfig } from "../accumulate-node.js";
 import { createAccumulateNode } from "../accumulate-node.js";
 import type { Fact } from "../fact-memory.js";

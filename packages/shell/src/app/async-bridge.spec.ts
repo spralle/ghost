@@ -1,22 +1,6 @@
 import type { WindowBridge, WindowBridgeEvent, WindowBridgeHealth } from "@ghost-shell/bridge";
 import { createAsyncWindowBridgeCompatibilityShim, normalizeBridgePublishRejectionReason } from "@ghost-shell/bridge";
-
-type TestCase = {
-  name: string;
-  run: () => void | Promise<void>;
-};
-
-const tests: TestCase[] = [];
-
-function test(name: string, run: () => void | Promise<void>): void {
-  tests.push({ name, run });
-}
-
-function assertEqual(actual: unknown, expected: unknown, message: string): void {
-  if (actual !== expected) {
-    throw new Error(`${message}. expected=${String(expected)} actual=${String(actual)}`);
-  }
-}
+import { describe, expect, it } from "vitest";
 
 class StubWindowBridge implements WindowBridge {
   available = true;
@@ -58,103 +42,80 @@ class StubWindowBridge implements WindowBridge {
   }
 }
 
-test("shim publish reports accepted/enqueued for successful legacy publish", async () => {
-  const legacyBridge = new StubWindowBridge();
-  const shim = createAsyncWindowBridgeCompatibilityShim(legacyBridge);
+describe("async-bridge", () => {
+  it("shim publish reports accepted/enqueued for successful legacy publish", async () => {
+    const legacyBridge = new StubWindowBridge();
+    const shim = createAsyncWindowBridgeCompatibilityShim(legacyBridge);
 
-  const result = await shim.publish({
-    type: "sync-probe",
-    probeId: "probe-1",
-    sourceWindowId: "window-a",
-  });
-
-  assertEqual(result.status, "accepted", "publish should be accepted");
-  if (result.status === "accepted") {
-    assertEqual(result.disposition, "enqueued", "accepted publish should be enqueued");
-  }
-});
-
-test("shim publish normalizes timeout and closed reasons", async () => {
-  const legacyBridge = new StubWindowBridge();
-  const shim = createAsyncWindowBridgeCompatibilityShim(legacyBridge);
-
-  const timeoutResult = await shim.publish(
-    {
+    const result = await shim.publish({
       type: "sync-probe",
-      probeId: "probe-timeout",
+      probeId: "probe-1",
       sourceWindowId: "window-a",
-    },
-    { timeoutMs: 0 },
-  );
-  assertEqual(timeoutResult.status, "rejected", "zero-timeout publish should reject");
-  if (timeoutResult.status === "rejected") {
-    assertEqual(timeoutResult.reason, "timeout", "zero-timeout publish should return timeout reason");
-  }
-
-  shim.close();
-  const closedResult = await shim.publish({
-    type: "sync-probe",
-    probeId: "probe-closed",
-    sourceWindowId: "window-a",
-  });
-  assertEqual(closedResult.status, "rejected", "closed shim publish should reject");
-  if (closedResult.status === "rejected") {
-    assertEqual(closedResult.reason, "closed", "closed shim publish should return closed reason");
-  }
-});
-
-test("shim health stream is deterministic by sequence and state changes", () => {
-  const legacyBridge = new StubWindowBridge();
-  const shim = createAsyncWindowBridgeCompatibilityShim(legacyBridge);
-  const seen: Array<{ sequence: number; state: string; reason: string | null }> = [];
-
-  shim.subscribeHealth((health) => {
-    seen.push({
-      sequence: health.sequence,
-      state: health.state,
-      reason: health.reason,
     });
+
+    expect(result.status).toBe("accepted");
+    if (result.status === "accepted") {
+      expect(result.disposition).toBe("enqueued");
+    }
   });
 
-  legacyBridge.emitHealth({ degraded: true, reason: "channel-error" });
-  legacyBridge.emitHealth({ degraded: true, reason: "channel-error" });
-  legacyBridge.emitHealth({ degraded: false, reason: null });
+  it("shim publish normalizes timeout and closed reasons", async () => {
+    const legacyBridge = new StubWindowBridge();
+    const shim = createAsyncWindowBridgeCompatibilityShim(legacyBridge);
 
-  assertEqual(seen.length, 3, "only state transitions should emit health snapshots");
-  assertEqual(seen[0]?.state, "healthy", "first snapshot should be healthy");
-  assertEqual(seen[1]?.state, "degraded", "second snapshot should be degraded");
-  assertEqual(seen[2]?.state, "healthy", "third snapshot should return healthy");
-  assertEqual(seen[1]?.sequence > seen[0]?.sequence, true, "health sequence should increase monotonically");
-  assertEqual(seen[2]?.sequence > seen[1]?.sequence, true, "health sequence should keep increasing");
+    const timeoutResult = await shim.publish(
+      {
+        type: "sync-probe",
+        probeId: "probe-timeout",
+        sourceWindowId: "window-a",
+      },
+      { timeoutMs: 0 },
+    );
+    expect(timeoutResult.status).toBe("rejected");
+    if (timeoutResult.status === "rejected") {
+      expect(timeoutResult.reason).toBe("timeout");
+    }
+
+    shim.close();
+    const closedResult = await shim.publish({
+      type: "sync-probe",
+      probeId: "probe-closed",
+      sourceWindowId: "window-a",
+    });
+    expect(closedResult.status).toBe("rejected");
+    if (closedResult.status === "rejected") {
+      expect(closedResult.reason).toBe("closed");
+    }
+  });
+
+  it("shim health stream is deterministic by sequence and state changes", () => {
+    const legacyBridge = new StubWindowBridge();
+    const shim = createAsyncWindowBridgeCompatibilityShim(legacyBridge);
+    const seen: Array<{ sequence: number; state: string; reason: string | null }> = [];
+
+    shim.subscribeHealth((health) => {
+      seen.push({
+        sequence: health.sequence,
+        state: health.state,
+        reason: health.reason,
+      });
+    });
+
+    legacyBridge.emitHealth({ degraded: true, reason: "channel-error" });
+    legacyBridge.emitHealth({ degraded: true, reason: "channel-error" });
+    legacyBridge.emitHealth({ degraded: false, reason: null });
+
+    expect(seen.length).toBe(3);
+    expect(seen[0]?.state).toBe("healthy");
+    expect(seen[1]?.state).toBe("degraded");
+    expect(seen[2]?.state).toBe("healthy");
+    expect(seen[1]?.sequence > seen[0]?.sequence).toBe(true);
+    expect(seen[2]?.sequence > seen[1]?.sequence).toBe(true);
+  });
+
+  it("publish rejection taxonomy normalizes legacy reasons", () => {
+    expect(normalizeBridgePublishRejectionReason("unavailable", false)).toBe("unavailable");
+    expect(normalizeBridgePublishRejectionReason("channel-error", true)).toBe("channel-error");
+    expect(normalizeBridgePublishRejectionReason("publish-failed", true)).toBe("publish-failed");
+  });
 });
-
-test("publish rejection taxonomy normalizes legacy reasons", () => {
-  assertEqual(
-    normalizeBridgePublishRejectionReason("unavailable", false),
-    "unavailable",
-    "unavailable should normalize",
-  );
-  assertEqual(
-    normalizeBridgePublishRejectionReason("channel-error", true),
-    "channel-error",
-    "channel error should normalize",
-  );
-  assertEqual(
-    normalizeBridgePublishRejectionReason("publish-failed", true),
-    "publish-failed",
-    "publish failure should normalize",
-  );
-});
-
-let passed = 0;
-for (const caseItem of tests) {
-  try {
-    await caseItem.run();
-    passed += 1;
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    throw new Error(`async-bridge spec failed: ${caseItem.name} :: ${message}`);
-  }
-}
-
-console.log(`async-bridge specs passed (${passed}/${tests.length})`);

@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import type { NormalizedKeybindingChord, NormalizedKeybindingSequence } from "@ghost-shell/commands";
 import {
   type KeybindingLayer,
@@ -8,8 +9,6 @@ import {
 } from "@ghost-shell/commands";
 import { createDefaultContributionPredicateMatcher } from "@ghost-shell/plugin-system";
 import type { InvokableAction } from "../action-surface.js";
-import type { SpecHarness } from "../context-state.spec-harness.js";
-
 function chord(input: string): NormalizedKeybindingChord {
   const c = normalizeConfiguredChord(input);
   if (!c) throw new Error(`Invalid chord: ${input}`);
@@ -42,73 +41,71 @@ function record(
   };
 }
 
-export function registerKeybindingResolverSpecs(harness: SpecHarness): void {
-  const { test, assertEqual } = harness;
-
-  test("single-chord sequence exact match", () => {
+describe("keybinding resolver", () => {
+  it("single-chord sequence exact match", () => {
     const records = [record(["ctrl+k"])];
     const result = resolveKeybindingSequence(records, [chord("ctrl+k")], {});
-    assertEqual(result.kind, "exact", "should be exact match");
-    assertEqual(result.match?.action.id, "ctrl+k", "should match the action");
+    expect(result.kind).toBe("exact");
+    expect(result.match?.action.id).toBe("ctrl+k");
   });
 
-  test("two-chord sequence exact match", () => {
+  it("two-chord sequence exact match", () => {
     const records = [record(["ctrl+k", "c"])];
     const result = resolveKeybindingSequence(records, [chord("ctrl+k"), chord("c")], {});
-    assertEqual(result.kind, "exact", "should be exact match");
-    assertEqual(result.match?.action.id, "ctrl+k-c", "should match the two-chord action");
+    expect(result.kind).toBe("exact");
+    expect(result.match?.action.id).toBe("ctrl+k-c");
   });
 
-  test("prefix match returns prefix kind with count", () => {
+  it("prefix match returns prefix kind with count", () => {
     const records = [record(["ctrl+k", "c"])];
     const result = resolveKeybindingSequence(records, [chord("ctrl+k")], {});
-    assertEqual(result.kind, "prefix", "should be prefix match");
-    assertEqual(result.prefixCount, 1, "should have 1 prefix match");
+    expect(result.kind).toBe("prefix");
+    expect(result.prefixCount).toBe(1);
   });
 
-  test("no match returns none", () => {
+  it("no match returns none", () => {
     const records = [record(["ctrl+k", "c"])];
     const result = resolveKeybindingSequence(records, [chord("ctrl+z")], {});
-    assertEqual(result.kind, "none", "should be no match");
+    expect(result.kind).toBe("none");
   });
 
-  test("layer precedence — higher-priority layer wins", () => {
+  it("layer precedence — higher-priority layer wins", () => {
     const records = [record(["ctrl+k"], "user-overrides"), record(["ctrl+k"], "defaults")];
     // Overwrite action id for distinction
     records[0]!.action = { ...records[0]?.action, id: "override" };
     records[1]!.action = { ...records[1]?.action, id: "default" };
     const result = resolveKeybindingSequence(records, [chord("ctrl+k")], {});
-    assertEqual(result.kind, "exact", "should be exact");
-    assertEqual(result.match?.action.id, "override", "user-override should win (first in pre-sorted list)");
+    expect(result.kind).toBe("exact");
+    expect(result.match?.action.id).toBe("override");
   });
 
-  test("predicate gating on exact match skips failing record", () => {
+  it("predicate gating on exact match skips failing record", () => {
     const matcher = createDefaultContributionPredicateMatcher();
     const records = [record(["ctrl+h"], "defaults", { when: { role: "admin" } })];
     const noMatch = resolveKeybindingSequence(records, [chord("ctrl+h")], { role: "operator" }, matcher);
-    assertEqual(noMatch.kind, "none", "should not match when predicate fails");
+    expect(noMatch.kind).toBe("none");
 
     const matched = resolveKeybindingSequence(records, [chord("ctrl+h")], { role: "admin" }, matcher);
-    assertEqual(matched.kind, "exact", "should match when predicate passes");
+    expect(matched.kind).toBe("exact");
   });
 
-  test("empty pressedChords returns none", () => {
+  it("empty pressedChords returns none", () => {
     const records = [record(["ctrl+k"])];
     const result = resolveKeybindingSequence(records, [], {});
-    assertEqual(result.kind, "none", "empty input should return none");
+    expect(result.kind).toBe("none");
   });
 
-  test("multiple prefix matches counted correctly", () => {
+  it("multiple prefix matches counted correctly", () => {
     const records = [record(["ctrl+k", "c"]), record(["ctrl+k", "u"])];
     const result = resolveKeybindingSequence(records, [chord("ctrl+k")], {});
-    assertEqual(result.kind, "prefix", "should be prefix");
-    assertEqual(result.prefixCount, 2, "should count both prefix matches");
+    expect(result.kind).toBe("prefix");
+    expect(result.prefixCount).toBe(2);
   });
 
-  test("backward compat: resolveKeybindingMatch works for single-chord records", () => {
+  it("backward compat: resolveKeybindingMatch works for single-chord records", () => {
     const records = [record(["ctrl+s"])];
     const result = resolveKeybindingMatch(records, chord("ctrl+s"), {});
-    assertEqual(result?.action.id, "ctrl+s", "resolveKeybindingMatch should still work");
-    assertEqual(result?.sequence.value, "ctrl+s", "should have sequence field");
+    expect(result?.action.id).toBe("ctrl+s");
+    expect(result?.sequence.value).toBe("ctrl+s");
   });
-}
+});

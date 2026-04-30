@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { createForm, type FormState, type Middleware, type ValidatorFn } from "../index.js";
 
 /** Trace middleware that records hook invocations in order */

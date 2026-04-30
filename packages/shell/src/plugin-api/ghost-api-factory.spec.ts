@@ -1,6 +1,8 @@
-import type { ActivationContext, GhostApi } from "@ghost-shell/contracts";
-import type { SpecHarness } from "../context-state.spec-harness.js";
+import { describe, expect, it } from "vitest";
+import type { ActivationContext, GhostApi, PluginServices } from "@ghost-shell/contracts";
 import { createActivationContext, createGhostApi, type GhostApiFactoryDependencies } from "./ghost-api-factory.js";
+
+const nullServices: PluginServices = { getService: () => null, hasService: () => false } as PluginServices;
 
 function createTestApiDeps(overrides: Partial<GhostApiFactoryDependencies> = {}): GhostApiFactoryDependencies {
   return {
@@ -39,22 +41,20 @@ function createTestApiDeps(overrides: Partial<GhostApiFactoryDependencies> = {})
   };
 }
 
-export function registerGhostApiFactorySpecs(harness: SpecHarness): void {
-  const { test, assertEqual, assertTruthy } = harness;
-
+describe("ghost api factory", () => {
   // ─── createGhostApi ───
 
-  test("ghost-api-factory: creates GhostApi with actions and window services", () => {
+  it("ghost-api-factory: creates GhostApi with actions and window services", () => {
     const result = createGhostApi(createTestApiDeps());
 
-    assertTruthy(result.api, "api should be defined");
-    assertTruthy(result.api.actions, "api.actions should be defined");
-    assertTruthy(result.api.window, "api.window should be defined");
-    assertTruthy(result.actionServiceHandle, "actionServiceHandle should be defined");
-    assertTruthy(result.windowServiceHandle, "windowServiceHandle should be defined");
+    expect(result.api).toBeTruthy();
+    expect(result.api.actions).toBeTruthy();
+    expect(result.api.window).toBeTruthy();
+    expect(result.actionServiceHandle).toBeTruthy();
+    expect(result.windowServiceHandle).toBeTruthy();
   });
 
-  test("ghost-api-factory: actions service can register and execute runtime actions", async () => {
+  it("ghost-api-factory: actions service can register and execute runtime actions", async () => {
     const { api } = createGhostApi(createTestApiDeps());
 
     let called = false;
@@ -63,27 +63,27 @@ export function registerGhostApiFactorySpecs(harness: SpecHarness): void {
     });
 
     await api.actions.executeAction("test.action");
-    assertEqual(called, true, "runtime action handler should be called");
+    expect(called).toBe(true);
   });
 
-  test("ghost-api-factory: window service reflects correct windowId", () => {
+  it("ghost-api-factory: window service reflects correct windowId", () => {
     const { api } = createGhostApi(createTestApiDeps({ getWindowId: () => "win-42" }));
 
-    assertEqual(api.window.windowId, "win-42", "windowId should match deps");
+    expect(api.window.windowId).toBe("win-42");
   });
 
   // ─── createActivationContext ───
 
-  test("ghost-api-factory: createActivationContext returns context with pluginId", () => {
-    const ctx = createActivationContext("com.test.plugin");
+  it("ghost-api-factory: createActivationContext returns context with pluginId", () => {
+    const ctx = createActivationContext("com.test.plugin", nullServices);
 
-    assertEqual(ctx.pluginId, "com.test.plugin", "pluginId should match");
-    assertTruthy(Array.isArray(ctx.subscriptions), "subscriptions should be an array");
-    assertEqual(ctx.subscriptions.length, 0, "subscriptions should start empty");
+    expect(ctx.pluginId).toBe("com.test.plugin");
+    expect(Array.isArray(ctx.subscriptions)).toBeTruthy();
+    expect(ctx.subscriptions.length).toBe(0);
   });
 
-  test("ghost-api-factory: ActivationContext.subscriptions collects disposables", () => {
-    const ctx = createActivationContext("com.test.plugin");
+  it("ghost-api-factory: ActivationContext.subscriptions collects disposables", () => {
+    const ctx = createActivationContext("com.test.plugin", nullServices);
 
     let disposed1 = false;
     let disposed2 = false;
@@ -99,23 +99,23 @@ export function registerGhostApiFactorySpecs(harness: SpecHarness): void {
       },
     });
 
-    assertEqual(ctx.subscriptions.length, 2, "should have 2 subscriptions");
+    expect(ctx.subscriptions.length).toBe(2);
 
     // Simulate deactivation: dispose all
     for (const sub of ctx.subscriptions) {
       sub.dispose();
     }
 
-    assertEqual(disposed1, true, "first subscription should be disposed");
-    assertEqual(disposed2, true, "second subscription should be disposed");
+    expect(disposed1).toBe(true);
+    expect(disposed2).toBe(true);
   });
 
   // ─── activate() lifecycle integration ───
 
-  test("ghost-api-factory: activate receives working GhostApi", async () => {
+  it("ghost-api-factory: activate receives working GhostApi", async () => {
     const deps = createTestApiDeps();
     const { api } = createGhostApi(deps);
-    const ctx = createActivationContext("com.test.plugin");
+    const ctx = createActivationContext("com.test.plugin", nullServices);
 
     let receivedApi: GhostApi | null = null;
     let receivedCtx: ActivationContext | null = null;
@@ -129,20 +129,20 @@ export function registerGhostApiFactorySpecs(harness: SpecHarness): void {
 
     activate(api, ctx);
 
-    assertTruthy(receivedApi, "activate should receive api");
-    assertTruthy(receivedCtx, "activate should receive context");
-    assertEqual(ctx.subscriptions.length, 1, "should have 1 subscription from activate");
+    expect(receivedApi).toBeTruthy();
+    expect(receivedCtx).toBeTruthy();
+    expect(ctx.subscriptions.length).toBe(1);
 
     // Verify the registered action works
     const _result = await api.actions.executeAction("test.runtime.action");
     // Runtime action returns the value, but executeAction's generic makes it T
-    assertTruthy(true, "runtime action should execute without error");
+    expect(true).toBeTruthy();
   });
 
-  test("ghost-api-factory: subscriptions auto-dispose cleans up actions", () => {
+  it("ghost-api-factory: subscriptions auto-dispose cleans up actions", () => {
     const deps = createTestApiDeps();
     const { api } = createGhostApi(deps);
-    const ctx = createActivationContext("com.test.plugin");
+    const ctx = createActivationContext("com.test.plugin", nullServices);
 
     let changeCount = 0;
     api.actions.onDidChangeActions(() => {
@@ -153,7 +153,7 @@ export function registerGhostApiFactorySpecs(harness: SpecHarness): void {
     ctx.subscriptions.push(disposable);
 
     // Register fires onDidChangeActions
-    assertEqual(changeCount, 1, "should fire on register");
+    expect(changeCount).toBe(1);
 
     // Dispose all subscriptions (simulates deactivation)
     for (const sub of ctx.subscriptions) {
@@ -161,6 +161,6 @@ export function registerGhostApiFactorySpecs(harness: SpecHarness): void {
     }
 
     // Dispose fires onDidChangeActions again
-    assertEqual(changeCount, 2, "should fire on dispose");
+    expect(changeCount).toBe(2);
   });
-}
+});

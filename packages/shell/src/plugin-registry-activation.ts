@@ -1,6 +1,7 @@
 import type { PluginServices } from "@ghost-shell/contracts";
 import type { LayerRegistry } from "@ghost-shell/layer";
 import { evaluateShellPluginCompatibility } from "@ghost-shell/plugin-system";
+import { createNullServices, resolveActivationEntry } from "./activation-resolution.js";
 import type { CapabilityRegistry } from "./capability-registry.js";
 import { buildActivationPlan } from "./plugin-activation-plan.js";
 import {
@@ -104,6 +105,7 @@ async function activateState(
       state.contract = loadResult.contract;
       state.activate = loadResult.activate;
       state.deactivate = loadResult.deactivate ?? null;
+      state.exports = loadResult.exports;
     }
 
     if (!validateAndRegisterCapabilities(state, pluginId, trigger, diagnostics, capabilityRegistry)) {
@@ -212,10 +214,15 @@ async function runActivateHook(
   }
 
   const ghostApiInstance = createGhostApi(apiDeps);
-  const ctx = createActivationContext(pluginId, pluginServices ?? undefined);
+  const ctx = createActivationContext(pluginId, pluginServices ?? createNullServices());
 
   try {
-    await state.activate(ghostApiInstance.api, ctx);
+    const overrideEntry = resolveActivationEntry(state.contract!, state.exports, { isSecondary: false });
+    if (overrideEntry) {
+      await overrideEntry(ghostApiInstance.api, ctx);
+    } else {
+      await state.activate(ghostApiInstance.api, ctx);
+    }
     state.activationSubscriptions = ctx.subscriptions;
     state.ghostApiInstance = ghostApiInstance;
     return true;

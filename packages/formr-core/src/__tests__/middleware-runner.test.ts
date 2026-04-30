@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import type { Middleware, MiddlewareDecision } from "../contracts.js";
 import {
   disposeMiddlewares,

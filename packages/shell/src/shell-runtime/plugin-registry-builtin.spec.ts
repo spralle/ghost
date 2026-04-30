@@ -1,5 +1,5 @@
+import { describe, expect, it } from "vitest";
 import type { PluginContract } from "@ghost-shell/contracts";
-import type { SpecHarness } from "../context-state.spec-harness.js";
 import { createShellPluginRegistry } from "../plugin-registry.js";
 
 function createTestBuiltinContract(): PluginContract {
@@ -16,19 +16,17 @@ function createTestBuiltinContract(): PluginContract {
   };
 }
 
-export function registerPluginRegistryBuiltinSpecs(harness: SpecHarness): void {
-  const { test, assertEqual, assertTruthy } = harness;
-
-  test("registerBuiltinPlugin makes plugin activatable by command", async () => {
+describe("plugin registry builtin", () => {
+  it("registerBuiltinPlugin makes plugin activatable by command", async () => {
     const registry = createShellPluginRegistry();
     registry.registerManifestDescriptors("local", []);
     registry.registerBuiltinPlugin(createTestBuiltinContract());
 
     const activated = await registry.activateByAction("com.test.builtin", "test.action.one");
-    assertEqual(activated, true, "builtin plugin should be activatable by command");
+    expect(activated).toBe(true);
   });
 
-  test("builtin plugin survives registerManifestDescriptors clear", async () => {
+  it("builtin plugin survives registerManifestDescriptors clear", async () => {
     const registry = createShellPluginRegistry();
     registry.registerManifestDescriptors("local", []);
     registry.registerBuiltinPlugin(createTestBuiltinContract());
@@ -37,27 +35,27 @@ export function registerPluginRegistryBuiltinSpecs(harness: SpecHarness): void {
     registry.registerManifestDescriptors("demo-tenant", []);
 
     const activated = await registry.activateByAction("com.test.builtin", "test.action.one");
-    assertEqual(activated, true, "builtin plugin should survive registerManifestDescriptors clear");
+    expect(activated).toBe(true);
   });
 
-  test("builtin plugin appears in registry snapshot", () => {
+  it("builtin plugin appears in registry snapshot", () => {
     const registry = createShellPluginRegistry();
     registry.registerManifestDescriptors("local", []);
     registry.registerBuiltinPlugin(createTestBuiltinContract());
 
     const snapshot = registry.getSnapshot();
     const builtinPlugin = snapshot.plugins.find((p) => p.id === "com.test.builtin");
-    assertTruthy(builtinPlugin, "builtin plugin should appear in snapshot");
-    assertEqual(builtinPlugin?.enabled, true, "builtin plugin should be enabled");
-    assertEqual(builtinPlugin?.lifecycle.state, "active", "builtin plugin should be active");
-    assertTruthy(builtinPlugin?.contract, "builtin plugin should have contract");
+    expect(builtinPlugin).toBeTruthy();
+    expect(builtinPlugin?.enabled).toBe(true);
+    expect(builtinPlugin?.lifecycle.state).toBe("active");
+    expect(builtinPlugin?.contract).toBeTruthy();
   });
 
-  test("unregistered plugin is not activatable", async () => {
+  it("unregistered plugin is not activatable", async () => {
     const registry = createShellPluginRegistry();
     registry.registerManifestDescriptors("local", []);
 
     const activated = await registry.activateByAction("com.nonexistent.plugin", "some.action");
-    assertEqual(activated, false, "unregistered plugin should not be activatable");
+    expect(activated).toBe(false);
   });
-}
+});

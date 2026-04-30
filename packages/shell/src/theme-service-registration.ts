@@ -13,6 +13,7 @@ import type {
 } from "@ghost-shell/contracts";
 import { THEME_SERVICE_ID } from "@ghost-shell/contracts";
 import type { ShellPluginRegistry } from "./plugin-registry-types.js";
+import { createState } from "./reactive-state.js";
 import type { ThemeRegistry } from "./theme-registry.js";
 
 export const THEME_SERVICE_PLUGIN_ID = "ghost.shell.theme-service";
@@ -26,17 +27,30 @@ export const THEME_SERVICE_PLUGIN_ID = "ghost.shell.theme-service";
  * as a builtin plugin capability on the plugin registry.
  */
 export function registerThemeServiceCapability(registry: ShellPluginRegistry, themeRegistry: ThemeRegistry): void {
-  const themeService: ThemeService = {
+  // Observable state — framework can detect changes and replicate to popouts
+  const state = createState({
+    activeThemeId: themeRegistry.getActiveThemeId(),
+    themes: themeRegistry.getAvailableThemes(),
+  });
+
+  const themeService: ThemeService & { readonly state: typeof state } = {
+    state,
+
     listThemes(): ThemeInfo[] {
-      return themeRegistry.getAvailableThemes();
+      return state.themes;
     },
 
     getActiveThemeId(): string | null {
-      return themeRegistry.getActiveThemeId();
+      return state.activeThemeId;
     },
 
     setTheme(themeId: string): boolean {
-      return themeRegistry.setTheme(themeId);
+      const result = themeRegistry.setTheme(themeId);
+      if (result) {
+        state.activeThemeId = themeId;
+        state.themes = themeRegistry.getAvailableThemes();
+      }
+      return result;
     },
 
     listBackgrounds(): ThemeBackgroundEntry[] {
@@ -60,7 +74,9 @@ export function registerThemeServiceCapability(registry: ShellPluginRegistry, th
     },
 
     loadAllThemes(): Promise<void> {
-      return themeRegistry.loadAllThemes();
+      return themeRegistry.loadAllThemes().then(() => {
+        state.themes = themeRegistry.getAvailableThemes();
+      });
     },
 
     getThemePalette(themeId: string): Record<string, string> | null {

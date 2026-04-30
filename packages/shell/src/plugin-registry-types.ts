@@ -1,4 +1,10 @@
-import type { DeactivationContext, Disposable, PluginContract, TenantPluginDescriptor } from "@ghost-shell/contracts";
+import type {
+  DeactivationContext,
+  Disposable,
+  PluginContract,
+  ServiceRegistrationOptions,
+  TenantPluginDescriptor,
+} from "@ghost-shell/contracts";
 import type { CompatibilityReasonCode } from "@ghost-shell/plugin-system";
 import type { CapabilityDependencyFailureCode } from "./capability-registry.js";
 import type { GhostApiInstance } from "./plugin-api/ghost-api-factory.js";
@@ -57,7 +63,10 @@ export interface PluginRuntimeState {
   ghostApiInstance: GhostApiInstance | null;
   /** The plugin's optional deactivate() export, called before disposal. */
   deactivate: PluginDeactivateFunction | null;
+  /** All function exports from the plugin module, for activation rule resolution. */
+  exports: Record<string, Function>;
   builtinServiceInstances: Map<string, unknown> | null;
+  builtinServiceOptions: Map<string, ServiceRegistrationOptions> | null;
   /** Module reference for builtin plugins — used by part-module-host to skip federation loading. */
   builtinModule: unknown | null;
 }
@@ -86,7 +95,12 @@ export interface PluginRegistrySnapshot {
 }
 
 export interface ShellPluginRegistry {
-  registerBuiltinPlugin(contract: PluginContract, serviceInstances?: Record<string, unknown>, module?: unknown): void;
+  registerBuiltinPlugin(
+    contract: PluginContract,
+    serviceInstances?: Record<string, unknown>,
+    module?: unknown,
+    serviceOptions?: Record<string, ServiceRegistrationOptions>,
+  ): void;
   registerManifestDescriptors(tenantId: string, descriptors: TenantPluginDescriptor[]): void;
   setEnabled(pluginId: string, enabled: boolean): Promise<void>;
   activateByAction(pluginId: string, actionId: string): Promise<boolean>;
@@ -98,6 +112,7 @@ export interface ShellPluginRegistry {
   resolveComponentCapability(requesterPluginId: string, capabilityId: string): Promise<unknown | null>;
   resolveServiceCapability(requesterPluginId: string, capabilityId: string): Promise<unknown | null>;
   getService<T = unknown>(serviceId: string): T | null;
+  getServiceOptions(serviceId: string): ServiceRegistrationOptions | null;
   hasService(serviceId: string): boolean;
   /** Retrieve a builtin plugin's module reference, or null if not registered. */
   getBuiltinModule(pluginId: string): unknown | null;

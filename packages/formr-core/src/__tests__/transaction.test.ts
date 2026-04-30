@@ -1,4 +1,4 @@
-import { describe, expect, mock, test } from "bun:test";
+import { describe, expect, test, vi } from "vitest";
 import type { FormState } from "../state.js";
 import { FormStore } from "../store.js";
 import { defaultStrategy, Transaction } from "../transaction.js";
@@ -90,7 +90,7 @@ describe("Transaction", () => {
 describe("FormStore", () => {
   test("commit notifies listeners", () => {
     const store = new FormStore(makeState());
-    const listener = mock(() => {});
+    const listener = vi.fn(() => {});
 
     store.subscribe(listener);
     const tx = store.beginTransaction();
@@ -102,7 +102,7 @@ describe("FormStore", () => {
 
   test("rollback does not notify listeners", () => {
     const store = new FormStore(makeState());
-    const listener = mock(() => {});
+    const listener = vi.fn(() => {});
 
     store.subscribe(listener);
     const tx = store.beginTransaction();
@@ -115,7 +115,7 @@ describe("FormStore", () => {
   test("structural sharing: no notification if state unchanged", () => {
     const initial = makeState();
     const store = new FormStore(initial);
-    const listener = mock(() => {});
+    const listener = vi.fn(() => {});
 
     store.subscribe(listener);
     const tx = store.beginTransaction();
@@ -127,7 +127,7 @@ describe("FormStore", () => {
 
   test("no-op dispatch does not trigger subscribers", () => {
     const store = new FormStore(makeState({ v: 1 }));
-    const listener = mock(() => {});
+    const listener = vi.fn(() => {});
 
     store.subscribe(listener);
     const tx = store.beginTransaction();
@@ -164,7 +164,7 @@ describe("FormStore", () => {
 
   test("dispose clears all listeners", () => {
     const store = new FormStore(makeState());
-    const listener = mock(() => {});
+    const listener = vi.fn(() => {});
 
     store.subscribe(listener);
     store.dispose();
@@ -178,8 +178,8 @@ describe("FormStore", () => {
 
   test("unsubscribe removes specific listener", () => {
     const store = new FormStore(makeState());
-    const listener1 = mock(() => {});
-    const listener2 = mock(() => {});
+    const listener1 = vi.fn(() => {});
+    const listener2 = vi.fn(() => {});
 
     const unsub1 = store.subscribe(listener1);
     store.subscribe(listener2);

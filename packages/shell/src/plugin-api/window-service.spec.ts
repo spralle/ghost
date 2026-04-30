@@ -1,5 +1,5 @@
+import { describe, expect, it } from "vitest";
 import type { QuickPickItem } from "@ghost-shell/contracts";
-import type { SpecHarness } from "../context-state.spec-harness.js";
 import { createWindowService, type WindowServiceDependencies } from "./window-service.js";
 
 function createTestDeps(overrides: Partial<WindowServiceDependencies> = {}): WindowServiceDependencies {
@@ -15,40 +15,38 @@ function createTestDeps(overrides: Partial<WindowServiceDependencies> = {}): Win
   };
 }
 
-export function registerWindowServiceSpecs(harness: SpecHarness): void {
-  const { test, assertEqual, assertTruthy } = harness;
-
+describe("window service", () => {
   // ─── windowId / isPopout ───
 
-  test("window-service: windowId returns correct value", () => {
+  it("window-service: windowId returns correct value", () => {
     const { service } = createWindowService(createTestDeps({ getWindowId: () => "win-42" }));
-    assertEqual(service.windowId, "win-42", "windowId should match deps");
+    expect(service.windowId).toBe("win-42");
   });
 
-  test("window-service: isPopout returns false for host window", () => {
+  it("window-service: isPopout returns false for host window", () => {
     const { service } = createWindowService(createTestDeps());
-    assertEqual(service.isPopout, false, "isPopout should be false for host");
+    expect(service.isPopout).toBe(false);
   });
 
-  test("window-service: isPopout returns true for popout window", () => {
+  it("window-service: isPopout returns true for popout window", () => {
     const { service } = createWindowService(createTestDeps({ getIsPopout: () => true }));
-    assertEqual(service.isPopout, true, "isPopout should be true for popout");
+    expect(service.isPopout).toBe(true);
   });
 
   // ─── getWindows() ───
 
-  test("window-service: getWindows returns current window when no popouts", () => {
+  it("window-service: getWindows returns current window when no popouts", () => {
     const { service } = createWindowService(createTestDeps());
 
     const windows = service.getWindows();
-    assertEqual(windows.length, 1, "should return exactly 1 window");
-    assertEqual(windows[0].windowId, "win-main", "windowId should match");
-    assertEqual(windows[0].isPopout, false, "isPopout should be false");
-    assertEqual(windows[0].hostWindowId, null, "hostWindowId should be null");
-    assertEqual(windows[0].activePartId, "part-1", "activePartId should match");
+    expect(windows.length).toBe(1);
+    expect(windows[0].windowId).toBe("win-main");
+    expect(windows[0].isPopout).toBe(false);
+    expect(windows[0].hostWindowId).toBe(null);
+    expect(windows[0].activePartId).toBe("part-1");
   });
 
-  test("window-service: getWindows returns current window plus popouts", () => {
+  it("window-service: getWindows returns current window plus popouts", () => {
     const popouts = new Map<string, Window>();
     // Use minimal Window-like objects for test purposes
     popouts.set("win-pop-1", {} as Window);
@@ -57,25 +55,25 @@ export function registerWindowServiceSpecs(harness: SpecHarness): void {
     const { service } = createWindowService(createTestDeps({ getPopoutHandles: () => popouts }));
 
     const windows = service.getWindows();
-    assertEqual(windows.length, 3, "should return 3 windows (1 host + 2 popouts)");
+    expect(windows.length).toBe(3);
 
     const host = windows.find((w) => w.windowId === "win-main");
-    assertTruthy(host, "host window should be present");
-    assertEqual(host?.isPopout, false, "host should not be popout");
+    expect(host).toBeTruthy();
+    expect(host?.isPopout).toBe(false);
 
     const pop1 = windows.find((w) => w.windowId === "win-pop-1");
-    assertTruthy(pop1, "popout 1 should be present");
-    assertEqual(pop1?.isPopout, true, "popout 1 should be popout");
-    assertEqual(pop1?.hostWindowId, "win-main", "popout 1 host should be main");
+    expect(pop1).toBeTruthy();
+    expect(pop1?.isPopout).toBe(true);
+    expect(pop1?.hostWindowId).toBe("win-main");
 
     const pop2 = windows.find((w) => w.windowId === "win-pop-2");
-    assertTruthy(pop2, "popout 2 should be present");
-    assertEqual(pop2?.isPopout, true, "popout 2 should be popout");
+    expect(pop2).toBeTruthy();
+    expect(pop2?.isPopout).toBe(true);
   });
 
   // ─── showQuickPick() ───
 
-  test("window-service: showQuickPick resolves with selected item on accept", async () => {
+  it("window-service: showQuickPick resolves with selected item on accept", async () => {
     const items: QuickPickItem[] = [{ label: "Alpha" }, { label: "Beta" }];
 
     const { service } = createWindowService(
@@ -95,11 +93,11 @@ export function registerWindowServiceSpecs(harness: SpecHarness): void {
     });
 
     // The first item is active by default after show()
-    assertTruthy(result !== undefined, "result should not be undefined");
-    assertEqual(result?.label, "Alpha", "should resolve with first (active) item");
+    expect(result !== undefined).toBeTruthy();
+    expect(result?.label).toBe("Alpha");
   });
 
-  test("window-service: showQuickPick resolves with undefined on hide", async () => {
+  it("window-service: showQuickPick resolves with undefined on hide", async () => {
     const items: QuickPickItem[] = [{ label: "Alpha" }, { label: "Beta" }];
 
     const { service } = createWindowService(
@@ -114,26 +112,26 @@ export function registerWindowServiceSpecs(harness: SpecHarness): void {
     );
 
     const result = await service.showQuickPick(items);
-    assertEqual(result, undefined, "should resolve with undefined on hide");
+    expect(result).toBe(undefined);
   });
 
   // ─── createQuickPick() ───
 
-  test("window-service: createQuickPick returns a controllable QuickPick", () => {
+  it("window-service: createQuickPick returns a controllable QuickPick", () => {
     const { service } = createWindowService(createTestDeps());
 
     const qp = service.createQuickPick<QuickPickItem>();
-    assertTruthy(qp, "createQuickPick should return an object");
+    expect(qp).toBeTruthy();
 
     qp.items = [{ label: "Test" }];
-    assertEqual(qp.items.length, 1, "items should be settable");
-    assertEqual(qp.items[0].label, "Test", "items should have correct label");
+    expect(qp.items.length).toBe(1);
+    expect(qp.items[0].label).toBe("Test");
 
     qp.placeholder = "Type here";
-    assertEqual(qp.placeholder, "Type here", "placeholder should be settable");
+    expect(qp.placeholder).toBe("Type here");
 
     qp.show();
-    assertEqual(qp.activeItems.length, 1, "should have active item after show");
+    expect(qp.activeItems.length).toBe(1);
 
     let acceptFired = false;
     qp.onDidAccept(() => {
@@ -143,14 +141,14 @@ export function registerWindowServiceSpecs(harness: SpecHarness): void {
     // fireAccept is on QuickPickController but the QuickPick<T> interface
     // doesn't expose it — we access it via the full controller type
     (qp as unknown as { fireAccept(): void }).fireAccept();
-    assertEqual(acceptFired, true, "onDidAccept should fire");
+    expect(acceptFired).toBe(true);
 
     qp.dispose();
   });
 
   // ─── onDidChangeWindows ───
 
-  test("window-service: onDidChangeWindows fires when triggered", () => {
+  it("window-service: onDidChangeWindows fires when triggered", () => {
     const result = createWindowService(createTestDeps());
 
     let fired = 0;
@@ -159,13 +157,13 @@ export function registerWindowServiceSpecs(harness: SpecHarness): void {
     });
 
     result.fireWindowsChanged();
-    assertEqual(fired, 1, "should fire once");
+    expect(fired).toBe(1);
 
     result.fireWindowsChanged();
-    assertEqual(fired, 2, "should fire on each call");
+    expect(fired).toBe(2);
   });
 
-  test("window-service: dispose clears all listeners", () => {
+  it("window-service: dispose clears all listeners", () => {
     const result = createWindowService(createTestDeps());
 
     let fired = 0;
@@ -174,10 +172,10 @@ export function registerWindowServiceSpecs(harness: SpecHarness): void {
     });
 
     result.fireWindowsChanged();
-    assertEqual(fired, 1, "should fire before dispose");
+    expect(fired).toBe(1);
 
     result.dispose();
     result.fireWindowsChanged();
-    assertEqual(fired, 1, "should not fire after dispose");
+    expect(fired).toBe(1);
   });
-}
+});

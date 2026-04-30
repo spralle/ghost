@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { KEYFRAMES_REGISTRY } from "../keyframes.js";
 
 describe("KEYFRAMES_REGISTRY", () => {

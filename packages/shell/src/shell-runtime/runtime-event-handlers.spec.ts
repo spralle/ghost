@@ -1,6 +1,6 @@
+import { describe, expect, it } from "vitest";
 import type { ShellRuntime } from "../app/types.js";
 import { createInitialShellContextState, readGlobalLane, readGroupLaneForTab, registerTab } from "../context-state.js";
-import type { SpecHarness } from "../context-state.spec-harness.js";
 import { createRuntimeEventHandlers } from "./runtime-event-handlers.js";
 
 function createRuntime(): ShellRuntime {
@@ -67,10 +67,8 @@ function createBindings() {
   };
 }
 
-export function registerRuntimeEventHandlersSpecs(harness: SpecHarness): void {
-  const { test, assertEqual } = harness;
-
-  test("remote selection updates context lanes without mutating local topology", () => {
+describe("runtime event handlers", () => {
+  it("remote selection updates context lanes without mutating local topology", () => {
     const runtime = createRuntime();
     const handlers = createRuntimeEventHandlers(createRoot(), runtime, createBindings());
 
@@ -89,21 +87,13 @@ export function registerRuntimeEventHandlersSpecs(harness: SpecHarness): void {
       sourceWindowId: "window-remote",
     });
 
-    assertEqual(
-      runtime.contextState.tabs["remote-tab-instance"],
-      undefined,
-      "remote selection should not create missing local tab",
-    );
-    assertEqual(runtime.contextState.activeTabId, "tab-b", "remote selection should not activate local tab topology");
-    assertEqual(runtime.selectedPartId, null, "remote selection should not mutate local selected part topology state");
-    assertEqual(
-      readGlobalLane(runtime.contextState, "shell.selection")?.value,
-      "remote-tab-instance|Remote Orders",
-      "global selection lane should sync remote selection context",
-    );
+    expect(runtime.contextState.tabs["remote-tab-instance"]).toBe(undefined);
+    expect(runtime.contextState.activeTabId).toBe("tab-b");
+    expect(runtime.selectedPartId).toBe(null);
+    expect(readGlobalLane(runtime.contextState, "shell.selection")?.value).toBe("remote-tab-instance|Remote Orders");
   });
 
-  test("group context sync falls back to active-tab group when tab id is unknown", () => {
+  it("group context sync falls back to active-tab group when tab id is unknown", () => {
     const runtime = createRuntime();
     const handlers = createRuntimeEventHandlers(createRoot(), runtime, createBindings());
 
@@ -117,10 +107,6 @@ export function registerRuntimeEventHandlersSpecs(harness: SpecHarness): void {
       sourceWindowId: "window-remote",
     });
 
-    assertEqual(
-      readGroupLaneForTab(runtime.contextState, { tabId: "tab-b", key: "shell.group-context" })?.value,
-      "ctx-remote",
-      "unknown remote tab id should not block group-safe context sync",
-    );
+    expect(readGroupLaneForTab(runtime.contextState, { tabId: "tab-b", key: "shell.group-context" })?.value).toBe("ctx-remote");
   });
-}
+});

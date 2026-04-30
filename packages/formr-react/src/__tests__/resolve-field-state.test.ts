@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import type { LayoutNode } from "@ghost-shell/formr-from-schema";
 import { DEFAULT_FIELD_STATE, pruneHiddenFields, resolveFieldStates } from "../resolve-field-state.js";
 

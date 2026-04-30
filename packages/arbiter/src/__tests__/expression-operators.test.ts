@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { createOperatorRegistry, EXPRESSION_OPERATORS } from "../expression-operators.js";
 
 const scope: Readonly<Record<string, unknown>> = {};

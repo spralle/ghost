@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import { z } from "zod";
 import { extractFromZodV4, ingestSchema, isZodV4Schema } from "../index.js";
 

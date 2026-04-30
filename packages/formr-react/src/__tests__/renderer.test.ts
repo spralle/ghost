@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { FormrError } from "@ghost-shell/formr-core";
 import { RendererRegistry } from "../renderer-registry.js";
 

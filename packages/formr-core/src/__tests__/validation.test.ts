@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import type { ValidationIssue } from "../state.js";
 import { dedupeIssues, normalizeIssues, sortIssues } from "../validation.js";
 

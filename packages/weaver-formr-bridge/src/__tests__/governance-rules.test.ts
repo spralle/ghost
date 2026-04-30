@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import type { GovernanceRuleContext, WeaverSchemaEntry } from "../governance-rules.js";
 import { buildGovernanceRules } from "../governance-rules.js";
 

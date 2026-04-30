@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import type { JsonSchema } from "../adapters/json-schema-types.js";
 import type { SchemaMiddleware } from "../middleware.js";
 import { applySchemaMiddleware } from "../middleware.js";

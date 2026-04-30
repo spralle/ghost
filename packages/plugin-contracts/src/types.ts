@@ -1,4 +1,5 @@
 import type { PluginLayerDefinition, PluginLayerSurfaceContribution } from "./layer-types.js";
+import type { ActivationRule } from "./schemas.js";
 import type { PartialThemePalette, TerminalPalette } from "./theme-types.js";
 /** Configuration property schema (JSON Schema subset with extension fields). */
 export interface ConfigurationPropertySchema {
@@ -269,6 +270,7 @@ export interface PluginContract {
   contributes?: PluginContributions | undefined;
   dependsOn?: PluginDependencies | undefined;
   activationEvents?: "onStartup"[] | undefined;
+  activations?: ActivationRule[] | undefined;
 }
 
 /** Partial plugin contract for use in definePlugin — manifest is injected at runtime from package.json. */

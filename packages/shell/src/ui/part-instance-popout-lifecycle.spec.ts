@@ -1,8 +1,8 @@
+import { describe, expect, it } from "vitest";
 import type { PluginServices } from "@ghost-shell/contracts";
 import { createEventEmitter } from "@ghost-shell/plugin-system";
 import type { ShellRuntime } from "../app/types.js";
 import { createIncomingTransferJournal } from "../context-state.js";
-import type { SpecHarness } from "../context-state.spec-harness.js";
 import { dispatchLocalLifecycleAction } from "./part-instance-lifecycle-dispatch.js";
 import { openPopout } from "./part-instance-popout-lifecycle.js";
 
@@ -23,10 +23,8 @@ function createStubPluginServices(): PluginServices {
   };
 }
 
-export function registerPartInstancePopoutLifecycleSpecs(harness: SpecHarness): void {
-  const { test, assertEqual, assertTruthy } = harness;
-
-  test("host injects ghost shim and nested host-open succeeds", () => {
+describe("part instance popout lifecycle", () => {
+  it("host injects ghost shim and nested host-open succeeds", () => {
     const openCalls: Array<{ url: string; target: string | undefined }> = [];
     const popoutA = {} as Window;
     const popoutB = {} as Window;
@@ -55,8 +53,8 @@ export function registerPartInstancePopoutLifecycleSpecs(harness: SpecHarness): 
       () => {
         openPopout("part-a", runtime, deps);
         const shim = popoutA.__ghost;
-        assertTruthy(shim, "host should inject ghost shim into opened popout window");
-        assertEqual(typeof shim?.open, "function", "ghost shim should expose open(request)");
+        expect(shim).toBeTruthy();
+        expect(typeof shim?.open).toBe("function");
 
         const nested = shim?.open({
           hostWindowId: "host-1",
@@ -64,23 +62,19 @@ export function registerPartInstancePopoutLifecycleSpecs(harness: SpecHarness): 
           targetPartId: "part-b",
         });
 
-        assertEqual(nested?.status, "opened", "nested request should open new popout via host");
-        assertTruthy(runtime.poppedOutTabIds.has("part-b"), "host runtime should track nested popped out part");
-        assertEqual(openCalls.length, 2, "host window.open should be called for source and nested popout");
+        expect(nested?.status).toBe("opened");
+        expect(runtime.poppedOutTabIds.has("part-b")).toBeTruthy();
+        expect(openCalls.length).toBe(2);
 
         const nestedUrl = new URL(openCalls[1]?.url);
-        assertEqual(nestedUrl.searchParams.get("popout"), "1", "nested popout URL should preserve popout context");
-        assertEqual(nestedUrl.searchParams.get("partId"), "part-b", "nested popout URL should target requested part");
-        assertEqual(
-          nestedUrl.searchParams.get("hostWindowId"),
-          "host-1",
-          "nested popout URL should preserve host window ownership",
-        );
+        expect(nestedUrl.searchParams.get("popout")).toBe("1");
+        expect(nestedUrl.searchParams.get("partId")).toBe("part-b");
+        expect(nestedUrl.searchParams.get("hostWindowId")).toBe("host-1");
       },
     );
   });
 
-  test("popout fallback notice shown when host shim unavailable", () => {
+  it("popout fallback notice shown when host shim unavailable", () => {
     const runtime = createRuntime({
       isPopout: true,
       hostWindowId: "host-1",
@@ -109,18 +103,15 @@ export function registerPartInstancePopoutLifecycleSpecs(harness: SpecHarness): 
           deps,
         );
 
-        assertEqual(accepted, true, "dispatch should handle popout action in popout runtime");
-        assertTruthy(
-          runtime.notice.includes("Host popout bridge unavailable"),
-          "missing shim should provide actionable fallback notice",
-        );
-        assertEqual(deps.renderSyncStatusCalls, 1, "fallback should render sync status once");
-        assertEqual(runtime.poppedOutTabIds.size, 0, "fallback should not mutate popout tracking state");
+        expect(accepted).toBe(true);
+        expect(runtime.notice.includes("Host popout bridge unavailable")).toBeTruthy();
+        expect(deps.renderSyncStatusCalls).toBe(1);
+        expect(runtime.poppedOutTabIds.size).toBe(0);
       },
     );
   });
 
-  test("shim propagates popup blocked result without stale host state", () => {
+  it("shim propagates popup blocked result without stale host state", () => {
     const openCalls: string[] = [];
     const popoutA = {} as Window;
     const runtime = createRuntime({
@@ -149,15 +140,15 @@ export function registerPartInstancePopoutLifecycleSpecs(harness: SpecHarness): 
           targetPartId: "part-c",
         });
 
-        assertEqual(result?.status, "blocked", "blocked popup should be propagated through shim contract");
-        assertTruthy(result?.notice.includes("Popup blocked"), "blocked popup response should be actionable");
-        assertEqual(runtime.poppedOutTabIds.has("part-c"), false, "blocked popup should not mark tab as popped out");
-        assertEqual(runtime.popoutHandles.has("part-c"), false, "blocked popup should not store stale popout handle");
+        expect(result?.status).toBe("blocked");
+        expect(result?.notice.includes("Popup blocked")).toBeTruthy();
+        expect(runtime.poppedOutTabIds.has("part-c")).toBe(false);
+        expect(runtime.popoutHandles.has("part-c")).toBe(false);
       },
     );
   });
 
-  test("host shim rejects ownership mismatch requests", () => {
+  it("host shim rejects ownership mismatch requests", () => {
     const openCalls: string[] = [];
     const popoutA = {} as Window;
     const runtime = createRuntime({
@@ -187,22 +178,15 @@ export function registerPartInstancePopoutLifecycleSpecs(harness: SpecHarness): 
           targetPartId: "part-b",
         });
 
-        assertEqual(result?.status, "rejected", "ownership mismatch should be rejected by host shim");
-        assertTruthy(
-          result?.notice.includes("ownership mismatch"),
-          "ownership mismatch should return rejection notice",
-        );
-        assertEqual(openCalls.length, 1, "rejected request should not open another popout");
-        assertEqual(
-          runtime.poppedOutTabIds.has("part-b"),
-          false,
-          "rejected request should not mutate target popout state",
-        );
+        expect(result?.status).toBe("rejected");
+        expect(result?.notice.includes("ownership mismatch")).toBeTruthy();
+        expect(openCalls.length).toBe(1);
+        expect(runtime.poppedOutTabIds.has("part-b")).toBe(false);
       },
     );
   });
 
-  test("host shim rejects missing or unknown target part", () => {
+  it("host shim rejects missing or unknown target part", () => {
     const openCalls: string[] = [];
     const popoutA = {} as Window;
     const runtime = createRuntime({
@@ -237,23 +221,16 @@ export function registerPartInstancePopoutLifecycleSpecs(harness: SpecHarness): 
           targetPartId: "part-missing",
         });
 
-        assertEqual(missingTarget?.status, "rejected", "missing target part should be rejected");
-        assertEqual(unknownTarget?.status, "rejected", "unknown target part should be rejected");
-        assertTruthy(
-          unknownTarget?.notice.includes("target part not found"),
-          "unknown target should include not-found notice",
-        );
-        assertEqual(openCalls.length, 1, "rejected target validation should not open another popout");
-        assertEqual(
-          runtime.poppedOutTabIds.has("part-missing"),
-          false,
-          "rejected target validation should not mutate popout state",
-        );
+        expect(missingTarget?.status).toBe("rejected");
+        expect(unknownTarget?.status).toBe("rejected");
+        expect(unknownTarget?.notice.includes("target part not found")).toBeTruthy();
+        expect(openCalls.length).toBe(1);
+        expect(runtime.poppedOutTabIds.has("part-missing")).toBe(false);
       },
     );
   });
 
-  test("host shim rejects target that is already popped out", () => {
+  it("host shim rejects target that is already popped out", () => {
     const openCalls: string[] = [];
     const popoutA = {} as Window;
     const runtime = createRuntime({
@@ -285,17 +262,14 @@ export function registerPartInstancePopoutLifecycleSpecs(harness: SpecHarness): 
           targetPartId: "part-b",
         });
 
-        assertEqual(result?.status, "rejected", "already popped-out target should be rejected");
-        assertTruthy(
-          result?.notice.includes("already popped out"),
-          "already popped-out target should return rejection notice",
-        );
-        assertEqual(openCalls.length, 1, "already popped-out reject should not open another popout");
+        expect(result?.status).toBe("rejected");
+        expect(result?.notice.includes("already popped out")).toBeTruthy();
+        expect(openCalls.length).toBe(1);
       },
     );
   });
 
-  test("non-popout lifecycle dispatch still uses direct host open flow", () => {
+  it("non-popout lifecycle dispatch still uses direct host open flow", () => {
     const runtime = createRuntime({
       isPopout: false,
       windowId: "host-1",
@@ -325,17 +299,13 @@ export function registerPartInstancePopoutLifecycleSpecs(harness: SpecHarness): 
           deps,
         );
 
-        assertEqual(accepted, true, "non-popout dispatch should still accept popout action");
-        assertEqual(openCallCount, 1, "non-popout dispatch should use window.open directly");
-        assertEqual(
-          runtime.poppedOutTabIds.has("part-main"),
-          true,
-          "non-popout flow should still track popped out tab",
-        );
+        expect(accepted).toBe(true);
+        expect(openCallCount).toBe(1);
+        expect(runtime.poppedOutTabIds.has("part-main")).toBe(true);
       },
     );
   });
-}
+});
 
 function createRuntime(overrides: Partial<ShellRuntime>): ShellRuntime {
   const workspaceEvents = createEventEmitter<void>();

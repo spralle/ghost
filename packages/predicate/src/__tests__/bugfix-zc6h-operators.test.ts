@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vitest";
 import type { ExprNode } from "../ast.js";
 import { evaluate, OperatorRegistry } from "../index.js";
 
