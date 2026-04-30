@@ -219,10 +219,7 @@ export function registerPluginRegistryServiceCapability(
     },
   };
 
-  registry.registerBuiltinPlugin(
-    contract,
-    { [PLUGIN_REGISTRY_SERVICE_ID]: service },
-    undefined,
-    { [PLUGIN_REGISTRY_SERVICE_ID]: { lazy: true } },
-  );
+  registry.registerBuiltinPlugin(contract, { [PLUGIN_REGISTRY_SERVICE_ID]: service }, undefined, {
+    [PLUGIN_REGISTRY_SERVICE_ID]: { lazy: true },
+  });
 }

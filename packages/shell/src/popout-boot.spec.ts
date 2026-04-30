@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-
-import type { PopoutManifest } from "./popout-manifest.js";
 import { bootPopoutWindow, type PopoutBootContext } from "./popout-boot.js";
+import type { PopoutManifest } from "./popout-manifest.js";
 
 const testManifest: PopoutManifest = {
   parts: [{ partId: "vessel-view", pluginId: "vessel-plugin" }],

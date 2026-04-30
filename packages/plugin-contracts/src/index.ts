@@ -101,6 +101,7 @@ export { PLUGIN_REGISTRY_SERVICE_ID } from "./plugin-registry-service.js";
 export type { MountPartFn, PartMountCleanup, PluginMountContext, PluginServices } from "./plugin-services.js";
 export type { ResolveMountOptions } from "./resolve-mount.js";
 export { resolveModuleMountFn } from "./resolve-mount.js";
+export type { ActivationRule } from "./schemas.js";
 export {
   activationEventsSchema,
   activationRuleSchema,
@@ -139,7 +140,6 @@ export {
   tenantPluginManifestResponseSchema,
   themeContributionSchema,
 } from "./schemas.js";
-export type { ActivationRule } from "./schemas.js";
 export type { ServiceToken } from "./service-token.js";
 export { createServiceToken } from "./service-token.js";
 export * as ServiceTokens from "./service-tokens.js";
@@ -158,6 +158,8 @@ export {
   Window,
   Workspace,
 } from "./service-tokens.js";
+export type { SnapshotCapable } from "./snapshot-capable.js";
+export { isSnapshotCapable } from "./snapshot-capable.js";
 export type { SyncStatusService } from "./sync-status-service.js";
 export { SYNC_STATUS_SERVICE_ID } from "./sync-status-service.js";
 export type { BackgroundInfo, ThemeInfo, ThemeService } from "./theme-service.js";
@@ -214,7 +216,5 @@ export type {
   ThemeContribution,
   ThemeFonts,
 } from "./types.js";
-export type { SnapshotCapable } from "./snapshot-capable.js";
-export { isSnapshotCapable } from "./snapshot-capable.js";
 export type { WorkspaceInfo, WorkspaceService } from "./workspace-service.js";
 export { WORKSPACE_SERVICE_ID } from "./workspace-service.js";

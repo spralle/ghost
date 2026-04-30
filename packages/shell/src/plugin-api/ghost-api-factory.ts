@@ -1,4 +1,11 @@
-import type { ActivationContext, Disposable, GhostApi, PluginServices, ServiceRegistrationOptions, ServiceToken } from "@ghost-shell/contracts";
+import type {
+  ActivationContext,
+  Disposable,
+  GhostApi,
+  PluginServices,
+  ServiceRegistrationOptions,
+  ServiceToken,
+} from "@ghost-shell/contracts";
 import { createState, disposeState } from "../reactive-state.js";
 import {
   type ActionServiceDependencies,

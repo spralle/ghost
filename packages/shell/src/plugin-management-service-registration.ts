@@ -34,10 +34,7 @@ export function registerPluginManagementServiceCapability(registry: ShellPluginR
     },
   };
 
-  registry.registerBuiltinPlugin(
-    contract,
-    { [PLUGIN_MANAGEMENT_SERVICE_ID]: service },
-    undefined,
-    { [PLUGIN_MANAGEMENT_SERVICE_ID]: { lazy: true } },
-  );
+  registry.registerBuiltinPlugin(contract, { [PLUGIN_MANAGEMENT_SERVICE_ID]: service }, undefined, {
+    [PLUGIN_MANAGEMENT_SERVICE_ID]: { lazy: true },
+  });
 }

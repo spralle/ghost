@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { createPopoutManifestRegistry } from "./popout-manifest-registry.js";
 import type { PopoutManifest } from "./popout-manifest.js";
+import { createPopoutManifestRegistry } from "./popout-manifest-registry.js";
 
 const testManifest: PopoutManifest = {
   parts: [{ partId: "test-part", pluginId: "test-plugin" }],

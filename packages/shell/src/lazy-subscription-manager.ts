@@ -29,9 +29,7 @@ export interface LazySubscriptionManager {
   disposeAll(): void;
 }
 
-export function createLazySubscriptionManager(
-  options: LazySubscriptionManagerOptions,
-): LazySubscriptionManager {
+export function createLazySubscriptionManager(options: LazySubscriptionManagerOptions): LazySubscriptionManager {
   const subscriptions = new Map<string, LazySubscription>();
 
   return {

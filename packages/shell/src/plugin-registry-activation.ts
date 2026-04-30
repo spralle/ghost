@@ -1,6 +1,7 @@
-import type { PluginContract, PluginServices } from "@ghost-shell/contracts";
+import type { PluginServices } from "@ghost-shell/contracts";
 import type { LayerRegistry } from "@ghost-shell/layer";
 import { evaluateShellPluginCompatibility } from "@ghost-shell/plugin-system";
+import { createNullServices, resolveActivationEntry } from "./activation-resolution.js";
 import type { CapabilityRegistry } from "./capability-registry.js";
 import { buildActivationPlan } from "./plugin-activation-plan.js";
 import {
@@ -384,42 +385,4 @@ export async function activateByStartupEvent(
   }
 
   return result;
-}
-
-function createNullServices(): PluginServices {
-  return {
-    getService: () => null,
-    hasService: () => false,
-  } as PluginServices;
-}
-
-function resolveActivationEntry(
-  contract: PluginContract,
-  exports: Record<string, Function>,
-  runtimeContext: Record<string, unknown>,
-): Function | null {
-  const activations = contract.activations;
-  if (!activations || activations.length === 0) return null;
-
-  for (const rule of activations) {
-    if (matchesWhen(runtimeContext, rule.when)) {
-      const fn = exports[rule.entry];
-      if (typeof fn === "function") return fn;
-    }
-  }
-  return null;
-}
-
-function matchesWhen(context: Record<string, unknown>, when: Record<string, unknown>): boolean {
-  for (const [key, expected] of Object.entries(when)) {
-    const actual = context[key];
-    if (typeof expected === "object" && expected !== null) {
-      const ops = expected as Record<string, unknown>;
-      if ("$ne" in ops && actual === ops.$ne) return false;
-      if ("$eq" in ops && actual !== ops.$eq) return false;
-    } else {
-      if (actual !== expected) return false;
-    }
-  }
-  return true;
 }

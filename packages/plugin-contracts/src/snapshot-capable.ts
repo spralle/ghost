@@ -17,8 +17,5 @@ export interface SnapshotCapable {
 export function isSnapshotCapable(part: unknown): part is SnapshotCapable {
   if (!part || typeof part !== "object") return false;
   const candidate = part as Record<string, unknown>;
-  return (
-    typeof candidate.getSnapshot === "function" &&
-    typeof candidate.restoreSnapshot === "function"
-  );
+  return typeof candidate.getSnapshot === "function" && typeof candidate.restoreSnapshot === "function";
 }

@@ -10,7 +10,6 @@
 import type { ContextContributionRegistry, PartRenderer, PartRendererRegistry } from "@ghost-shell/contracts";
 import { createContextContributionRegistry } from "@ghost-shell/plugin-system";
 import { createReactPartRenderer } from "@ghost-shell/react";
-import { resolveWindowIdentity } from "./window-identity.js";
 import type { ShellMigrationFlags } from "./app/migration-flags.js";
 import { readShellMigrationFlags, selectShellTransportPath } from "./app/migration-flags.js";
 import { createShellRuntime } from "./app/runtime.js";
@@ -37,6 +36,7 @@ import {
   ShellWiringContext,
   summarizeSelectionPriorities,
 } from "./shell-wiring.js";
+import { resolveWindowIdentity } from "./window-identity.js";
 
 // ---------------------------------------------------------------------------
 // Options

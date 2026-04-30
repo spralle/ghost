@@ -25,7 +25,10 @@ function validateRpcArgs(tokenId: string, method: string, args: unknown[]): void
           `Define an "activations" entry in your plugin manifest for secondary window behavior.`,
       );
     }
-    if ((typeof Node !== "undefined" && arg instanceof Node) || (typeof Element !== "undefined" && arg instanceof Element)) {
+    if (
+      (typeof Node !== "undefined" && arg instanceof Node) ||
+      (typeof Element !== "undefined" && arg instanceof Element)
+    ) {
       throw new Error(
         `Cannot proxy "${tokenId}.${method}()": argument ${i} is a DOM node. ` +
           `Define an "activations" entry in your plugin manifest for secondary window behavior.`,

@@ -1,5 +1,5 @@
-import type { ActivationRule } from "./schemas.js";
 import type { PluginLayerDefinition, PluginLayerSurfaceContribution } from "./layer-types.js";
+import type { ActivationRule } from "./schemas.js";
 import type { PartialThemePalette, TerminalPalette } from "./theme-types.js";
 /** Configuration property schema (JSON Schema subset with extension fields). */
 export interface ConfigurationPropertySchema {

@@ -17,6 +17,14 @@ export type {
   StyleElementMutation,
 } from "./dom-style-sync.js";
 export { applyDomStyleSnapshot, applyDomSyncMutations, createDomStyleObserver } from "./dom-style-sync.js";
+export {
+  createLazySubscriptionManager,
+  type LazySubscription,
+  type LazySubscriptionManager,
+  type LazySubscriptionManagerOptions,
+} from "./lazy-subscription-manager.js";
+// Part snapshot utilities for popout continuity
+export { capturePartSnapshot, type PartSnapshot, restorePartSnapshot } from "./part-snapshot.js";
 // Popout boot orchestrator
 export {
   bootPopoutWindow,
@@ -54,6 +62,14 @@ export {
   proxySet,
   subscribeState,
 } from "./reactive-state.js";
+// Scomp peer abstraction
+export type {
+  ScompContractToken,
+  ScompDisposable,
+  ScompPeer,
+  ScompRuntimeConfig,
+  ScompServiceDefinition,
+} from "./scomp-runtime.js";
 export { applyOps, createReplicaFromSnapshot } from "./service-gateway-apply.js";
 // Service gateway contracts and utilities
 export type {
@@ -67,29 +83,13 @@ export type {
 } from "./service-gateway-contract.js";
 export { SERVICE_GATEWAY_CONTRACT } from "./service-gateway-contract.js";
 export {
-  createLazySubscriptionManager,
-  type LazySubscription,
-  type LazySubscriptionManager,
-  type LazySubscriptionManagerOptions,
-} from "./lazy-subscription-manager.js";
-export {
   createServiceGatewayHost,
   type ServiceGatewayHostOptions,
   type ServiceRegistry,
 } from "./service-gateway-host.js";
-// Window identity
-export { resolveWindowIdentity, type WindowIdentity } from "./window-identity.js";
-// Scomp peer abstraction
-export type {
-  ScompContractToken,
-  ScompDisposable,
-  ScompPeer,
-  ScompRuntimeConfig,
-  ScompServiceDefinition,
-} from "./scomp-runtime.js";
-// Part snapshot utilities for popout continuity
-export { capturePartSnapshot, restorePartSnapshot, type PartSnapshot } from "./part-snapshot.js";
 // Legacy — kept for ReactShellHost backward compatibility
 export { startShell } from "./start-shell.js";
 // Stateful service registration utilities
 export { createServiceState, isStatefulService, type StatefulService } from "./stateful-service-registration.js";
+// Window identity
+export { resolveWindowIdentity, type WindowIdentity } from "./window-identity.js";

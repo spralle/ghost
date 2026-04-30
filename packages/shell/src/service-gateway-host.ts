@@ -8,7 +8,6 @@ import type {
   StateSnapshotRequest,
   StateSnapshotResponse,
 } from "./service-gateway-contract.js";
-import { isStatefulService } from "./stateful-service-registration.js";
 
 /** Check if return value contains non-serializable patterns */
 function validateRpcResponse(tokenId: string, method: string, value: unknown): void {
@@ -37,16 +36,6 @@ function validateRpcResponse(tokenId: string, method: string, value: unknown): v
 }
 
 /**
- * Extract state from a service if it exposes the StatefulService pattern.
- */
-export function extractServiceState(service: unknown): object | null {
-  if (isStatefulService(service)) {
-    return service.state;
-  }
-  return null;
-}
-
-/**
  * Registry that the host-side gateway uses to resolve services.
  */
 export interface ServiceRegistry {
@@ -65,13 +54,9 @@ export interface ServiceGatewayHostOptions {
  * Creates the host-side service gateway implementation.
  * Handles incoming RPC calls from popouts and streams state ops.
  */
-export function createServiceGatewayHost(
-  registryOrOptions: ServiceRegistry | ServiceGatewayHostOptions,
-) {
-  const registry: ServiceRegistry =
-    "registry" in registryOrOptions ? registryOrOptions.registry : registryOrOptions;
-  const isLazy =
-    "isLazy" in registryOrOptions ? registryOrOptions.isLazy : undefined;
+export function createServiceGatewayHost(registryOrOptions: ServiceRegistry | ServiceGatewayHostOptions) {
+  const registry: ServiceRegistry = "registry" in registryOrOptions ? registryOrOptions.registry : registryOrOptions;
+  const isLazy = "isLazy" in registryOrOptions ? registryOrOptions.isLazy : undefined;
 
   const opSubscribers = new Set<(batch: StateOpBatch) => void>();
   const stateUnsubscribers = new Map<string, () => void>();
