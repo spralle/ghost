@@ -63,6 +63,7 @@ export function createLayerSurfaceRenderer(options: LayerSurfaceRendererOptions)
   const mountedShellSurfaces = new Map<string, { element: HTMLElement; cleanup: (() => void) | null }>();
   const registeredRemoteIds = new Set<string>();
   const builtInSurfaceMounts = new Map<string, MountSurfaceComponentFn>();
+  const dismissedSurfaces = new Set<string>();
   let generation = 0;
 
   const keyboardExclusiveManager = createKeyboardExclusiveManager();
@@ -80,6 +81,7 @@ export function createLayerSurfaceRenderer(options: LayerSurfaceRendererOptions)
       safeUnmount(state.cleanup);
       state.element.remove();
       mounted.delete(key);
+      dismissedSurfaces.delete(key);
     }
   });
 
@@ -99,12 +101,13 @@ export function createLayerSurfaceRenderer(options: LayerSurfaceRendererOptions)
     if (surface.focusGrab) {
       const container = target.parentElement;
       if (container) {
-        focusGrabManager.grabFocus({
+          focusGrabManager.grabFocus({
           surfaceId: key,
           surfaceElement: target as HTMLDivElement,
           layerContainer: container,
           config: surface.focusGrab,
           onDismiss: () => {
+            dismissedSurfaces.add(key);
             const state = mounted.get(key);
             if (state) {
               safeUnmount(state.cleanup);
@@ -133,6 +136,7 @@ export function createLayerSurfaceRenderer(options: LayerSurfaceRendererOptions)
     const pluginSnapshotMap = new Map(snapshot.plugins.map((p) => [p.id, p]));
     return {
       mounted,
+      dismissedSurfaces,
       registeredRemoteIds,
       builtInSurfaceMounts,
       layerRegistry,
@@ -175,7 +179,10 @@ export function createLayerSurfaceRenderer(options: LayerSurfaceRendererOptions)
     const allSurfaces = layerRegistry.getAllSurfaces();
 
     // Filter out surfaces whose when-condition evaluates to false
-    const visibleSurfaces = filterByWhenCondition(allSurfaces);
+    const visibleSurfaces = filterByWhenCondition(allSurfaces).filter(
+      (s) => !dismissedSurfaces.has(composeSurfaceKey(s.pluginId, s.surface.id))
+    );
+
 
     // Build the desired set of surface IDs
     const desiredIds = new Set(visibleSurfaces.map((s) => composeSurfaceKey(s.pluginId, s.surface.id)));
@@ -232,6 +239,7 @@ export function createLayerSurfaceRenderer(options: LayerSurfaceRendererOptions)
     mountedShellSurfaces.clear();
 
     registeredRemoteIds.clear();
+    dismissedSurfaces.clear();
     keyboardExclusiveManager.dispose();
     generation += 1;
   }

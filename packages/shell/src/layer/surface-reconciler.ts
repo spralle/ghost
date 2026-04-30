@@ -24,6 +24,7 @@ type PluginSnapshotEntry = ReturnType<PluginHost["registry"]["getSnapshot"]>["pl
 
 export interface ReconcilerContext {
   mounted: Map<string, SurfaceMountState>;
+  dismissedSurfaces: Set<string>;
   registeredRemoteIds: Set<string>;
   builtInSurfaceMounts: Map<string, MountSurfaceComponentFn>;
   layerRegistry: LayerRegistry;
@@ -187,6 +188,7 @@ async function mountSurfaceComponent(
     layerRegistry: ctx.layerRegistry,
     focusGrabManager: ctx.focusGrabManager,
     onDismiss: () => {
+      ctx.dismissedSurfaces.add(key);
       safeUnmount(ctx.mounted.get(key)?.cleanup ?? null);
       ctx.cleanupSurfaceBehaviors(key);
       target.remove();
@@ -287,7 +289,9 @@ async function mountViaFederation(
       return;
     }
 
-    const cleanupResult = await mountFn(target, { surface, pluginId, surfaceContext, runtime });
+    // Plugin mount functions expect LayerSurfaceContext directly per @ghost-shell/contracts.
+    // The MountSurfaceComponentFn type is for built-in shell mounts only.
+    const cleanupResult = await (mountFn as unknown as (t: HTMLElement, ctx: typeof surfaceContext) => ReturnType<typeof mountFn>)(target, surfaceContext);
     const cleanup = normalizeCleanup(cleanupResult);
 
     if (ctx.generation !== expectedGeneration) {
