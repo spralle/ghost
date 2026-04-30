@@ -63,7 +63,6 @@ export function reconcileLayerContainer(
     let target = container.querySelector<HTMLDivElement>(`[data-surface-id="${key}"]`);
 
     if (!target) {
-      console.log("[LAYER-DEBUG] reconciler: creating new surface element:", { key, pluginId, layer: surface.layer });
       target = createSurfaceElement(ctx, key, pluginId, surface);
       insertSurfaceElement(container, target, previousElement);
     }
@@ -279,9 +278,7 @@ async function mountViaFederation(
   );
 
   try {
-    console.log("[LAYER-DEBUG] mountViaFederation: loading remote module:", { pluginId, key });
     const remoteModule = await ctx.federationRuntime.loadRemoteModule(pluginId, "./pluginLayerSurfaces");
-    console.log("[LAYER-DEBUG] mountViaFederation: remote module loaded:", { pluginId, moduleKeys: remoteModule ? Object.keys(remoteModule) : null });
 
     if (ctx.generation !== expectedGeneration) {
       return;
@@ -289,7 +286,6 @@ async function mountViaFederation(
 
     const mountFn = resolveSurfaceMount(remoteModule, surface);
     if (!mountFn) {
-      console.log("[LAYER-DEBUG] mountViaFederation: no mount function resolved for:", { pluginId, component: surface.component });
       return;
     }
 
@@ -297,7 +293,6 @@ async function mountViaFederation(
     // The MountSurfaceComponentFn type is for built-in shell mounts only.
     const cleanupResult = await (mountFn as unknown as (t: HTMLElement, ctx: typeof surfaceContext) => ReturnType<typeof mountFn>)(target, surfaceContext);
     const cleanup = normalizeCleanup(cleanupResult);
-    console.log("[LAYER-DEBUG] mountViaFederation: mount SUCCESS:", { pluginId, key });
 
     if (ctx.generation !== expectedGeneration) {
       safeUnmount(cleanup);
@@ -317,7 +312,6 @@ async function mountViaFederation(
     ctx.onSurfaceMounted?.(key, pluginId);
     ctx.onSurfaceEntering?.(target, key, pluginId);
   } catch (err) {
-    console.log("[LAYER-DEBUG] mountViaFederation: FAILED:", { pluginId, key, error: err });
     console.warn(`[shell] Federation surface mount failed for "${key}" (plugin: ${pluginId}):`, err);
     ctx.onSurfaceMountError?.(key, pluginId, err);
   }

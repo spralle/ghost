@@ -183,7 +183,6 @@ export function createLayerSurfaceRenderer(options: LayerSurfaceRendererOptions)
       (s) => !dismissedSurfaces.has(composeSurfaceKey(s.pluginId, s.surface.id))
     );
 
-    console.log("[LAYER-DEBUG] renderLayerSurfaces: active surfaces after filtering:", visibleSurfaces.length);
 
     // Build the desired set of surface IDs
     const desiredIds = new Set(visibleSurfaces.map((s) => composeSurfaceKey(s.pluginId, s.surface.id)));
@@ -200,7 +199,6 @@ export function createLayerSurfaceRenderer(options: LayerSurfaceRendererOptions)
 
     // Group surfaces by layer
     const surfacesByLayer = groupByLayer(visibleSurfaces);
-    console.log("[LAYER-DEBUG] renderLayerSurfaces: layers with surfaces:", [...surfacesByLayer.keys()]);
 
     // Compute exclusive zones and set CSS custom properties
     const zones = computeExclusiveZones(visibleSurfaces);
