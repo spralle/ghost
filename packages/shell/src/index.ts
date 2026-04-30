@@ -17,6 +17,13 @@ export type {
   StyleElementMutation,
 } from "./dom-style-sync.js";
 export { applyDomStyleSnapshot, applyDomSyncMutations, createDomStyleObserver } from "./dom-style-sync.js";
+// Popout boot orchestrator
+export {
+  bootPopoutWindow,
+  type PopoutBootContext,
+  type PopoutBootError,
+  type PopoutBootResult,
+} from "./popout-boot.js";
 // Popout window initialization
 export {
   initializePopout,
