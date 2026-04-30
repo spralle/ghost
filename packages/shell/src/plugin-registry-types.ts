@@ -57,6 +57,8 @@ export interface PluginRuntimeState {
   ghostApiInstance: GhostApiInstance | null;
   /** The plugin's optional deactivate() export, called before disposal. */
   deactivate: PluginDeactivateFunction | null;
+  /** All function exports from the plugin module, for activation rule resolution. */
+  exports: Record<string, Function>;
   builtinServiceInstances: Map<string, unknown> | null;
   /** Module reference for builtin plugins — used by part-module-host to skip federation loading. */
   builtinModule: unknown | null;

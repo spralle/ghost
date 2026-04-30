@@ -35,6 +35,7 @@ export type {
   QuickPickItem,
   QuickPickOptions,
   ResolvedMenuAction,
+  ServiceRegistrationOptions,
   ViewDescriptor,
   ViewService,
   WindowDescriptor,
@@ -102,6 +103,8 @@ export type { ResolveMountOptions } from "./resolve-mount.js";
 export { resolveModuleMountFn } from "./resolve-mount.js";
 export {
   activationEventsSchema,
+  activationRuleSchema,
+  activationsSchema,
   brandingContributionSchema,
   pluginActionContributionSchema,
   pluginCapabilityComponentContributionSchema,
@@ -136,6 +139,7 @@ export {
   tenantPluginManifestResponseSchema,
   themeContributionSchema,
 } from "./schemas.js";
+export type { ActivationRule } from "./schemas.js";
 export type { ServiceToken } from "./service-token.js";
 export { createServiceToken } from "./service-token.js";
 export * as ServiceTokens from "./service-tokens.js";

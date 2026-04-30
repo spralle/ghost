@@ -18,7 +18,12 @@ export type {
 } from "./dom-style-sync.js";
 export { applyDomStyleSnapshot, applyDomSyncMutations, createDomStyleObserver } from "./dom-style-sync.js";
 // Popout window initialization
-export { initializePopout, type PopoutInitResult, type PopoutTransport } from "./popout-initialization.js";
+export {
+  initializePopout,
+  type PopoutInitOptions,
+  type PopoutInitResult,
+  type PopoutTransport,
+} from "./popout-initialization.js";
 export { createProjectedPluginServices, type ServiceGatewayTransport } from "./projected-plugin-services.js";
 export type { StateOp, StateSubscriber } from "./reactive-state.js";
 // Reactive state primitives
@@ -44,6 +49,14 @@ export type {
 } from "./service-gateway-contract.js";
 export { SERVICE_GATEWAY_CONTRACT } from "./service-gateway-contract.js";
 export { createServiceGatewayHost, type ServiceRegistry } from "./service-gateway-host.js";
+// Scomp peer abstraction
+export type {
+  ScompContractToken,
+  ScompDisposable,
+  ScompPeer,
+  ScompRuntimeConfig,
+  ScompServiceDefinition,
+} from "./scomp-runtime.js";
 // Legacy — kept for ReactShellHost backward compatibility
 export { startShell } from "./start-shell.js";
 // Stateful service registration utilities

@@ -1,4 +1,4 @@
-import type { PluginServices } from "@ghost-shell/contracts";
+import type { PluginContract, PluginServices } from "@ghost-shell/contracts";
 import type { LayerRegistry } from "@ghost-shell/layer";
 import { evaluateShellPluginCompatibility } from "@ghost-shell/plugin-system";
 import type { CapabilityRegistry } from "./capability-registry.js";
@@ -104,6 +104,7 @@ async function activateState(
       state.contract = loadResult.contract;
       state.activate = loadResult.activate;
       state.deactivate = loadResult.deactivate ?? null;
+      state.exports = loadResult.exports;
     }
 
     if (!validateAndRegisterCapabilities(state, pluginId, trigger, diagnostics, capabilityRegistry)) {
@@ -215,7 +216,12 @@ async function runActivateHook(
   const ctx = createActivationContext(pluginId, pluginServices ?? createNullServices());
 
   try {
-    await state.activate(ghostApiInstance.api, ctx);
+    const overrideEntry = resolveActivationEntry(state.contract!, state.exports, { isSecondary: false });
+    if (overrideEntry) {
+      await overrideEntry(ghostApiInstance.api, ctx);
+    } else {
+      await state.activate(ghostApiInstance.api, ctx);
+    }
     state.activationSubscriptions = ctx.subscriptions;
     state.ghostApiInstance = ghostApiInstance;
     return true;
@@ -385,4 +391,35 @@ function createNullServices(): PluginServices {
     getService: () => null,
     hasService: () => false,
   } as PluginServices;
+}
+
+function resolveActivationEntry(
+  contract: PluginContract,
+  exports: Record<string, Function>,
+  runtimeContext: Record<string, unknown>,
+): Function | null {
+  const activations = contract.activations;
+  if (!activations || activations.length === 0) return null;
+
+  for (const rule of activations) {
+    if (matchesWhen(runtimeContext, rule.when)) {
+      const fn = exports[rule.entry];
+      if (typeof fn === "function") return fn;
+    }
+  }
+  return null;
+}
+
+function matchesWhen(context: Record<string, unknown>, when: Record<string, unknown>): boolean {
+  for (const [key, expected] of Object.entries(when)) {
+    const actual = context[key];
+    if (typeof expected === "object" && expected !== null) {
+      const ops = expected as Record<string, unknown>;
+      if ("$ne" in ops && actual === ops.$ne) return false;
+      if ("$eq" in ops && actual !== ops.$eq) return false;
+    } else {
+      if (actual !== expected) return false;
+    }
+  }
+  return true;
 }

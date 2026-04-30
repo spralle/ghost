@@ -11,6 +11,7 @@ import {
   type DomSyncMutation,
 } from "./dom-style-sync.js";
 import { createProjectedPluginServices, type ServiceGatewayTransport } from "./projected-plugin-services.js";
+import type { ScompPeer } from "./scomp-runtime.js";
 
 /**
  * Transport that bridges to the host window.
@@ -21,6 +22,15 @@ export interface PopoutTransport extends ServiceGatewayTransport {
   getDomStyleSnapshot(): Promise<DomStyleSnapshot>;
   /** Subscribe to DOM style mutations from host. Returns unsubscribe. */
   subscribeDomSync(callback: (mutations: DomSyncMutation[]) => void): () => void;
+}
+
+/**
+ * Options for popout window initialization.
+ */
+export interface PopoutInitOptions {
+  readonly popoutTransport: PopoutTransport;
+  /** Optional scomp peer for direct cross-window contract resolution. */
+  readonly scompPeer?: ScompPeer;
 }
 
 /**

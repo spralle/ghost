@@ -237,6 +237,16 @@ export interface MenuService {
   dispatch(actionId: string, context: Record<string, unknown>): Promise<boolean>;
 }
 
+// ─── ServiceRegistrationOptions ───
+
+/** Options controlling cross-window behavior of a registered service. */
+export interface ServiceRegistrationOptions {
+  /** Each window gets its own independent instance — no cross-window sync. */
+  local?: boolean;
+  /** Defer state replication until first access from a secondary window. */
+  lazy?: boolean;
+}
+
 // ─── ActivationContext ───
 
 /**
@@ -268,7 +278,7 @@ export interface ActivationContext {
    * Other plugins can then access it via services.getService(token).
    * Returns a Disposable to unregister.
    */
-  registerService<T>(token: ServiceToken<T>, implementation: T): Disposable;
+  registerService<T>(token: ServiceToken<T>, implementation: T, options?: ServiceRegistrationOptions): Disposable;
 }
 
 // ─── DeactivationContext ───

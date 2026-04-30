@@ -58,6 +58,8 @@ export interface GhostShellOptions {
   readonly hmr?: boolean;
   /** Transport for popout windows — enables projected services and style sync. */
   readonly popoutTransport?: import("./popout-initialization.js").PopoutTransport;
+  /** Scomp peer for cross-window contract resolution. Injected by app layer. */
+  readonly scomp?: import("./scomp-runtime.js").ScompPeer;
 }
 
 // ---------------------------------------------------------------------------

@@ -244,6 +244,15 @@ export const brandingContributionSchema = z
   })
   .strict();
 
+export const activationRuleSchema = z.object({
+  entry: z.string(),
+  when: z.record(z.unknown()),
+});
+
+export const activationsSchema = z.array(activationRuleSchema);
+
+export type ActivationRule = z.infer<typeof activationRuleSchema>;
+
 export const activationEventsSchema = z.array(z.enum(["onStartup"]));
 
 export const pluginConfigurationContributionSchema = z
@@ -363,6 +372,7 @@ export const pluginContractSchema = z
     contributes: pluginContributionsSchema.optional(),
     dependsOn: pluginDependenciesSchema.optional(),
     activationEvents: activationEventsSchema.optional(),
+    activations: activationsSchema.optional(),
   })
   .strict();
 
