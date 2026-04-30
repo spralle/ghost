@@ -312,14 +312,27 @@ function isPluginLoadError(error: unknown): error is PluginLoadError {
   return error instanceof PluginLoadError;
 }
 
+function extractErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === "string") return error;
+  return String(error);
+}
+
 // ---------------------------------------------------------------------------
 // Startup activation event
 // ---------------------------------------------------------------------------
+
+export interface ActivationFailure {
+  pluginId: string;
+  reason: string;
+  cause?: unknown;
+}
 
 export interface StartupActivationResult {
   activated: string[];
   skipped: string[];
   failed: string[];
+  failures: ActivationFailure[];
 }
 
 /**
@@ -342,6 +355,7 @@ export async function activateByStartupEvent(
     activated: [],
     skipped: [],
     failed: [],
+    failures: [],
   };
 
   const enabled = snapshot.plugins.filter((p) => p.enabled);
@@ -356,6 +370,7 @@ export async function activateByStartupEvent(
 
   for (const rejection of plan.rejected) {
     result.failed.push(rejection.pluginId);
+    result.failures.push({ pluginId: rejection.pluginId, reason: "circular_dependency" });
   }
 
   // Phase 2 — activate layer by layer; within a layer, concurrently.
@@ -367,9 +382,11 @@ export async function activateByStartupEvent(
           result.activated.push(pluginId);
         } else {
           result.failed.push(pluginId);
+          result.failures.push({ pluginId, reason: "activation_returned_false" });
         }
-      } catch {
+      } catch (error: unknown) {
         result.failed.push(pluginId);
+        result.failures.push({ pluginId, reason: extractErrorMessage(error), cause: error });
       }
       onProgress?.();
     });
