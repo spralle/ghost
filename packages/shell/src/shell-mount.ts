@@ -45,6 +45,7 @@ export function mountShell(root: HTMLElement, runtime: ShellRuntime, bootstrap: 
     disposers.push(
       bootstrap.mountMainWindow(root, {
         renderParts: () => renderParts(root, runtime),
+        renderLayerSurfaces: () => bootstrap.renderLayerSurfaces(root, runtime),
         updateWindowReadOnlyState: () => updateWindowReadOnlyState(root, runtime),
         setupResize: () => setupResize(root, runtime),
         publishRestoreRequestOnUnload: () => {

@@ -59,6 +59,7 @@ export interface ShellBootstrap {
 
 interface MountDeps {
   renderParts: () => void;
+  renderLayerSurfaces: () => void;
   updateWindowReadOnlyState: () => void;
   setupResize: () => () => void;
   publishRestoreRequestOnUnload: () => void;

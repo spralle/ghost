@@ -102,15 +102,28 @@ export async function bootstrapShellWithTenantManifest(options: ShellBootstrapOp
   themeRegistry.discoverThemes();
   themeRegistry.applyInitialTheme();
 
-  // Register main content as a shell surface for API visibility.
-  // The actual rendering is handled by renderParts/edgeSlotRenderer.
+  // Register main content as a shell surface rendered through the layer system.
   layerRegistry.registerShellSurface({
     id: "shell-main-content",
     layer: "main",
     order: 0,
-    mount: () => {
-      // No-op: the main layer container IS the dock grid host.
-      // This registration exists for getAllShellSurfaces() visibility.
+    mount: (container) => {
+      container.id = "shell-root";
+      container.classList.add("shell");
+      container.setAttribute("role", "main");
+      container.innerHTML = `
+        <section class="edge-slot edge-slot-top"></section>
+        <section class="edge-slot edge-slot-left"></section>
+        <section class="dock-root" id="dock-tree-root" data-slot="main"></section>
+        <section class="edge-slot edge-slot-right"></section>
+        <section class="edge-slot edge-slot-bottom"></section>
+      `;
+      return () => {
+        container.innerHTML = "";
+        container.classList.remove("shell");
+        container.removeAttribute("role");
+        container.id = "";
+      };
     },
   });
 

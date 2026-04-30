@@ -44,6 +44,7 @@ function getSharedStyles(): string {
 
 type MountDeps = {
   renderParts: () => void;
+  renderLayerSurfaces: () => void;
   updateWindowReadOnlyState: () => void;
   setupResize: () => () => void;
   publishRestoreRequestOnUnload: () => void;
@@ -155,13 +156,7 @@ export function mountMainWindow(root: HTMLElement, deps: MountDeps): () => void 
   <div id="layer-host">
     <div class="shell-layer" data-layer="background" data-z="0" style="z-index:0" role="presentation"></div>
     <div class="shell-layer" data-layer="bottom" data-z="100" style="z-index:100" role="presentation"></div>
-    <main class="shell shell-layer" id="shell-root" data-layer="main" data-z="200" style="z-index:200">
-      <section class="edge-slot edge-slot-top"></section>
-      <section class="edge-slot edge-slot-left"></section>
-      <section class="dock-root" id="dock-tree-root" data-slot="main"></section>
-      <section class="edge-slot edge-slot-right"></section>
-      <section class="edge-slot edge-slot-bottom"></section>
-    </main>
+    <div class="shell-layer" data-layer="main" data-z="200" style="z-index:200"></div>
     <div class="shell-layer" data-layer="floating" data-z="300" style="z-index:300" role="presentation"></div>
     <div class="shell-layer" data-layer="notification" data-z="400" style="z-index:400" role="presentation"></div>
     <div class="shell-layer" data-layer="modal" data-z="500" style="z-index:500" role="dialog"></div>
@@ -176,6 +171,7 @@ export function mountMainWindow(root: HTMLElement, deps: MountDeps): () => void 
     layerRegistry.setLayerHost(layerHostEl);
   }
 
+  deps.renderLayerSurfaces();
   deps.renderParts();
   deps.updateWindowReadOnlyState();
   const disposeResize = deps.setupResize();
