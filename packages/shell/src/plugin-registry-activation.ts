@@ -343,11 +343,12 @@ export interface StartupActivationResult {
 }
 
 /**
- * Eagerly activate all enabled plugins using dependency-aware ordering.
+ * Activate plugins that explicitly declare `"onStartup"` in their
+ * `activationEvents`. Plugins without this declaration are lazy by default
+ * and will only activate on-demand (via view, action, or intent triggers).
  *
  * 1. **Plan**: a dependency DAG is built from `pluginDependencies` in each
- *    plugin's descriptor (provided by the backend), then topologically
- *    sorted into layers via Kahn's algorithm.
+ *    plugin's descriptor, then topologically sorted into layers.
  * 2. **Activate**: each layer is activated concurrently — a plugin only
  *    starts once every plugin it depends on is already active.
  *
@@ -365,7 +366,21 @@ export async function activateByStartupEvent(
     failures: [],
   };
 
-  const enabled = snapshot.plugins.filter((p) => p.enabled);
+  const allEnabled = snapshot.plugins.filter((p) => p.enabled);
+  if (allEnabled.length === 0) return result;
+
+  // Only activate plugins that explicitly opt into eager startup
+  const enabled = allEnabled.filter(
+    (p) => p.descriptor.activationEvents?.includes("onStartup"),
+  );
+  const lazy = allEnabled.filter(
+    (p) => !p.descriptor.activationEvents?.includes("onStartup"),
+  );
+
+  for (const plugin of lazy) {
+    result.skipped.push(plugin.id);
+  }
+
   if (enabled.length === 0) return result;
 
   // Phase 1 — build dependency-aware activation plan from descriptor metadata.
