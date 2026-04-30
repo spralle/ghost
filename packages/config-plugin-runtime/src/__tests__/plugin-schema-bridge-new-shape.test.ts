@@ -1,67 +1,10 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 
 /**
  * Integration test verifying the full pipeline from plugin configuration
  * declaration (new full JSON Schema format with relative keys) through
  * the schema bridge to what the settings panel would receive.
- *
- * Because the bridge's internal `deriveNamespace` stub throws (the real
- * implementation lives in @ghost-shell/shell), we mock it to exercise
- * the extraction + namespace-qualification logic end-to-end.
  */
-
-// Mock the module so the internal deriveNamespace doesn't throw
-vi.mock("../plugin-schema-bridge.ts", async (importOriginal) => {
-  const original = await importOriginal<typeof import("../plugin-schema-bridge")>();
-
-  // Re-implement collectPluginSchemaDeclarations with a working deriveNamespace
-  function deriveNamespace(pluginId: string): string {
-    // Mirrors the real implementation from @ghost-shell/shell
-    if (pluginId.startsWith("@")) {
-      const withoutAt = pluginId.slice(1);
-      const slashIndex = withoutAt.indexOf("/");
-      if (slashIndex === -1) {
-        return kebabToCamel(withoutAt);
-      }
-      const scope = withoutAt.slice(0, slashIndex);
-      let name = withoutAt.slice(slashIndex + 1);
-      if (name.endsWith("-plugin")) {
-        name = name.slice(0, -7);
-      }
-      return `${kebabToCamel(scope)}.${kebabToCamel(name)}`;
-    }
-    return pluginId
-      .split(".")
-      .map((segment) => kebabToCamel(segment))
-      .join(".");
-  }
-
-  function kebabToCamel(segment: string): string {
-    return segment.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
-  }
-
-  function collectPluginSchemaDeclarations(
-    plugins: Array<{ pluginId: string; configuration?: { properties?: Record<string, unknown> } }>
-  ) {
-    const declarations: Array<{ ownerId: string; namespace: string; properties: Record<string, unknown> }> = [];
-    for (const plugin of plugins) {
-      if (plugin.configuration === undefined) continue;
-      const properties = plugin.configuration.properties;
-      if (properties === undefined) continue;
-      declarations.push({
-        ownerId: plugin.pluginId,
-        namespace: deriveNamespace(plugin.pluginId),
-        properties: properties as Record<string, unknown>,
-      });
-    }
-    return declarations;
-  }
-
-  return {
-    ...original,
-    collectPluginSchemaDeclarations,
-  };
-});
 
 import { collectPluginSchemaDeclarations } from "../plugin-schema-bridge";
 import type { PluginConfigInput } from "../plugin-schema-bridge";

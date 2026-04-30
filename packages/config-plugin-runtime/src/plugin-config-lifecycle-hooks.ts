@@ -1,34 +1,13 @@
 import type { ConfigurationPropertySchema } from "@ghost-shell/contracts/plugin";
+import type { ConfigurationLayer } from "@weaver/config-types";
+import {
+  composeConfigurationSchemas,
+  deriveNamespace,
+  qualifyKey,
+} from "@weaver/config-engine";
+import type { SchemaCompositionError } from "@weaver/config-engine";
 import type { ComposeResult, ConfigurationSchemaDeclaration } from "./plugin-schema-bridge.js";
 import { collectPluginSchemaDeclarations } from "./plugin-schema-bridge.js";
-
-// @weaver/config-types removed — inline stub types
-/** Stub for ConfigurationLayer (@weaver/config-types removed). */
-type ConfigurationLayer = "core" | "app" | "tenant" | "user" | "session" | "module";
-
-/** Stub for SchemaCompositionError (@weaver/config-engine removed). */
-interface SchemaCompositionError {
-  key: string;
-  owners: string[];
-  message: string;
-}
-
-// @weaver/config-engine removed — stub throws
-function composeConfigurationSchemas(_declarations: ConfigurationSchemaDeclaration[]): ComposeResult {
-  throw new Error("@weaver/config-engine is not available");
-}
-
-// @weaver/config-engine removed — stub
-function deriveNamespace(pluginId: string): string {
-  // Simple derivation: use pluginId as namespace
-  return pluginId;
-}
-
-// @weaver/config-engine removed — stub
-function qualifyKey(namespace: string, relativeKey: string): string {
-  return `${namespace}.${relativeKey}`;
-}
-
 import type { PluginConfigInput } from "./plugin-schema-bridge.js";
 
 export type PluginConfigLifecycleEvent = "install" | "uninstall" | "enable" | "disable" | "promote";
