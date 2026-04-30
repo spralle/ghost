@@ -1,2 +1,2 @@
-export { pluginManifest } from "./manifest.js";
+export { pluginContract } from "./plugin-contract-expose.js";
 export { pluginParts } from "./plugin-parts-expose.js";
