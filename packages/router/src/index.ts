@@ -23,6 +23,18 @@ export type {
   NavigationTarget,
   PlacementHint,
 } from "./core/types.js";
+export type {
+  CancelledError,
+  LoadError,
+  NavigationError,
+  NavigationErrorBase,
+  NavigationErrorCode,
+  NotFoundError,
+  PermissionDeniedError,
+  TimeoutError,
+} from "./core/navigation-error.js";
+export type { ErrorRecoveryRegistry, ErrorRecoveryStrategy } from "./core/error-recovery.js";
+export { createErrorRecoveryRegistry } from "./core/error-recovery.js";
 export type { PlacementCapabilities } from "./core/resolve-placement-hint.js";
 export { resolvePlacementHint } from "./core/resolve-placement-hint.js";
 export type { AttachNavigationOptions } from "./dom/attach-navigation.js";
