@@ -192,6 +192,8 @@ export interface PluginSlotContribution {
   order: number;
   /** Component ID from capability registry to mount */
   component: string;
+  /** Optional predicate — contribution is only visible when all conditions match context facts. */
+  when?: PluginContributionPredicate | undefined;
 }
 
 /** Plugin contribution for section panels aggregated by a host plugin. */
