@@ -31,11 +31,11 @@ function isMacPlatform(): boolean {
  * ```ts
  * // Middle-click → background tab
  * const hint = resolveModifiers(middleClickEvent, DEFAULT_MODIFIER_MAP);
- * // hint === "tab-background"
+ * // hint === "background"
  *
- * // Ctrl+Click on Windows → new tab
+ * // Ctrl+Click on Windows → auto
  * const hint = resolveModifiers(ctrlClickEvent, DEFAULT_MODIFIER_MAP);
- * // hint === "tab"
+ * // hint === "auto"
  * ```
  *
  * @param event - The mouse or keyboard event to inspect.
@@ -47,10 +47,10 @@ export function resolveModifiers(
   modifierMap: NavigationModifierMap = DEFAULT_MODIFIER_MAP,
 ): PlacementHint {
   const plain = modifierMap.plain ?? DEFAULT_MODIFIER_MAP.plain ?? "auto";
-  const ctrl = modifierMap.ctrl ?? DEFAULT_MODIFIER_MAP.ctrl ?? "tab";
+  const ctrl = modifierMap.ctrl ?? DEFAULT_MODIFIER_MAP.ctrl ?? "auto";
   const ctrlShift = modifierMap.ctrlShift ?? DEFAULT_MODIFIER_MAP.ctrlShift ?? "split";
-  const shift = modifierMap.shift ?? DEFAULT_MODIFIER_MAP.shift ?? "window";
-  const middle = modifierMap.middle ?? DEFAULT_MODIFIER_MAP.middle ?? "tab-background";
+  const shift = modifierMap.shift ?? DEFAULT_MODIFIER_MAP.shift ?? "detach";
+  const middle = modifierMap.middle ?? DEFAULT_MODIFIER_MAP.middle ?? "background";
   const isMac = isMacPlatform();
 
   // Middle mouse button
@@ -81,7 +81,7 @@ export function resolveModifiers(
  * @example
  * ```ts
  * const hints = resolveHintsFromEvent(event, { open: "replace" }, DEFAULT_MODIFIER_MAP);
- * // If Ctrl was held: { open: "tab", history: "push" }
+ * // If Ctrl was held: { open: "auto", history: "push" }
  * // If no modifier:   { open: "replace" }
  * ```
  *

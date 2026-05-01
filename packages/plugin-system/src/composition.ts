@@ -1,5 +1,6 @@
 import type { PluginLayerSurfaceContribution } from "@ghost-shell/contracts/layer";
 import type {
+  PluginContributionPredicate,
   PluginContract,
   PluginDockableTabMetadata,
   PluginPartContribution,
@@ -33,6 +34,7 @@ export interface ComposedPluginSlotContribution {
   position: ShellEdgeSlotPosition;
   order: number;
   component: string;
+  when?: PluginContributionPredicate | undefined;
 }
 
 /** Composed section contribution with source plugin identity. */
@@ -153,6 +155,7 @@ function toComposedSlot(pluginId: string, slot: PluginSlotContribution): Compose
     position: slot.position,
     order: slot.order,
     component: slot.component,
+    when: slot.when,
   };
 }
 

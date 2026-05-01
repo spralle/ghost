@@ -14,6 +14,7 @@ import { createGhostApiDeps } from "./plugin-api/ghost-api-deps-factory.js";
 import { createPluginServicesBridge } from "./plugin-service-bridge.js";
 import { createDefaultShellKeybindingContract } from "./shell-runtime/default-shell-keybindings.js";
 import { createWorkspaceSwitchDeps, refreshActionContributions, renderParts } from "./shell-wiring.js";
+import { getLayoutModeService } from "./services/layout-mode-service-registration.js";
 import { createQuickPickBridge } from "./ui/quick-pick/quick-pick-bridge.js";
 
 import { createPluginConfigCatalog, type PluginConfigCatalog } from "@ghost-shell/config-plugin-runtime";
@@ -127,7 +128,8 @@ function applyHydratedState(
 
 function subscribeToRegistryChanges(root: HTMLElement, runtime: ShellRuntime, isActive: () => boolean): void {
   let renderPending = false;
-  const registrySub = runtime.registry.subscribe(() => {
+
+  function scheduleRender(): void {
     if (renderPending) return;
     renderPending = true;
     queueMicrotask(() => {
@@ -141,8 +143,23 @@ function subscribeToRegistryChanges(root: HTMLElement, runtime: ShellRuntime, is
       getShellBootstrap(runtime).renderEdgeSlots(root, runtime);
       getShellBootstrap(runtime).renderLayerSurfaces(root, runtime);
     });
+  }
+
+  const registrySub = runtime.registry.subscribe(scheduleRender);
+
+  // Re-render edge slots and layer surfaces when layout mode changes (when-predicates may flip)
+  const layoutService = getLayoutModeService();
+  const modeSub = layoutService?.onDidChangeMode(() => {
+    if (!isActive()) return;
+    scheduleRender();
   });
-  runtime.registrySubscriptionDispose = () => registrySub.dispose();
+
+  const previousDispose = runtime.registrySubscriptionDispose;
+  runtime.registrySubscriptionDispose = () => {
+    registrySub.dispose();
+    modeSub?.dispose();
+    previousDispose?.();
+  };
 }
 
 function renderAllPanels(root: HTMLElement, runtime: ShellRuntime): void {

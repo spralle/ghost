@@ -9,30 +9,30 @@ import type { NavigationHints, NavigationTarget, PlacementHint } from "../core/t
  * // Default mapping:
  * const defaultModifiers: NavigationModifierMap = {
  *   plain: "auto",
- *   ctrl: "tab",
+ *   ctrl: "auto",
  *   ctrlShift: "split",
- *   shift: "window",
- *   middle: "tab-background",
+ *   shift: "detach",
+ *   middle: "background",
  * };
  *
  * // Custom: make Ctrl+click open in split instead of tab
  * const custom: NavigationModifierMap = {
  *   ...defaultModifiers,
  *   ctrl: "split",
- *   ctrlShift: "window",
+ *   ctrlShift: "detach",
  * };
  * ```
  */
 export interface NavigationModifierMap {
   /** Click with no modifiers. Default: "auto" */
   readonly plain?: PlacementHint | undefined;
-  /** Ctrl+Click (Cmd+Click on macOS). Default: "tab" */
+  /** Ctrl+Click (Cmd+Click on macOS). Default: "auto" */
   readonly ctrl?: PlacementHint | undefined;
   /** Ctrl+Shift+Click. Default: "split" */
   readonly ctrlShift?: PlacementHint | undefined;
-  /** Shift+Click. Default: "window" */
+  /** Shift+Click. Default: "detach" */
   readonly shift?: PlacementHint | undefined;
-  /** Middle mouse button click. Default: "tab-background" */
+  /** Middle mouse button click. Default: "background" */
   readonly middle?: PlacementHint | undefined;
 }
 
@@ -41,10 +41,10 @@ export interface NavigationModifierMap {
  */
 export const DEFAULT_MODIFIER_MAP: Readonly<Required<NavigationModifierMap>> = {
   plain: "auto",
-  ctrl: "tab",
+  ctrl: "auto",
   ctrlShift: "split",
-  shift: "window",
-  middle: "tab-background",
+  shift: "detach",
+  middle: "background",
 } as const;
 
 /**

@@ -52,6 +52,8 @@ export type {
   JsonFormOptions,
   JsonFormSchema,
 } from "./jsonform-capability.js";
+export type { LayoutApiService } from "./layout-service.js";
+export { LAYOUT_SERVICE_ID } from "./layout-service.js";
 export type {
   KeybindingEntry,
   KeybindingOverride,

@@ -23,6 +23,8 @@ export type {
   NavigationTarget,
   PlacementHint,
 } from "./core/types.js";
+export type { PlacementCapabilities } from "./core/resolve-placement-hint.js";
+export { resolvePlacementHint } from "./core/resolve-placement-hint.js";
 export type { AttachNavigationOptions } from "./dom/attach-navigation.js";
 export { attachNavigation } from "./dom/attach-navigation.js";
 export { createDelegatedNavigation, parseNavigationTarget } from "./dom/delegated-navigation.js";

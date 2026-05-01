@@ -1,6 +1,7 @@
 import type { ShellRuntime } from "../app/types.js";
 import { updateContextState } from "../context/runtime-state.js";
 import { openPartInstanceWithArgs } from "../part-instance-flow.js";
+import { getEffectiveStrategy } from "../placement/get-effective-strategy.js";
 import { toActionContext } from "../shell-runtime/action-context.js";
 import { getVisiblePartDefinitions } from "../ui/parts-rendering.js";
 import type { QuickPickBridge } from "../ui/quick-pick/quick-pick-bridge.js";
@@ -39,7 +40,7 @@ export function createGhostApiDeps(
         return getVisiblePartDefinitions(runtime);
       },
       openPartInstance: (input) => {
-        const strategy = runtime.placementRegistry.getActive(runtime.placementConfig);
+        const strategy = getEffectiveStrategy(runtime.placementRegistry, runtime.placementConfig);
         const result = openPartInstanceWithArgs(runtime.contextState, {
           ...input,
           placementStrategy: strategy,

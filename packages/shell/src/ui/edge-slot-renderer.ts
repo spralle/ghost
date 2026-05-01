@@ -1,5 +1,5 @@
 import type { ShellEdgeSlot, ShellEdgeSlotPosition } from "@ghost-shell/contracts";
-import { type ComposedPluginSlotContribution, composeEnabledPluginContributions } from "@ghost-shell/plugin-system";
+import { type ComposedPluginSlotContribution, composeEnabledPluginContributions, evaluateContributionPredicate } from "@ghost-shell/plugin-system";
 import type { ShellRuntime } from "../app/types.js";
 import {
   ensureRemoteRegistered,
@@ -9,6 +9,7 @@ import {
   toRecord,
 } from "../federation-mount-utils.js";
 import type { ShellFederationRuntime } from "../federation-runtime.js";
+import { getLayoutModeService } from "../services/layout-mode-service-registration.js";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -60,13 +61,44 @@ export function createEdgeSlotRenderer(options: EdgeSlotRendererOptions): EdgeSl
     generation += 1;
     const currentGeneration = generation;
 
-    const contributions = gatherSlotContributions(runtime);
+    const allContributions = gatherSlotContributions(runtime);
+
+    // Evaluate when-predicates against current layout facts
+    const layoutFacts = getLayoutModeService()?.getContextFacts() ?? {};
+    const visibleIds = new Set<string>();
+    const contributions: ComposedPluginSlotContribution[] = [];
+    for (const c of allContributions) {
+      if (evaluateContributionPredicate(c.when, layoutFacts)) {
+        visibleIds.add(c.id);
+        contributions.push(c);
+      }
+    }
+
     const edgeSlotsLayout = runtime.layout.edgeSlots;
+
+    // Hide (not destroy) mount targets for contributions whose when-predicate is false
+    hideFilteredContributions(allContributions, visibleIds);
 
     pruneRemovedContributions(contributions);
 
     for (const slotName of EDGE_SLOTS) {
       renderSingleEdgeSlot(root, slotName, contributions, edgeSlotsLayout, runtime, currentGeneration);
+    }
+  }
+
+  /** Set display:none on mount targets for contributions hidden by when-predicate. */
+  function hideFilteredContributions(
+    allContributions: ComposedPluginSlotContribution[],
+    visibleIds: Set<string>,
+  ): void {
+    for (const c of allContributions) {
+      const entry = mounted.get(c.id);
+      if (!entry) continue;
+      if (visibleIds.has(c.id)) {
+        entry.target.style.display = "";
+      } else {
+        entry.target.style.display = "none";
+      }
     }
   }
 

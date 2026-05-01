@@ -4,7 +4,7 @@ import { DEFAULT_MODIFIER_MAP, NAVIGATION_DATA_ATTRIBUTES } from "./link-types.j
 import { resolveHintsFromEvent } from "./navigation-handler.js";
 
 /** Valid placement hint values for data-attribute validation. */
-const VALID_PLACEMENT_HINTS = new Set<string>(["tab", "tab-background", "replace", "split", "window", "auto"]);
+const VALID_PLACEMENT_HINTS = new Set<string>(["auto", "replace", "split", "background", "detach"]);
 
 function isPlacementHint(value: string): value is PlacementHint {
   return VALID_PLACEMENT_HINTS.has(value);
