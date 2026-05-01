@@ -74,6 +74,7 @@ export { createTabsPlacementStrategy } from "./placement-strategy/tabs.js";
 
 export type {
   PlacementConfig,
+  PlacementStrategyId,
   TabPlacementStrategy,
 } from "./placement-strategy/types.js";
 export {

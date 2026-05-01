@@ -16,6 +16,7 @@ import {
 } from "@ghost-shell/state";
 import type { ShellRuntime, StateHost } from "../app/types.js";
 import { updateContextState } from "../context/runtime-state.js";
+import { getEffectivePlacementConfig } from "../placement/get-effective-strategy.js";
 import { openPopout, requestPopoutFromHostShim } from "../ui/part-instance-popout-lifecycle.js";
 import { closeTabThroughRuntime } from "../ui/parts-controller.js";
 import {
@@ -160,7 +161,7 @@ function dispatchCycleAndNavActions(
   if (actionId === "shell.stack.navigate.back") {
     return applyContextMutation(
       runtime,
-      navigateBackInActiveStack(runtime.contextState, runtime.placementRegistry, runtime.placementConfig),
+      navigateBackInActiveStack(runtime.contextState, runtime.placementRegistry, getEffectivePlacementConfig(runtime.placementConfig)),
       actionId,
       "stack navigate back unavailable",
     );
@@ -168,7 +169,7 @@ function dispatchCycleAndNavActions(
   if (actionId === "shell.stack.navigate.forward") {
     return applyContextMutation(
       runtime,
-      navigateForwardInActiveStack(runtime.contextState, runtime.placementRegistry, runtime.placementConfig),
+      navigateForwardInActiveStack(runtime.contextState, runtime.placementRegistry, getEffectivePlacementConfig(runtime.placementConfig)),
       actionId,
       "stack navigate forward unavailable",
     );
