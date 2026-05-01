@@ -1,41 +1,13 @@
 import type { PluginServices, ServiceToken } from "@ghost-shell/contracts";
 import { proxy } from "valtio/vanilla";
 import { applyOps } from "./service-gateway-apply.js";
+import { assertSerializableArgs } from "./serialization-guard.js";
 import type {
   ServiceCallRequest,
   ServiceCallResponse,
   StateOpBatch,
   StateSnapshotResponse,
 } from "./service-gateway-contract.js";
-
-/** Check if any arguments are non-serializable (functions, DOM nodes, etc.) */
-function validateRpcArgs(tokenId: string, method: string, args: unknown[]): void {
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    if (typeof arg === "function") {
-      throw new Error(
-        `Cannot proxy "${tokenId}.${method}()": argument ${i} is a function. ` +
-          `Auto-proxy cannot serialize callbacks over RPC. ` +
-          `Define an "activations" entry in your plugin manifest for secondary window behavior.`,
-      );
-    }
-    if (typeof arg === "symbol") {
-      throw new Error(
-        `Cannot proxy "${tokenId}.${method}()": argument ${i} is a symbol. ` +
-          `Define an "activations" entry in your plugin manifest for secondary window behavior.`,
-      );
-    }
-    if (
-      (typeof Node !== "undefined" && arg instanceof Node) ||
-      (typeof Element !== "undefined" && arg instanceof Element)
-    ) {
-      throw new Error(
-        `Cannot proxy "${tokenId}.${method}()": argument ${i} is a DOM node. ` +
-          `Define an "activations" entry in your plugin manifest for secondary window behavior.`,
-      );
-    }
-  }
-}
 
 /**
  * Transport interface that ProjectedPluginServices uses to communicate with host.
@@ -98,7 +70,7 @@ export function createProjectedPluginServices(
         if (prop === "state") return stateProxy;
 
         return (...args: unknown[]) => {
-          validateRpcArgs(tokenId, prop, args);
+          assertSerializableArgs(tokenId, prop, args);
           return transport.callService({ tokenId, method: prop, args }).then((response) => {
             if (!response.ok) {
               throw new Error(response.error ?? `Service call failed: ${tokenId}.${prop}`);
