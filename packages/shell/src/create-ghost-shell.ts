@@ -36,6 +36,8 @@ import {
   ShellWiringContext,
   summarizeSelectionPriorities,
 } from "./shell-wiring.js";
+import { createPluginRouterServiceApi } from "./plugin-api/plugin-router-service-api.js";
+import { initializeShellRouter, type ShellRouterHandle } from "./router-initialization.js";
 import { resolveWindowIdentity } from "./window-identity.js";
 
 // ---------------------------------------------------------------------------
@@ -130,6 +132,7 @@ export function createGhostShell(options: GhostShellOptions): GhostShell {
 
   let disposed = false;
   let disposeMount: (() => void) | null = null;
+  let routerHandle: ShellRouterHandle | null = null;
 
   return {
     runtime,
@@ -179,11 +182,19 @@ export function createGhostShell(options: GhostShellOptions): GhostShell {
 
       await ctx.primeEnabledPluginActivations();
 
+      // Initialize router after workspace state is ready
+      routerHandle = initializeShellRouter(root, runtime);
+
+      const routerService = createPluginRouterServiceApi({
+        getShellRouter: () => routerHandle?.router ?? null,
+      });
+
       // Plugin hydration (tenant manifest, config, themes)
       if (options.tenant) {
         await hydratePluginRegistry(root, runtime, () => !disposed, {
           tenantId: options.tenant.id,
           defaultThemeId: options.theme ?? "ghost.theme.tokyo-night",
+          routerService,
         });
       }
       if (runtime.isPopout && options.popoutTransport) {
@@ -202,6 +213,7 @@ export function createGhostShell(options: GhostShellOptions): GhostShell {
       if (disposed) return;
       disposed = true;
 
+      routerHandle?.dispose();
       disposeMount?.();
       runtime.registrySubscriptionDispose?.();
       runtime.pluginConfigSyncDispose?.();
