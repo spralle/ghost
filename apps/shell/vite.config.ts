@@ -8,6 +8,9 @@ const BACKEND_DEV_PORT = 8787;
 // Resolve helper: returns the absolute path to a package's src directory
 const pkgSrc = (name: string) => fileURLToPath(new URL(`../../packages/${name}/src`, import.meta.url));
 
+// Resolve helper for linked @weaver/* packages — resolves through node_modules symlinks to source
+const weaverSrc = (name: string) => fileURLToPath(new URL(`../../node_modules/@weaver/${name}/src`, import.meta.url));
+
 const PLUGIN_CONTRACTS_SRC = pkgSrc("plugin-contracts");
 const PREDICATE_SRC_ROOT = pkgSrc("predicate");
 const UI_SRC_ROOT = pkgSrc("ui");
@@ -33,6 +36,11 @@ const REACT_SRC_ROOT = pkgSrc("react");
 const SCHEMA_CORE_SRC_ROOT = pkgSrc("schema-core");
 const TABLE_FROM_SCHEMA_SRC_ROOT = pkgSrc("table-from-schema");
 const WEAVER_FORMR_BRIDGE_SRC_ROOT = pkgSrc("weaver-formr-bridge");
+
+const WEAVER_CONFIG_ENGINE_SRC = weaverSrc("config-engine");
+const WEAVER_CONFIG_TYPES_SRC = weaverSrc("config-types");
+const WEAVER_CONFIG_PROVIDERS_SRC = weaverSrc("config-providers");
+const WEAVER_CONFIG_SESSIONS_SRC = weaverSrc("config-sessions");
 
 export default defineConfig({
   plugins: [react()],
@@ -89,6 +97,11 @@ export default defineConfig({
       "@ghost-shell/table-from-schema": `${TABLE_FROM_SCHEMA_SRC_ROOT}/index.ts`,
       "@ghost-shell/weaver-formr-bridge/": `${WEAVER_FORMR_BRIDGE_SRC_ROOT}/`,
       "@ghost-shell/weaver-formr-bridge": `${WEAVER_FORMR_BRIDGE_SRC_ROOT}/index.ts`,
+      // @weaver/* packages — linked from external weaver project
+      "@weaver/config-engine": `${WEAVER_CONFIG_ENGINE_SRC}/index.ts`,
+      "@weaver/config-types": `${WEAVER_CONFIG_TYPES_SRC}/index.ts`,
+      "@weaver/config-providers": `${WEAVER_CONFIG_PROVIDERS_SRC}/index.ts`,
+      "@weaver/config-sessions": `${WEAVER_CONFIG_SESSIONS_SRC}/index.ts`,
       // Mirror the UI package's tsconfig path mapping so that its internal
       // `@/lib/utils` imports resolve when the shell consumes raw source.
       "@/": `${UI_SRC_ROOT}/`,

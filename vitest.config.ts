@@ -45,6 +45,12 @@ export default defineConfig({
       '@ghost-shell/theme': path.resolve(__dirname, './packages/theme/src/index.ts'),
       '@ghost-shell/ui': path.resolve(__dirname, './packages/ui/src/index.ts'),
       '@ghost-shell/weaver-formr-bridge': path.resolve(__dirname, './packages/weaver-formr-bridge/src/index.ts'),
+
+      // @weaver/* packages — linked from external weaver project
+      '@weaver/config-engine': path.resolve(__dirname, './node_modules/@weaver/config-engine/src/index.ts'),
+      '@weaver/config-types': path.resolve(__dirname, './node_modules/@weaver/config-types/src/index.ts'),
+      '@weaver/config-providers': path.resolve(__dirname, './node_modules/@weaver/config-providers/src/index.ts'),
+      '@weaver/config-sessions': path.resolve(__dirname, './node_modules/@weaver/config-sessions/src/index.ts'),
     },
   },
   test: {
