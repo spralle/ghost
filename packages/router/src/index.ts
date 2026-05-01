@@ -16,6 +16,10 @@ export type {
 } from "./core/define-routes.js";
 export { defineRoutes } from "./core/define-routes.js";
 export type { AnyRouteMap, RouteId, RouteParams, RouteRef, RouteRefUnion } from "./core/route-map.js";
+export type { ChildRouteDefinition, ChildSlotRegistry } from "./core/child-slot.js";
+export { createChildSlotRegistry } from "./core/child-slot.js";
+export type { NestedResolutionResult, NestedRouteTarget, ParentRouteEntry } from "./core/nested-resolution.js";
+export { resolveNestedRoute } from "./core/nested-resolution.js";
 export type {
   LinkOpenPolicy,
   NavigationHints,
