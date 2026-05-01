@@ -158,6 +158,14 @@ export function createGhostShell(options: GhostShellOptions): GhostShell {
         throw new Error("Cannot start a disposed GhostShell instance.");
       }
 
+      // Assert window identity unification: scomp participantId must match runtime.windowId.
+      if (runtime.scomp && runtime.scomp.participantId !== runtime.windowId) {
+        throw new Error(
+          `Window identity mismatch: runtime.windowId="${runtime.windowId}" but scomp.participantId="${runtime.scomp.participantId}". ` +
+            `The app layer must pass the same windowId to both createShellRuntime and scomp transport initialization.`,
+        );
+      }
+
       const ctx = new ShellWiringContext(root, runtime);
       const bootstrapDeps = buildBootstrapDeps(root, runtime);
       const bootstrap = createShellBootstrap(root, runtime, flags, bootstrapDeps);
