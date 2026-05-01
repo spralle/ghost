@@ -12,6 +12,7 @@ export { GhostContext, GhostProvider } from "./ghost-context.js";
 export {
   createContextHook,
   createServiceHook,
+  useChildRoute,
   useContextValue,
   useGhostApi,
   usePluginContext,
