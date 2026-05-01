@@ -1,4 +1,6 @@
 // Core
+export type { PendingConfig, PendingDefaults } from "./core/pending-config.js";
+export { resolvePendingConfig } from "./core/pending-config.js";
 
 export { createActiveViewCodec } from "./codec/active-view-codec.js";
 export { createUrlCodecRegistry } from "./codec/codec-registry.js";
