@@ -35,3 +35,10 @@ export interface PopoutManifestContract {
 
 /** Scomp contract token for the popout manifest service */
 export const POPOUT_MANIFEST_CONTRACT_ID = "ghost.popout.manifest";
+
+import type { ScompContractToken } from "./scomp-runtime.js";
+
+/** Typed scomp contract token for resolving the popout manifest service */
+export const POPOUT_MANIFEST_TOKEN: ScompContractToken<PopoutManifestContract> = {
+  id: POPOUT_MANIFEST_CONTRACT_ID,
+};

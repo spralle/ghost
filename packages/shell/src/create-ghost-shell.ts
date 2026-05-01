@@ -39,6 +39,7 @@ import {
 import { createPluginRouterServiceApi } from "./plugin-api/plugin-router-service-api.js";
 import { initializeShellRouter, type ShellRouterHandle } from "./router-initialization.js";
 import { resolveWindowIdentity } from "./window-identity.js";
+import { wirePopoutManifestContract } from "./popout-manifest-wiring.js";
 
 // ---------------------------------------------------------------------------
 // Options
@@ -127,7 +128,15 @@ export function createGhostShell(options: GhostShellOptions): GhostShell {
 
   // Attach scomp peer if provided by app layer.
   if (options.scomp) {
-    runtime.scomp = options.scomp;
+    const scomp = options.scomp;
+    runtime.scomp = scomp;
+
+    // Wire popout manifest contract so popout windows can resolve their manifest.
+    const wiring = wirePopoutManifestContract(
+      scomp,
+      () => scomp.participantId,
+    );
+    runtime.popoutManifestRegistry = wiring.registry;
   }
 
   // Re-wire partHost to use the shell's renderer registry (includes React renderer).
