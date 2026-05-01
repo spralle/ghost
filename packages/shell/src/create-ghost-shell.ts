@@ -123,6 +123,11 @@ export function createGhostShell(options: GhostShellOptions): GhostShell {
     windowId: identity.windowId,
   });
 
+  // Attach scomp peer if provided by app layer.
+  if (options.scomp) {
+    runtime.scomp = options.scomp;
+  }
+
   // Re-wire partHost to use the shell's renderer registry (includes React renderer).
   // createShellRuntime creates a default partHost with vanilla-DOM-only renderer;
   // we replace it with one that shares the registry configured above.
