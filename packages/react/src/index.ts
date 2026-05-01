@@ -19,3 +19,7 @@ export {
 } from "./hooks.js";
 export { PluginErrorBoundary } from "./PluginErrorBoundary.js";
 export { createReactPartRenderer } from "./react-part-renderer.js";
+export type { GhostPendingBoundaryProps } from "./GhostPendingBoundary.js";
+export { GhostPendingBoundary } from "./GhostPendingBoundary.js";
+export type { GhostNavigationErrorBoundaryProps } from "./GhostErrorBoundary.js";
+export { GhostNavigationErrorBoundary } from "./GhostErrorBoundary.js";
