@@ -15,6 +15,15 @@ export type {
   TypedRouteMap,
 } from "./core/define-routes.js";
 export { defineRoutes } from "./core/define-routes.js";
+export type {
+  NavigationGuard,
+  NavigationGuardContext,
+  NavigationGuardRegistry,
+  NavigationGuardResult,
+} from "./core/navigation-guard.js";
+export { createNavigationGuardRegistry } from "./core/navigation-guard.js";
+export type { PermissionChecker, RoutePermissionMap } from "./core/permission-guard.js";
+export { createPermissionGuard } from "./core/permission-guard.js";
 export type { AnyRouteMap, RouteId, RouteParams, RouteRef, RouteRefUnion } from "./core/route-map.js";
 export type {
   LinkOpenPolicy,
