@@ -20,6 +20,8 @@ export function createSnapshotManager(config: SnapshotManagerConfig): SnapshotMa
 
   // Track tenantId → principalIds for tenant-level invalidation
   const tenantIndex = new Map<string, Set<string>>();
+  // Reverse lookup: principalId → tenantId for cleanup on single invalidate
+  const principalTenant = new Map<string, string>();
 
   function indexByTenant(snapshot: PermissionSnapshot): void {
     let set = tenantIndex.get(snapshot.tenantId);
@@ -28,6 +30,15 @@ export function createSnapshotManager(config: SnapshotManagerConfig): SnapshotMa
       tenantIndex.set(snapshot.tenantId, set);
     }
     set.add(snapshot.principalId);
+    principalTenant.set(snapshot.principalId, snapshot.tenantId);
+  }
+
+  function removeFromTenantIndex(principalId: string): void {
+    const tenantId = principalTenant.get(principalId);
+    if (!tenantId) return;
+    const set = tenantIndex.get(tenantId);
+    if (set) set.delete(principalId);
+    principalTenant.delete(principalId);
   }
 
   return {
@@ -43,6 +54,7 @@ export function createSnapshotManager(config: SnapshotManagerConfig): SnapshotMa
       if (!snapshot) return undefined;
       if (isExpired(snapshot)) {
         cache.delete(principalId);
+        removeFromTenantIndex(principalId);
         return undefined;
       }
       return snapshot;
@@ -50,6 +62,7 @@ export function createSnapshotManager(config: SnapshotManagerConfig): SnapshotMa
 
     invalidate(principalId: string): void {
       cache.delete(principalId);
+      removeFromTenantIndex(principalId);
     },
 
     invalidateByTenant(tenantId: string): void {
@@ -57,12 +70,15 @@ export function createSnapshotManager(config: SnapshotManagerConfig): SnapshotMa
       if (!ids) return;
       for (const id of ids) {
         cache.delete(id);
+        principalTenant.delete(id);
       }
       ids.clear();
     },
 
     serialize(snapshot: PermissionSnapshot): string {
       if (customSerialize) return customSerialize(snapshot);
+      // GraphSubset exposes .tuples as a readonly array — use it for serialization
+      // Assumption: GraphSubset can be reconstructed from its tuples array
       return JSON.stringify({
         ...snapshot,
         graphCone: { tuples: snapshot.graphCone.tuples },

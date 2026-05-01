@@ -2,6 +2,25 @@ import { buildSnapshot } from "@ghost/sentinel";
 import type { SentinelPrincipal, PermissionSnapshot, SentinelStore } from "@ghost/sentinel";
 import type { BatchBuildOptions, BatchBuildResult } from "./types.js";
 
+/** Run async tasks with bounded concurrency using a worker pool */
+async function runPool<T>(
+  items: readonly T[],
+  limit: number,
+  fn: (item: T) => Promise<void>,
+): Promise<void> {
+  let index = 0;
+  const workers = Array.from(
+    { length: Math.min(limit, items.length) },
+    async () => {
+      while (index < items.length) {
+        const item = items[index++];
+        await fn(item);
+      }
+    },
+  );
+  await Promise.all(workers);
+}
+
 /**
  * Build snapshots for multiple principals with shared policy caching
  * and bounded concurrency.
@@ -31,11 +50,7 @@ export async function buildBatch(
   const snapshots = new Map<string, PermissionSnapshot>();
   const errors = new Map<string, Error>();
 
-  // Process with bounded concurrency
-  const queue = [...principals];
-  const active: Promise<void>[] = [];
-
-  async function processOne(principal: SentinelPrincipal): Promise<void> {
+  await runPool(principals, concurrency, async (principal) => {
     try {
       const snapshot = await buildSnapshot(cachedStore, principal, resourceTypes);
       snapshots.set(principal.userId, snapshot);
@@ -45,26 +60,7 @@ export async function buildBatch(
         err instanceof Error ? err : new Error(String(err)),
       );
     }
-  }
-
-  for (const principal of queue) {
-    const promise = processOne(principal);
-    active.push(promise);
-
-    if (active.length >= concurrency) {
-      await Promise.race(active);
-      // Remove settled promises
-      for (let i = active.length - 1; i >= 0; i--) {
-        const settled = await Promise.race([
-          active[i].then(() => true),
-          Promise.resolve(false),
-        ]);
-        if (settled) active.splice(i, 1);
-      }
-    }
-  }
-
-  await Promise.all(active);
+  });
 
   return { snapshots, errors };
 }

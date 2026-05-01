@@ -73,4 +73,31 @@ describe("buildBatch", () => {
     expect(result.snapshots.size).toBe(1);
     expect(result.snapshots.get("user-ok")).toBeDefined();
   });
+
+  it("respects concurrency limit", async () => {
+    let active = 0;
+    let maxActive = 0;
+
+    const loadRoles = mock(() => {
+      active++;
+      maxActive = Math.max(maxActive, active);
+      return new Promise<string[]>((resolve) => {
+        setTimeout(() => {
+          active--;
+          resolve(["user"]);
+        }, 10);
+      });
+    });
+    const store = createMockStore({ loadRoles });
+    const principals = Array.from({ length: 10 }, (_, i) => createPrincipal(`user-${i}`));
+
+    await buildBatch(principals, {
+      store,
+      resourceTypes: ["document"],
+      concurrency: 3,
+    });
+
+    expect(maxActive).toBeLessThanOrEqual(3);
+    expect(maxActive).toBeGreaterThan(1); // Confirm parallelism happened
+  });
 });
