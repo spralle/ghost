@@ -116,17 +116,3 @@ class DefaultPluginConfigCatalog implements PluginConfigCatalog {
 export function createPluginConfigCatalog(): PluginConfigCatalog {
   return new DefaultPluginConfigCatalog();
 }
-
-// Backward compatibility aliases
-/** @deprecated Use PluginConfigCatalog */
-export type IncrementalSchemaRegistryAdapter = PluginConfigCatalog;
-/** @deprecated Use PluginConfigCatalog */
-export type IncrementalPluginSchemaRegistry = PluginConfigCatalog;
-/** @deprecated Use createPluginConfigCatalog */
-export const createIncrementalSchemaRegistryAdapter = createPluginConfigCatalog;
-/** @deprecated Use createPluginConfigCatalog */
-export const createIncrementalPluginSchemaRegistry = createPluginConfigCatalog;
-/** @deprecated Use extractPluginSchemas */
-export const collectPluginSchemaDeclarations = extractPluginSchemas;
-/** @deprecated Use composePluginSchemas */
-export const buildSchemaMap = composePluginSchemas;

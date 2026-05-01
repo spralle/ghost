@@ -312,11 +312,3 @@ export function createConfigurationLifecycleHooks(options: ConfigurationLifecycl
     },
   };
 }
-
-// Backward compatibility aliases
-export type PluginSchemaRegistry = SchemaRegistry;
-export type PluginPromoteOptions = PromoteOptions;
-export type PluginConfigurationLifecycleHooks = ConfigurationLifecycleHooks;
-export type PluginConfigurationLifecycleOptions = ConfigurationLifecycleOptions;
-export const createPluginConfigurationLifecycleHooks = createConfigurationLifecycleHooks;
-export const createInMemoryPluginSchemaRegistry = createInMemorySchemaRegistry;
