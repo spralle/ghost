@@ -1,5 +1,7 @@
 import type {
   ActivationContext,
+  ContextApi,
+  ContextToken,
   Disposable,
   GhostApi,
   PluginRouterServiceApi,
@@ -7,6 +9,7 @@ import type {
   ServiceRegistrationOptions,
   ServiceToken,
 } from "@ghost-shell/contracts";
+import { createContextForToken } from "../context-create.js";
 import { createState, disposeState } from "../reactive-state.js";
 import {
   type ActionServiceDependencies,
@@ -77,13 +80,28 @@ export function createActivationContext(
   pluginId: string,
   services: PluginServices,
   serviceRegistrar?: (tokenId: string, implementation: unknown, options?: ServiceRegistrationOptions) => Disposable,
+  contextRegistry?: ContextApi,
 ): ActivationContext {
   const subscriptions: Disposable[] = [];
+
+  const context: ContextApi | undefined = contextRegistry
+    ? {
+        contribute: contextRegistry.contribute.bind(contextRegistry),
+        get: contextRegistry.get.bind(contextRegistry),
+        subscribe: contextRegistry.subscribe.bind(contextRegistry),
+        create<T extends object>(token: ContextToken<T>, init: T) {
+          const result = createContextForToken(token, init, (c) => contextRegistry.contribute(c));
+          subscriptions.push(result);
+          return result;
+        },
+      }
+    : undefined;
 
   return {
     pluginId,
     subscriptions,
     services,
+    context,
     createState<S extends object>(initial: S): S {
       const state = createState(initial);
       subscriptions.push({ dispose: () => disposeState(state) });
