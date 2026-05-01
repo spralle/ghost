@@ -32,9 +32,21 @@ export type {
   NavigationTarget,
   PlacementHint,
 } from "./core/types.js";
-export type { NavigationGuard, NavigationGuardResult } from "./core/guard-types.js";
+export type { NavigationGuard as GuardType, NavigationGuardResult as GuardResultType } from "./core/guard-types.js";
 export type { TypedIntentTarget, TypedRouteTarget } from "./core/typed-targets.js";
 export { intentTarget, routeTarget, viewTarget } from "./core/typed-targets.js";
+export type {
+  NavigationEvent,
+  NavigationEventSink,
+  NavigationObserver,
+  NavigationSource,
+  SanitizedTarget,
+} from "./core/navigation-observer.js";
+export {
+  createConsoleNavigationSink,
+  createNavigationObserver,
+  sanitizeTarget,
+} from "./core/navigation-observer.js";
 export type { PlacementCapabilities } from "./core/resolve-placement-hint.js";
 export { resolvePlacementHint } from "./core/resolve-placement-hint.js";
 export type { AttachNavigationOptions } from "./dom/attach-navigation.js";
