@@ -1,4 +1,4 @@
-// Plugin schema ingestion bridge — extracts config schemas from plugin contracts
+// Plugin config catalog — extracts and composes config schemas from plugin contracts
 
 import type { ConfigurationPropertySchema } from "@ghost-shell/contracts/plugin";
 import {
@@ -40,7 +40,7 @@ export interface PluginConfigInput {
  * Extracts ConfigurationSchemaDeclaration entries from plugin contracts.
  * Plugins without a `configuration` block are skipped.
  */
-export function collectPluginSchemaDeclarations(plugins: PluginConfigInput[]): ConfigurationSchemaDeclaration[] {
+export function extractPluginSchemas(plugins: PluginConfigInput[]): ConfigurationSchemaDeclaration[] {
   const declarations: ConfigurationSchemaDeclaration[] = [];
 
   for (const plugin of plugins) {
@@ -62,12 +62,12 @@ export function collectPluginSchemaDeclarations(plugins: PluginConfigInput[]): C
  * Collects plugin schema declarations and composes them into a unified schema map.
  * Returns the ComposeResult including duplicate-key errors if present.
  */
-export function buildSchemaMap(plugins: PluginConfigInput[]): ComposeResult {
-  const declarations = collectPluginSchemaDeclarations(plugins);
+export function composePluginSchemas(plugins: PluginConfigInput[]): ComposeResult {
+  const declarations = extractPluginSchemas(plugins);
   return composeConfigurationSchemas(declarations);
 }
 
-export interface IncrementalSchemaRegistryAdapter {
+export interface PluginConfigCatalog {
   registerPlugin(plugin: PluginConfigInput): RegisterSchemaResult;
   unregisterPlugin(pluginId: string): UnregisterSchemaResult;
   getSchema(fullyQualifiedKey: string): ComposedSchemaEntry | undefined;
@@ -76,7 +76,7 @@ export interface IncrementalSchemaRegistryAdapter {
   getCompositionErrors(): SchemaCompositionError[];
 }
 
-class DefaultIncrementalSchemaRegistryAdapter implements IncrementalSchemaRegistryAdapter {
+class DefaultPluginConfigCatalog implements PluginConfigCatalog {
   private readonly registry: ConfigurationSchemaRegistry = createSchemaRegistry();
 
   registerPlugin(plugin: PluginConfigInput): RegisterSchemaResult {
@@ -113,10 +113,20 @@ class DefaultIncrementalSchemaRegistryAdapter implements IncrementalSchemaRegist
   }
 }
 
-export function createIncrementalSchemaRegistryAdapter(): IncrementalSchemaRegistryAdapter {
-  return new DefaultIncrementalSchemaRegistryAdapter();
+export function createPluginConfigCatalog(): PluginConfigCatalog {
+  return new DefaultPluginConfigCatalog();
 }
 
 // Backward compatibility aliases
-export type IncrementalPluginSchemaRegistry = IncrementalSchemaRegistryAdapter;
-export const createIncrementalPluginSchemaRegistry = createIncrementalSchemaRegistryAdapter;
+/** @deprecated Use PluginConfigCatalog */
+export type IncrementalSchemaRegistryAdapter = PluginConfigCatalog;
+/** @deprecated Use PluginConfigCatalog */
+export type IncrementalPluginSchemaRegistry = PluginConfigCatalog;
+/** @deprecated Use createPluginConfigCatalog */
+export const createIncrementalSchemaRegistryAdapter = createPluginConfigCatalog;
+/** @deprecated Use createPluginConfigCatalog */
+export const createIncrementalPluginSchemaRegistry = createPluginConfigCatalog;
+/** @deprecated Use extractPluginSchemas */
+export const collectPluginSchemaDeclarations = extractPluginSchemas;
+/** @deprecated Use composePluginSchemas */
+export const buildSchemaMap = composePluginSchemas;

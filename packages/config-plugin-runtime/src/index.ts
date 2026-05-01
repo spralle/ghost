@@ -18,18 +18,25 @@ export {
   type SchemaRegistryMutationResult,
 } from "./plugin-config-lifecycle-hooks.js";
 export {
-  buildSchemaMap,
-  collectPluginSchemaDeclarations,
-  createIncrementalPluginSchemaRegistry,
-  createIncrementalSchemaRegistryAdapter,
+  // Primary exports (new names)
+  composePluginSchemas,
+  createPluginConfigCatalog,
+  extractPluginSchemas,
+  type PluginConfigCatalog,
+  // Re-exported weaver types
   type ComposedSchemaEntry,
   type ComposeResult,
   type ConfigurationSchemaDeclaration,
   type ConfigurationSchemaRegistry,
-  type IncrementalPluginSchemaRegistry,
-  type IncrementalSchemaRegistryAdapter,
   type PluginConfigInput,
   type RegisterSchemaResult,
   type SchemaCompositionError,
   type UnregisterSchemaResult,
-} from "./plugin-schema-bridge.js";
+  // Backward compatibility aliases
+  buildSchemaMap,
+  collectPluginSchemaDeclarations,
+  createIncrementalPluginSchemaRegistry,
+  createIncrementalSchemaRegistryAdapter,
+  type IncrementalPluginSchemaRegistry,
+  type IncrementalSchemaRegistryAdapter,
+} from "./plugin-config-catalog.js";

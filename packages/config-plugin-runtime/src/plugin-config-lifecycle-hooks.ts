@@ -6,9 +6,9 @@ import {
   qualifyKey,
 } from "@weaver/config-engine";
 import type { SchemaCompositionError } from "@weaver/config-engine";
-import type { ComposeResult, ConfigurationSchemaDeclaration } from "./plugin-schema-bridge.js";
-import { collectPluginSchemaDeclarations } from "./plugin-schema-bridge.js";
-import type { PluginConfigInput } from "./plugin-schema-bridge.js";
+import type { ComposeResult, ConfigurationSchemaDeclaration } from "./plugin-config-catalog.js";
+import { extractPluginSchemas } from "./plugin-config-catalog.js";
+import type { PluginConfigInput } from "./plugin-config-catalog.js";
 
 export type PluginConfigLifecycleEvent = "install" | "uninstall" | "enable" | "disable" | "promote";
 
@@ -144,7 +144,7 @@ export function createConfigurationLifecycleHooks(options: ConfigurationLifecycl
   const plugins = new Map<string, PluginRuntimeState>();
 
   function registerPluginSchema(plugin: PluginConfigInput): SchemaRegistryMutationResult {
-    const declarations = collectPluginSchemaDeclarations([plugin]);
+    const declarations = extractPluginSchemas([plugin]);
     if (declarations.length === 0) {
       return { ok: true, errors: [] };
     }

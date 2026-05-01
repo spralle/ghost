@@ -3,13 +3,13 @@ import { describe, it, expect } from "vitest";
 /**
  * Integration test verifying the full pipeline from plugin configuration
  * declaration (new full JSON Schema format with relative keys) through
- * the schema bridge to what the settings panel would receive.
+ * the plugin config catalog to what the settings panel would receive.
  */
 
-import { collectPluginSchemaDeclarations } from "../plugin-schema-bridge";
-import type { PluginConfigInput } from "../plugin-schema-bridge";
+import { extractPluginSchemas } from "../plugin-config-catalog";
+import type { PluginConfigInput } from "../plugin-config-catalog";
 
-describe("plugin-schema-bridge new shape integration", () => {
+describe("plugin-config-catalog integration", () => {
   describe("theme-service builtin contract", () => {
     const themeServicePlugin: PluginConfigInput = {
       pluginId: "@ghost-shell/theme-service",
@@ -34,7 +34,7 @@ describe("plugin-schema-bridge new shape integration", () => {
     };
 
     it("extracts properties from full JSON Schema configuration", () => {
-      const declarations = collectPluginSchemaDeclarations([themeServicePlugin]);
+      const declarations = extractPluginSchemas([themeServicePlugin]);
 
       expect(declarations).toHaveLength(1);
       expect(declarations[0].ownerId).toBe("@ghost-shell/theme-service");
@@ -43,14 +43,14 @@ describe("plugin-schema-bridge new shape integration", () => {
     });
 
     it("derives correct namespace from scoped plugin ID", () => {
-      const declarations = collectPluginSchemaDeclarations([themeServicePlugin]);
+      const declarations = extractPluginSchemas([themeServicePlugin]);
 
       // @ghost-shell/theme-service → ghostShell.themeService
       expect(declarations[0].namespace).toBe("ghostShell.themeService");
     });
 
     it("relative keys would qualify to full paths", () => {
-      const declarations = collectPluginSchemaDeclarations([themeServicePlugin]);
+      const declarations = extractPluginSchemas([themeServicePlugin]);
       const namespace = declarations[0].namespace;
       const relativeKeys = Object.keys(declarations[0].properties);
 
@@ -92,7 +92,7 @@ describe("plugin-schema-bridge new shape integration", () => {
     };
 
     it("extracts all properties from motion plugin schema", () => {
-      const declarations = collectPluginSchemaDeclarations([motionPlugin]);
+      const declarations = extractPluginSchemas([motionPlugin]);
 
       expect(declarations).toHaveLength(1);
       expect(Object.keys(declarations[0].properties)).toEqual([
@@ -103,14 +103,14 @@ describe("plugin-schema-bridge new shape integration", () => {
     });
 
     it("strips -plugin suffix in namespace derivation", () => {
-      const declarations = collectPluginSchemaDeclarations([motionPlugin]);
+      const declarations = extractPluginSchemas([motionPlugin]);
 
       // @ghost-shell/ghost-motion-plugin → ghostShell.ghostMotion
       expect(declarations[0].namespace).toBe("ghostShell.ghostMotion");
     });
 
     it("preserves schema metadata on properties", () => {
-      const declarations = collectPluginSchemaDeclarations([motionPlugin]);
+      const declarations = extractPluginSchemas([motionPlugin]);
       const props = declarations[0].properties as Record<string, { enum?: string[]; minimum?: number }>;
 
       expect(props.reducedMotion.enum).toEqual(["auto", "always", "never"]);
@@ -133,7 +133,7 @@ describe("plugin-schema-bridge new shape integration", () => {
         },
       ];
 
-      const declarations = collectPluginSchemaDeclarations(plugins);
+      const declarations = extractPluginSchemas(plugins);
 
       // First has no configuration, second has no properties
       expect(declarations).toHaveLength(1);
@@ -158,7 +158,7 @@ describe("plugin-schema-bridge new shape integration", () => {
         },
       ];
 
-      const declarations = collectPluginSchemaDeclarations(plugins);
+      const declarations = extractPluginSchemas(plugins);
 
       expect(declarations).toHaveLength(2);
       expect(declarations[0].namespace).toBe("ghostShell.themeService");
@@ -176,7 +176,7 @@ describe("plugin-schema-bridge new shape integration", () => {
         },
       ];
 
-      const declarations = collectPluginSchemaDeclarations(plugins);
+      const declarations = extractPluginSchemas(plugins);
 
       expect(declarations[0].namespace).toBe("ghostShell.editorCore");
     });
