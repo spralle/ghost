@@ -2,6 +2,7 @@ import type { ShellStateObserver } from "@ghost-shell/router";
 import type { PlacementConfig, PlacementStrategyRegistry } from "@ghost-shell/state";
 import type { ShellPartHostAdapter } from "../contracts.js";
 import type { DndDiagnosticEnvelope, DndDiagnosticRuntime } from "../dnd-diagnostics.js";
+import type { ScompPeer } from "../../scomp-runtime.js";
 import type {
   ActionHost,
   BridgeHost,
@@ -57,4 +58,6 @@ export interface ShellRuntime
     activatedAt: number | null;
   };
   stateObserver?: ShellStateObserver | undefined;
+  /** Scomp peer for cross-window contract resolution (injected at boot). */
+  scomp?: ScompPeer | undefined;
 }
