@@ -257,9 +257,12 @@ export const activationEventsSchema = z.array(z.enum(["onStartup"]));
 
 export const pluginConfigurationContributionSchema = z
   .object({
+    type: z.union([z.string(), z.array(z.string()).readonly()]).optional(),
+    title: z.string().optional(),
+    description: z.string().optional(),
     properties: z.record(z.string(), configurationPropertySchemaSchema),
   })
-  .strict();
+  .passthrough();
 
 export const shellEdgeSlotSchema = z.enum(["top", "bottom", "left", "right"]);
 
