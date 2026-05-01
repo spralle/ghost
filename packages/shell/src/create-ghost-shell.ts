@@ -44,6 +44,7 @@ import { createPopoutManifestRegistry } from "./popout-manifest-registry.js";
 import { bootPopoutWindow } from "./popout-boot.js";
 import { createPopoutPluginLoader, createPopoutPartMounter } from "./popout-boot-wiring.js";
 import type { ServiceGatewayTransport } from "./projected-plugin-services.js";
+import { wireGatewayHost } from "./gateway-host-wiring.js";
 import { resolveWindowIdentity } from "./window-identity.js";
 import { wirePopoutManifestContract } from "./popout-manifest-wiring.js";
 
@@ -225,6 +226,20 @@ export function createGhostShell(options: GhostShellOptions): GhostShell {
           routerService,
         });
       }
+
+      // Wire gateway host for cross-window service access (host windows only)
+      if (options.scomp && !runtime.isPopout) {
+        const gatewayWiring = wireGatewayHost({
+          pluginRegistry: runtime.registry,
+          scomp: options.scomp,
+        });
+        const previousDispose = disposeMount;
+        disposeMount = () => {
+          gatewayWiring.dispose();
+          previousDispose?.();
+        };
+      }
+
       if (runtime.isPopout && options.popoutTransport) {
         const { initializePopout } = await import("./popout-initialization.js");
         const popoutInit = await initializePopout(options.popoutTransport, document);
