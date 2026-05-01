@@ -36,6 +36,7 @@ import {
   ShellWiringContext,
   summarizeSelectionPriorities,
 } from "./shell-wiring.js";
+import { wireGatewayHost } from "./gateway-host-wiring.js";
 import { resolveWindowIdentity } from "./window-identity.js";
 
 // ---------------------------------------------------------------------------
@@ -186,6 +187,20 @@ export function createGhostShell(options: GhostShellOptions): GhostShell {
           defaultThemeId: options.theme ?? "ghost.theme.tokyo-night",
         });
       }
+
+      // Wire gateway host for cross-window service access (host windows only)
+      if (options.scomp && !runtime.isPopout) {
+        const gatewayWiring = wireGatewayHost({
+          pluginRegistry: runtime.registry,
+          scomp: options.scomp,
+        });
+        const previousDispose = disposeMount;
+        disposeMount = () => {
+          gatewayWiring.dispose();
+          previousDispose?.();
+        };
+      }
+
       if (runtime.isPopout && options.popoutTransport) {
         const { initializePopout } = await import("./popout-initialization.js");
         const popoutInit = await initializePopout(options.popoutTransport, document);
