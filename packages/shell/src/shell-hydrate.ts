@@ -17,11 +17,13 @@ import { createWorkspaceSwitchDeps, refreshActionContributions, renderParts } fr
 import { getLayoutModeService } from "./services/layout-mode-service-registration.js";
 import { createQuickPickBridge } from "./ui/quick-pick/quick-pick-bridge.js";
 
+import type { PluginRouterServiceApi } from "@ghost-shell/contracts";
 import { createPluginConfigCatalog, type PluginConfigCatalog } from "@ghost-shell/config-plugin-runtime";
 
 export interface HydrateOptions {
   readonly tenantId: string;
   readonly defaultThemeId: string;
+  readonly routerService?: PluginRouterServiceApi | undefined;
 }
 
 export async function hydratePluginRegistry(
@@ -36,6 +38,7 @@ export async function hydratePluginRegistry(
   try {
     const apiDeps = createGhostApiDeps(runtime, quickPickBridge, {
       getWorkspaceSwitchDeps: () => createWorkspaceSwitchDeps(root, runtime),
+      routerService: options.routerService,
     });
 
     const bootstrap = getShellBootstrap(runtime);
