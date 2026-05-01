@@ -12,6 +12,8 @@ export interface ContextApi {
   get<T>(id: string): T | undefined;
   /** Subscribe to changes for a context key. */
   subscribe(id: string, listener: () => void): Disposable;
+  /** Create a valtio-backed reactive context from a typed token, auto-registered as a contribution. */
+  create<T extends object>(token: ContextToken<T>, init: T): { readonly state: T; dispose(): void };
 }
 
 /** Read-only access to contributed providers for rendering composition. */
