@@ -29,7 +29,7 @@ const _p2: UserPaths = "age";
 const _p3: UserPaths = "address";
 const _p4: UserPaths = "tags";
 
-// Valid nested paths
+// Valid nested paths (depth 4 now supported)
 const _p5: UserPaths = "address.street";
 const _p6: UserPaths = "address.geo";
 const _p7: UserPaths = "address.geo.lat";
@@ -38,7 +38,7 @@ const _p7: UserPaths = "address.geo.lat";
 const _bad1: UserPaths = "nonexistent";
 // @ts-expect-error — invalid nested path
 const _bad2: UserPaths = "address.nonexistent";
-// @ts-expect-error — too deep (depth 4)
+// @ts-expect-error — too deep (depth 5)
 const _bad3: UserPaths = "address.geo.lat.x";
 
 // ---- PathValue tests ----

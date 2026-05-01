@@ -47,4 +47,4 @@ export { assertSafeSegment, DANGEROUS_KEYS } from "./safe-path.js";
 
 // Sort utilities
 export { applySorting, compareValues } from "./sort-utils.js";
-export type { DotPaths, FieldCondition, PathValue, TypedQuery } from "./typed-query.js";
+export type { CustomFieldOps, DotPaths, FieldCondition, PathValue, TypedQuery, UntypedQuery } from "./typed-query.js";
