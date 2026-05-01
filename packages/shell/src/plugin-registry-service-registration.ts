@@ -56,6 +56,7 @@ function mapContributions(contract: PluginContract | null): PluginContributionsS
       id: comp.id,
       version: comp.version,
     })),
+    hasConfiguration: !!(c?.configuration),
   };
 }
 

@@ -52,6 +52,7 @@ export interface PluginContributionsSummary {
   layers: ContributionItem[];
   services: CapabilityContributionItem[];
   components: CapabilityContributionItem[];
+  hasConfiguration: boolean;
 }
 
 /** Failure details for a plugin that failed to load or activate. */

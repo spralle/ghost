@@ -9,11 +9,14 @@ import { getShellBootstrap } from "./bootstrap-shell.js";
 import { registerConfigurationServiceCapability } from "./config-service-registration.js";
 import { createShellConfigService, runPersistenceMigrations } from "./config-service-setup.js";
 import { readGroupSelectionContext, writeGroupSelectionContext } from "./context/runtime-state.js";
+import { registerPluginConfigCatalogCapability } from "./plugin-config-catalog-registration.js";
 import { createGhostApiDeps } from "./plugin-api/ghost-api-deps-factory.js";
 import { createPluginServicesBridge } from "./plugin-service-bridge.js";
 import { createDefaultShellKeybindingContract } from "./shell-runtime/default-shell-keybindings.js";
 import { createWorkspaceSwitchDeps, refreshActionContributions, renderParts } from "./shell-wiring.js";
 import { createQuickPickBridge } from "./ui/quick-pick/quick-pick-bridge.js";
+
+import { createPluginConfigCatalog, type PluginConfigCatalog } from "@ghost-shell/config-plugin-runtime";
 
 export interface HydrateOptions {
   readonly tenantId: string;
@@ -108,6 +111,16 @@ function applyHydratedState(
     console.error("[shell] config service creation failed, continuing without it", configError);
   }
 
+  // Wire plugin config catalog: register as a service and populate from existing contracts.
+  try {
+    const catalog = createPluginConfigCatalog();
+    registerPluginConfigCatalogCapability(runtime.registry, catalog);
+    populateCatalogFromSnapshot(runtime, catalog);
+    subscribeCatalogToRegistry(runtime, catalog);
+  } catch (catalogError) {
+    console.error("[shell] plugin config catalog setup failed, continuing without it", catalogError);
+  }
+
   runtime.registry.registerBuiltinPlugin(createDefaultShellKeybindingContract());
   refreshActionContributions(runtime);
 }
@@ -137,4 +150,35 @@ function renderAllPanels(root: HTMLElement, runtime: ShellRuntime): void {
   renderParts(root, runtime);
   getShellBootstrap(runtime).renderEdgeSlots(root, runtime);
   getShellBootstrap(runtime).renderLayerSurfaces(root, runtime);
+}
+
+// ---------------------------------------------------------------------------
+// Catalog population helpers
+// ---------------------------------------------------------------------------
+
+function populateCatalogFromSnapshot(
+  runtime: ShellRuntime,
+  catalog: PluginConfigCatalog,
+): void {
+  const snapshot = runtime.registry.getSnapshot();
+  for (const plugin of snapshot.plugins) {
+    if (plugin.contract?.contributes?.configuration) {
+      catalog.registerPlugin({
+        pluginId: plugin.id,
+        configuration: plugin.contract.contributes.configuration,
+      });
+    }
+  }
+}
+
+function subscribeCatalogToRegistry(
+  runtime: ShellRuntime,
+  catalog: PluginConfigCatalog,
+): void {
+  // Shell-lifetime subscription — intentionally never disposed.
+  // registerPlugin is idempotent (unregisters before re-registering internally),
+  // so re-populating on every registry event is safe, just redundant.
+  const _catalogSync = runtime.registry.subscribe(() => {
+    populateCatalogFromSnapshot(runtime, catalog);
+  });
 }

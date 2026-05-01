@@ -266,29 +266,21 @@ function SettingsEditorForm({
 // Public component (receives context from defineReactParts)
 // ---------------------------------------------------------------------------
 
-const DEMO_SCHEMA: JsonSchema = {
-  type: "object",
-  properties: {
-    "editor.fontSize": {
-      type: "number",
-      title: "Font Size",
-      description: "Editor font size in pixels",
-      default: 14,
-    },
-    "editor.wordWrap": {
-      type: "boolean",
-      title: "Word Wrap",
-      description: "Enable word wrapping",
-      default: false,
-    },
-  },
-};
+const EMPTY_SCHEMA_PLACEHOLDER = (
+  <Card>
+    <CardContent className="p-6" role="status">
+      <p className="text-sm text-muted-foreground">No settings schema provided.</p>
+    </CardContent>
+  </Card>
+);
 
 export function PluginSettingsEditor({ context }: { readonly context: PluginMountContext }) {
   const configService = useService<ConfigurationService>(CONFIG_SERVICE_ID);
   const pluginId = context.args.pluginId ?? context.part.id;
   const editingLayer = context.args.layer ?? "user";
-  const schema = (context.args.schema as unknown as JsonSchema) ?? DEMO_SCHEMA;
+  // context.args.schema is a JsonSchema passed by the config browser; cast is safe
+  // because the caller constructs it via catalogEntriesToJsonSchema which produces JsonSchema.
+  const schema = context.args.schema as unknown as JsonSchema | undefined;
 
   if (!configService) {
     return (
@@ -301,6 +293,10 @@ export function PluginSettingsEditor({ context }: { readonly context: PluginMoun
         </CardContent>
       </Card>
     );
+  }
+
+  if (!schema) {
+    return EMPTY_SCHEMA_PLACEHOLDER;
   }
 
   return (
