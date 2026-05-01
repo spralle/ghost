@@ -2,6 +2,7 @@ import type {
   ActivationContext,
   Disposable,
   GhostApi,
+  PluginRouterServiceApi,
   PluginServices,
   ServiceRegistrationOptions,
   ServiceToken,
@@ -33,6 +34,8 @@ export interface GhostApiFactoryDependencies extends ActionServiceDependencies, 
   readonly viewServiceDeps: ViewServiceDeps;
   readonly workspaceServiceDeps: WorkspaceServiceDependencies;
   readonly menuServiceDeps: MenuServiceDependencies;
+  /** Optional router service API — provided when the shell router is initialized. */
+  readonly routerService?: PluginRouterServiceApi | undefined;
 }
 
 /** Result of creating a scoped GhostApi, including shell-side handles. */
@@ -60,6 +63,7 @@ export function createGhostApi(deps: GhostApiFactoryDependencies): GhostApiInsta
     views: viewService,
     workspaces: workspaceServiceHandle.service,
     menus: menuService,
+    router: deps.routerService,
   };
 
   return { api, actionServiceHandle, windowServiceHandle, workspaceServiceHandle };
