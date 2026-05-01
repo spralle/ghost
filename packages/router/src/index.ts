@@ -9,6 +9,8 @@ export type { DecodedShellState, UrlCodecRegistry, UrlCodecState, UrlCodecStrate
 // Codec runtime
 export { createWorkspaceHintCodec } from "./codec/workspace-hint-codec.js";
 export { createWorkspaceRefCodec } from "./codec/workspace-ref-codec.js";
+export type { HeadConfig, HeadManagerOptions, LinkTag, MetaTag } from "./core/head-types.js";
+export { applyTitleTemplate, createHeadManager, mergeHeadConfigs } from "./core/head-manager.js";
 export type {
   InferRouteParams,
   ResolvedRoute,
