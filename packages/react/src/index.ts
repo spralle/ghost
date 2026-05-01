@@ -19,3 +19,7 @@ export {
 } from "./hooks.js";
 export { PluginErrorBoundary } from "./PluginErrorBoundary.js";
 export { createReactPartRenderer } from "./react-part-renderer.js";
+export { GhostLink, type GhostLinkProps } from "./GhostLink.js";
+export { IntentLink, type IntentLinkProps } from "./IntentLink.js";
+export { ViewLink, type ViewLinkProps } from "./ViewLink.js";
+export { ActionLink, type ActionLinkProps } from "./ActionLink.js";

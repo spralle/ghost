@@ -290,6 +290,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@ghost-shell/contracts": "workspace:*",
+        "@ghost-shell/router": "workspace:*",
       },
       "devDependencies": {
         "@types/react": "^19.0.0",

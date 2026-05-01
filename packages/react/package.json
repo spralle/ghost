@@ -22,7 +22,8 @@
     "build:dist": "tsup"
   },
   "dependencies": {
-    "@ghost-shell/contracts": "workspace:*"
+    "@ghost-shell/contracts": "workspace:*",
+    "@ghost-shell/router": "workspace:*"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",
