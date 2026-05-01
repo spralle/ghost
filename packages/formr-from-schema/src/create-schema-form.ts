@@ -20,6 +20,7 @@ export interface SchemaFormResult {
   readonly layout: LayoutNode;
   readonly metadata: SchemaMetadata;
   readonly validators: readonly ValidatorFn[];
+  readonly defaults: Readonly<Record<string, unknown>>;
 }
 
 /**
@@ -44,5 +45,11 @@ export function createSchemaForm(schema: unknown, options?: CreateSchemaFormOpti
   if (options?.validators) {
     validators.push(...options.validators);
   }
-  return { fields: result.fields, metadata: result.metadata, layout, validators };
+  const defaults: Record<string, unknown> = {};
+  for (const f of result.fields) {
+    if (f.defaultValue !== undefined) {
+      defaults[f.path] = f.defaultValue;
+    }
+  }
+  return { fields: result.fields, metadata: result.metadata, layout, validators, defaults };
 }

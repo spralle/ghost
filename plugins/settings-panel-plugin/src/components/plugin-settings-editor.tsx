@@ -11,10 +11,6 @@ import { useCallback, useMemo } from "react";
 // Helpers
 // ---------------------------------------------------------------------------
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
 function buildInitialData(
   schema: JsonSchema,
   service: ConfigurationService,
@@ -29,13 +25,6 @@ function buildInitialData(
     const stored = service.get(fullKey);
     if (stored !== undefined) {
       data[key] = stored;
-      continue;
-    }
-    const prop = isRecord(props[key]) ? (props[key] as Record<string, unknown>) : undefined;
-    if (prop?.default !== undefined) {
-      data[key] = prop.default;
-    } else if (prop?.type === "array") {
-      data[key] = [];
     }
   }
   return data;

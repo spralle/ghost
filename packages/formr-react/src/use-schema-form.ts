@@ -54,9 +54,15 @@ export function useSchemaForm<TData, TUi>(
     [schema, options?.layoutOverride, options?.validators],
   );
 
+  const mergedInitialData = useMemo(() => {
+    if (Object.keys(prepared.defaults).length === 0) return options?.initialData;
+    return { ...prepared.defaults, ...(options?.initialData ?? {}) } as TData;
+  }, [prepared.defaults, options?.initialData]);
+
   const form = useForm<TData, TUi>({
     ...options,
     schema,
+    initialData: mergedInitialData,
     validators: prepared.validators,
   });
 

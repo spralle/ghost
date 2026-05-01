@@ -196,7 +196,11 @@ function walkJsonSchema(
     path: prefix,
     type: fieldType,
     required: isRequired,
-    ...(effective.const !== undefined ? { defaultValue: effective.const } : {}),
+    ...(effective.default !== undefined
+      ? { defaultValue: effective.default }
+      : effective.const !== undefined
+        ? { defaultValue: effective.const }
+        : {}),
     ...(metadata ? { metadata } : {}),
   });
 }
