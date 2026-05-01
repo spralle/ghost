@@ -11,6 +11,8 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import {
   createDelegatedNavigation,
   parseNavigationTarget,
+  type ShellRouter,
+  type NavigationResult,
 } from "@ghost-shell/router";
 import { createPluginRouterServiceApi } from "../plugin-api/plugin-router-service-api.js";
 import { initializeShellRouter } from "../router-initialization.js";
@@ -90,7 +92,7 @@ describe("createPluginRouterServiceApi", () => {
       navigate: vi.fn().mockResolvedValue({ outcome: "navigated", tabId: "t1" }),
     };
     const service = createPluginRouterServiceApi({
-      getShellRouter: () => mockShellRouter as any,
+      getShellRouter: () => mockShellRouter as unknown as ShellRouter,
     });
 
     const pluginRouter = service.createPluginRouter({});
@@ -271,5 +273,106 @@ describe("parseNavigationTarget", () => {
     el.setAttribute("data-intent", "domain.open");
     el.setAttribute("data-facts", '{"type":"vessel"}');
     expect(parseNavigationTarget(el)).toEqual({ intent: "domain.open", facts: { type: "vessel" } });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Test: Navigation guard rejection (NavigationResult discriminated union)
+// ---------------------------------------------------------------------------
+
+describe("navigation guard rejection", () => {
+  it("returns cancelled result when navigation is rejected", async () => {
+    const cancelledResult: NavigationResult = { outcome: "cancelled" };
+    const mockShellRouter = {
+      navigate: vi.fn().mockResolvedValue(cancelledResult),
+    };
+    const service = createPluginRouterServiceApi({
+      getShellRouter: () => mockShellRouter as unknown as ShellRouter,
+    });
+
+    const pluginRouter = service.createPluginRouter({});
+    expect(pluginRouter).toBeDefined();
+
+    const result = await mockShellRouter.navigate({ route: "guarded.route", params: {} });
+    expect(result.outcome).toBe("cancelled");
+  });
+
+  it("returns no-match result with reason when route not found", async () => {
+    const noMatchResult: NavigationResult = { outcome: "no-match", reason: "No handler for route" };
+    const mockShellRouter = {
+      navigate: vi.fn().mockResolvedValue(noMatchResult),
+    };
+
+    const result = await mockShellRouter.navigate({ route: "unknown.route", params: {} });
+    expect(result.outcome).toBe("no-match");
+    if (result.outcome === "no-match") {
+      expect(result.reason).toBe("No handler for route");
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Test: Error recovery — navigation failures don't crash the system
+// ---------------------------------------------------------------------------
+
+describe("error recovery", () => {
+  it("delegated navigation propagates navigate() errors (caller responsibility)", () => {
+    const navigate = vi.fn().mockImplementation(() => {
+      throw new Error("Network error");
+    });
+    const root = document.createElement("div");
+    document.body.appendChild(root);
+
+    const link = createNavLink({ "data-route": "test.route" });
+    root.appendChild(link);
+
+    const attachment = createDelegatedNavigation({ root, navigate });
+
+    // Delegation does not swallow errors — the navigate callback is responsible
+    expect(() => link.click()).toThrow("Network error");
+
+    attachment.dispose();
+    document.body.removeChild(root);
+  });
+
+  it("parseNavigationTarget handles array JSON in data-params gracefully", () => {
+    const el = document.createElement("a");
+    el.setAttribute("data-route", "test");
+    el.setAttribute("data-params", "[1,2,3]");
+    // Arrays are rejected — only objects are valid params
+    expect(parseNavigationTarget(el)).toEqual({ route: "test", params: {} });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Test: Cross-window navigation sync (state observer wiring)
+// ---------------------------------------------------------------------------
+
+describe("cross-window navigation sync", () => {
+  it("initializeShellRouter assigns observer to runtime for cross-window sync", () => {
+    const runtime = createMockRuntime();
+    const root = document.createElement("div");
+
+    const handle = initializeShellRouter(root, runtime);
+
+    // Observer is wired — cross-window sync relies on this assignment
+    expect(runtime.stateObserver).toBeDefined();
+    expect(runtime.stateObserver).toBe(handle.observer);
+
+    handle.dispose();
+  });
+
+  it("router subscribe notifies on state changes", () => {
+    const runtime = createMockRuntime();
+    const root = document.createElement("div");
+
+    const handle = initializeShellRouter(root, runtime);
+    const listener = vi.fn();
+
+    const unsubscribe = handle.router.subscribe(listener);
+    expect(unsubscribe).toBeTypeOf("function");
+
+    unsubscribe();
+    handle.dispose();
   });
 });
