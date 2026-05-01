@@ -22,7 +22,7 @@ import type { NavigationDelegate } from "./navigation-runtime-types.js";
  * // Direct route navigation
  * const result = await runtime.navigate(
  *   { route: "vessel.detail", params: { vesselId: "v123" } },
- *   { open: "tab" },
+ *   { open: "auto" },
  * );
  *
  * // Intent-based navigation

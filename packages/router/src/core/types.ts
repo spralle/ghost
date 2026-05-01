@@ -1,22 +1,24 @@
 /**
  * How a navigation target should be opened in the shell layout.
  *
+ * - `auto` — Navigate. Layout engine decides where. Adds to navHistory (back returns).
+ * - `replace` — Swap in place. No navHistory change. For filter/param updates.
+ * - `split` — Side-by-side. Degrades gracefully based on maxPanes.
+ * - `background` — Open without taking focus.
+ * - `detach` — Pop to own window. Degrades to auto on compact.
+ *
  * @example
  * ```ts
- * // Open in a new tab
- * navigate(target, { open: "tab" });
- *
- * // Replace current tab content
+ * navigate(target, { open: "auto" });
  * navigate(target, { open: "replace" });
  * ```
  */
 export type PlacementHint =
-  | "tab" // New tab in active stack
-  | "tab-background" // New tab, don't activate
-  | "replace" // Replace current tab content
-  | "split" // New split pane
-  | "window" // Pop-out window
-  | "auto"; // Let shell decide based on context
+  | "auto" // Layout engine decides
+  | "replace" // Swap in place, no navHistory change
+  | "split" // Side-by-side pane
+  | "background" // Open without taking focus
+  | "detach"; // Pop to own window
 
 /**
  * Navigation target — either a direct route reference or an intent for cross-plugin resolution.
@@ -46,7 +48,7 @@ export type NavigationTarget =
  * @example
  * ```ts
  * navigate(target, {
- *   open: "tab",
+ *   open: "auto",
  *   history: "push",
  *   activate: true,
  * });
