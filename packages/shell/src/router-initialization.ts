@@ -7,6 +7,7 @@
 
 import {
   createDelegatedNavigation,
+  createLinkInterceptor,
   initRouter,
   type NavigationAttachment,
   type RouterInitResult,
@@ -45,12 +46,20 @@ export function initializeShellRouter(root: HTMLElement, runtime: ShellRuntime):
     },
   });
 
+  const interceptor: NavigationAttachment = createLinkInterceptor({
+    root,
+    navigate: (target, hints) => {
+      void result.router.navigate(target, hints);
+    },
+  });
+
   result.router.reconcileInitialUrl(new URL(window.location.href));
 
   return {
     router: result.router,
     observer,
     dispose(): void {
+      interceptor.dispose();
       delegation.dispose();
       result.router.dispose();
       runtime.stateObserver = undefined;
