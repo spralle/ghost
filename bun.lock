@@ -330,6 +330,13 @@
         "@ghost-shell/arbiter": "workspace:*",
       },
     },
+    "packages/sentinel-store-memory": {
+      "name": "@ghost/sentinel-store-memory",
+      "version": "0.1.0",
+      "dependencies": {
+        "@ghost/sentinel": "workspace:*",
+      },
+    },
     "packages/shell": {
       "name": "@ghost-shell/shell",
       "version": "0.0.0",
@@ -980,6 +987,8 @@
     "@ghost-shell/weaver-formr-bridge": ["@ghost-shell/weaver-formr-bridge@workspace:packages/weaver-formr-bridge"],
 
     "@ghost/sentinel": ["@ghost/sentinel@workspace:packages/sentinel"],
+
+    "@ghost/sentinel-store-memory": ["@ghost/sentinel-store-memory@workspace:packages/sentinel-store-memory"],
 
     "@jridgewell/gen-mapping": ["@jridgewell/gen-mapping@0.3.13", "", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.5.0", "@jridgewell/trace-mapping": "^0.3.24" } }, "sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA=="],
 
