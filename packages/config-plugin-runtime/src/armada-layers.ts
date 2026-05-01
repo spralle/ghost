@@ -1,25 +1,4 @@
-// @weaver/config-types removed — inline stubs for defineWeaver, Layers, replaceOnly
-
-/** Stub merge strategy (@weaver/config-types removed). */
-function replaceOnly(): unknown {
-  return { strategy: "replace-only" };
-}
-
-/** Stub layer builders (@weaver/config-types removed). */
-const Layers = {
-  Static: (name: string) => ({ kind: "static" as const, name }),
-  Personal: (name: string) => ({ kind: "personal" as const, name }),
-  Ephemeral: (name: string, opts?: { merge?: unknown }) => ({
-    kind: "ephemeral" as const,
-    name,
-    merge: opts?.merge,
-  }),
-};
-
-/** Stub defineWeaver — returns the layer stack as-is (@weaver/config-types removed). */
-function defineWeaver<T>(layers: T): T {
-  return layers;
-}
+import { defineWeaver, Layers, replaceOnly } from "@weaver/config-types";
 
 /**
  * Armada's canonical layer stack.

@@ -34,6 +34,8 @@
     "@ghost-shell/router": "workspace:*",
     "@ghost-shell/state": "workspace:*",
     "@ghost-shell/theme": "workspace:*",
+    "@weaver/config-engine": "link:@weaver/config-engine",
+    "@weaver/config-providers": "link:@weaver/config-providers",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "valtio": "2.3.1"

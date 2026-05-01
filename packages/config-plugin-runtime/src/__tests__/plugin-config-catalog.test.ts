@@ -1,72 +1,15 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 
 /**
  * Integration test verifying the full pipeline from plugin configuration
  * declaration (new full JSON Schema format with relative keys) through
- * the schema bridge to what the settings panel would receive.
- *
- * Because the bridge's internal `deriveNamespace` stub throws (the real
- * implementation lives in @ghost-shell/shell), we mock it to exercise
- * the extraction + namespace-qualification logic end-to-end.
+ * the plugin config catalog to what the settings panel would receive.
  */
 
-// Mock the module so the internal deriveNamespace doesn't throw
-vi.mock("../plugin-schema-bridge.ts", async (importOriginal) => {
-  const original = await importOriginal<typeof import("../plugin-schema-bridge")>();
+import { extractPluginSchemas } from "../plugin-config-catalog";
+import type { PluginConfigInput } from "../plugin-config-catalog";
 
-  // Re-implement collectPluginSchemaDeclarations with a working deriveNamespace
-  function deriveNamespace(pluginId: string): string {
-    // Mirrors the real implementation from @ghost-shell/shell
-    if (pluginId.startsWith("@")) {
-      const withoutAt = pluginId.slice(1);
-      const slashIndex = withoutAt.indexOf("/");
-      if (slashIndex === -1) {
-        return kebabToCamel(withoutAt);
-      }
-      const scope = withoutAt.slice(0, slashIndex);
-      let name = withoutAt.slice(slashIndex + 1);
-      if (name.endsWith("-plugin")) {
-        name = name.slice(0, -7);
-      }
-      return `${kebabToCamel(scope)}.${kebabToCamel(name)}`;
-    }
-    return pluginId
-      .split(".")
-      .map((segment) => kebabToCamel(segment))
-      .join(".");
-  }
-
-  function kebabToCamel(segment: string): string {
-    return segment.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
-  }
-
-  function collectPluginSchemaDeclarations(
-    plugins: Array<{ pluginId: string; configuration?: { properties?: Record<string, unknown> } }>
-  ) {
-    const declarations: Array<{ ownerId: string; namespace: string; properties: Record<string, unknown> }> = [];
-    for (const plugin of plugins) {
-      if (plugin.configuration === undefined) continue;
-      const properties = plugin.configuration.properties;
-      if (properties === undefined) continue;
-      declarations.push({
-        ownerId: plugin.pluginId,
-        namespace: deriveNamespace(plugin.pluginId),
-        properties: properties as Record<string, unknown>,
-      });
-    }
-    return declarations;
-  }
-
-  return {
-    ...original,
-    collectPluginSchemaDeclarations,
-  };
-});
-
-import { collectPluginSchemaDeclarations } from "../plugin-schema-bridge";
-import type { PluginConfigInput } from "../plugin-schema-bridge";
-
-describe("plugin-schema-bridge new shape integration", () => {
+describe("plugin-config-catalog integration", () => {
   describe("theme-service builtin contract", () => {
     const themeServicePlugin: PluginConfigInput = {
       pluginId: "@ghost-shell/theme-service",
@@ -91,7 +34,7 @@ describe("plugin-schema-bridge new shape integration", () => {
     };
 
     it("extracts properties from full JSON Schema configuration", () => {
-      const declarations = collectPluginSchemaDeclarations([themeServicePlugin]);
+      const declarations = extractPluginSchemas([themeServicePlugin]);
 
       expect(declarations).toHaveLength(1);
       expect(declarations[0].ownerId).toBe("@ghost-shell/theme-service");
@@ -100,14 +43,14 @@ describe("plugin-schema-bridge new shape integration", () => {
     });
 
     it("derives correct namespace from scoped plugin ID", () => {
-      const declarations = collectPluginSchemaDeclarations([themeServicePlugin]);
+      const declarations = extractPluginSchemas([themeServicePlugin]);
 
       // @ghost-shell/theme-service → ghostShell.themeService
       expect(declarations[0].namespace).toBe("ghostShell.themeService");
     });
 
     it("relative keys would qualify to full paths", () => {
-      const declarations = collectPluginSchemaDeclarations([themeServicePlugin]);
+      const declarations = extractPluginSchemas([themeServicePlugin]);
       const namespace = declarations[0].namespace;
       const relativeKeys = Object.keys(declarations[0].properties);
 
@@ -149,7 +92,7 @@ describe("plugin-schema-bridge new shape integration", () => {
     };
 
     it("extracts all properties from motion plugin schema", () => {
-      const declarations = collectPluginSchemaDeclarations([motionPlugin]);
+      const declarations = extractPluginSchemas([motionPlugin]);
 
       expect(declarations).toHaveLength(1);
       expect(Object.keys(declarations[0].properties)).toEqual([
@@ -160,14 +103,14 @@ describe("plugin-schema-bridge new shape integration", () => {
     });
 
     it("strips -plugin suffix in namespace derivation", () => {
-      const declarations = collectPluginSchemaDeclarations([motionPlugin]);
+      const declarations = extractPluginSchemas([motionPlugin]);
 
       // @ghost-shell/ghost-motion-plugin → ghostShell.ghostMotion
       expect(declarations[0].namespace).toBe("ghostShell.ghostMotion");
     });
 
     it("preserves schema metadata on properties", () => {
-      const declarations = collectPluginSchemaDeclarations([motionPlugin]);
+      const declarations = extractPluginSchemas([motionPlugin]);
       const props = declarations[0].properties as Record<string, { enum?: string[]; minimum?: number }>;
 
       expect(props.reducedMotion.enum).toEqual(["auto", "always", "never"]);
@@ -190,7 +133,7 @@ describe("plugin-schema-bridge new shape integration", () => {
         },
       ];
 
-      const declarations = collectPluginSchemaDeclarations(plugins);
+      const declarations = extractPluginSchemas(plugins);
 
       // First has no configuration, second has no properties
       expect(declarations).toHaveLength(1);
@@ -215,7 +158,7 @@ describe("plugin-schema-bridge new shape integration", () => {
         },
       ];
 
-      const declarations = collectPluginSchemaDeclarations(plugins);
+      const declarations = extractPluginSchemas(plugins);
 
       expect(declarations).toHaveLength(2);
       expect(declarations[0].namespace).toBe("ghostShell.themeService");
@@ -233,7 +176,7 @@ describe("plugin-schema-bridge new shape integration", () => {
         },
       ];
 
-      const declarations = collectPluginSchemaDeclarations(plugins);
+      const declarations = extractPluginSchemas(plugins);
 
       expect(declarations[0].namespace).toBe("ghostShell.editorCore");
     });
