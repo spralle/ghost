@@ -38,6 +38,12 @@ import {
 } from "./shell-wiring.js";
 import { createPluginRouterServiceApi } from "./plugin-api/plugin-router-service-api.js";
 import { initializeShellRouter, type ShellRouterHandle } from "./router-initialization.js";
+import { createPopoutManifestHost } from "./popout-manifest-host.js";
+import { POPOUT_MANIFEST_CONTRACT_ID } from "./popout-manifest.js";
+import { createPopoutManifestRegistry } from "./popout-manifest-registry.js";
+import { bootPopoutWindow } from "./popout-boot.js";
+import { createPopoutPluginLoader, createPopoutPartMounter } from "./popout-boot-wiring.js";
+import type { ServiceGatewayTransport } from "./projected-plugin-services.js";
 import { resolveWindowIdentity } from "./window-identity.js";
 import { wirePopoutManifestContract } from "./popout-manifest-wiring.js";
 
@@ -228,6 +234,47 @@ export function createGhostShell(options: GhostShellOptions): GhostShell {
           popoutInit.dispose();
           originalDispose?.();
         };
+      }
+
+      // Host-side: register manifest contract with scomp
+      if (!runtime.isPopout && options.scomp) {
+        const registry = createPopoutManifestRegistry();
+        runtime.popoutManifestRegistry = registry;
+
+        const manifestHost = createPopoutManifestHost({
+          registry,
+          getRequestingPeerId: () => options.scomp!.participantId,
+        });
+
+        options.scomp.register({
+          contract: { id: POPOUT_MANIFEST_CONTRACT_ID },
+          implementation: manifestHost,
+        });
+      }
+
+      // Popout-side: manifest-driven boot sequence
+      if (runtime.isPopout && options.scomp) {
+        const federationRuntime = (await import("./federation-runtime.js")).createShellFederationRuntime();
+        const serviceGatewayTransport: ServiceGatewayTransport = {
+          callService: async () => ({ ok: true, value: undefined }),
+          getStateSnapshot: async () => ({ snapshot: null }),
+          subscribeOps: () => () => {},
+        };
+
+        const bootResult = await bootPopoutWindow({
+          identity: { windowId: identity.windowId, isSecondary: true, hostWindowId: identity.hostWindowId },
+          scompPeer: options.scomp,
+          loadPlugin: createPopoutPluginLoader({
+            federationRuntime,
+            scompPeer: options.scomp,
+            serviceGatewayTransport,
+          }),
+          mountPart: createPopoutPartMounter({}),
+        });
+
+        if (bootResult.errors.length > 0) {
+          console.warn("[ghost] popout boot errors:", bootResult.errors);
+        }
       }
     },
 
