@@ -28,6 +28,8 @@ export { resolvePlacementHint } from "./core/resolve-placement-hint.js";
 export type { AttachNavigationOptions } from "./dom/attach-navigation.js";
 export { attachNavigation } from "./dom/attach-navigation.js";
 export { createDelegatedNavigation, parseNavigationTarget } from "./dom/delegated-navigation.js";
+export type { LinkInterceptorOptions } from "./dom/link-interceptor.js";
+export { createLinkInterceptor, parseGhostUrl } from "./dom/link-interceptor.js";
 // DOM
 export type {
   DelegatedNavigationOptions,
