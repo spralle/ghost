@@ -4,6 +4,7 @@ import type { Event } from "./event.js";
 import type { PluginServices } from "./plugin-services.js";
 import type { ServiceToken } from "./service-token.js";
 import type { WorkspaceService } from "./workspace-service.js";
+import type { LayoutApiService } from "./layout-service.js";
 
 // ─── GhostApi (top-level namespace) ───
 
@@ -21,7 +22,12 @@ export interface GhostApi {
   readonly router?: PluginRouterServiceApi | undefined;
   /** Menu contribution resolution and dispatch. */
   readonly menus?: MenuService | undefined;
+  /** Layout mode observation. */
+  readonly layout?: LayoutApiService | undefined;
 }
+
+// Re-export — canonical definition lives in layout-service.ts
+export type { LayoutApiService } from "./layout-service.js";
 
 // ─── ActionService ───
 

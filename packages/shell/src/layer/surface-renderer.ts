@@ -17,6 +17,7 @@ import type { ShellFederationRuntime } from "../federation-runtime.js";
 import type { HookRegistry } from "../hook-registry.js";
 import { composeSurfaceKey, type MountSurfaceComponentFn } from "./surface-mount-utils.js";
 import { type ReconcilerContext, reconcileLayerContainer } from "./surface-reconciler.js";
+import { getLayoutModeService } from "../services/layout-mode-service-registration.js";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -179,7 +180,8 @@ export function createLayerSurfaceRenderer(options: LayerSurfaceRendererOptions)
     const allSurfaces = layerRegistry.getAllSurfaces();
 
     // Filter out surfaces whose when-condition evaluates to false
-    const visibleSurfaces = filterByWhenCondition(allSurfaces).filter(
+    const layoutFacts = getLayoutModeService()?.getContextFacts() ?? {};
+    const visibleSurfaces = filterByWhenCondition(allSurfaces, layoutFacts).filter(
       (s) => !dismissedSurfaces.has(composeSurfaceKey(s.pluginId, s.surface.id))
     );
 

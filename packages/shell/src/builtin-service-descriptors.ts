@@ -9,6 +9,7 @@ import { registerConfigurationServiceCapability } from "./config-service-registr
 import type { ContextServiceDeps } from "./context-service-registration.js";
 import { registerContextServiceCapability } from "./context-service-registration.js";
 import { registerHookRegistryCapability } from "./hook-registry-registration.js";
+import { registerLayoutModeServiceCapability } from "./services/layout-mode-service-registration.js";
 import type { KeybindingServiceDeps } from "./keybinding-service-registration.js";
 import { registerKeybindingServiceCapability } from "./keybinding-service-registration.js";
 import { registerPluginManagementServiceCapability } from "./plugin-management-service-registration.js";
@@ -136,6 +137,14 @@ export const BUILTIN_SERVICES: readonly BuiltinServiceDescriptor[] = [
     phase: "pre-activation",
     register(deps) {
       registerHookRegistryCapability(deps.registry);
+    },
+  },
+  {
+    serviceId: "ghost.layout",
+    pluginId: "ghost.shell.layout-service",
+    phase: "pre-activation",
+    register(deps) {
+      registerLayoutModeServiceCapability(deps.registry);
     },
   },
 ];
