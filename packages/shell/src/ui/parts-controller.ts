@@ -1,4 +1,7 @@
+import type { ContextTab } from "@ghost-shell/state";
 import type { ShellRuntime } from "../app/types.js";
+import { getLayoutModeService } from "../services/layout-mode-service-registration.js";
+import { type CompactDockHandle, renderCompactDock } from "./compact-dock-renderer.js";
 import { wireDockSplitterDrag } from "./dock-splitter-dnd.js";
 import { wireDockTabDragDrop } from "./dock-tab-dnd.js";
 import { type PartContextMenuDeps, showPartContextMenu } from "./part-context-menu.js";
@@ -13,6 +16,7 @@ import {
 import { resolveClosedPopoutTransition } from "./parts-controller-popout-transition.js";
 import type { PartsControllerDeps } from "./parts-controller-types.js";
 import {
+  type ComposedShellPart,
   getVisibleComposedParts,
   renderDockTree,
   renderPartCard,
@@ -24,6 +28,15 @@ import { wireTabStripDragDrop } from "./tab-drag-drop.js";
 
 export type { PartsControllerDeps };
 export { closeTabFromUi, closeTabThroughRuntime, reopenMostRecentlyClosedTabThroughRuntime, restorePart };
+
+/** Tracks the active compact dock handle for incremental updates. */
+let compactHandle: CompactDockHandle | null = null;
+
+function shouldUseCompactRenderer(): boolean {
+  const service = getLayoutModeService();
+  if (!service) return false;
+  return service.capabilities.tabStripPosition === "bottom";
+}
 
 export function renderParts(
   root: HTMLElement,
@@ -42,29 +55,39 @@ export function renderParts(
   if (dockHost) {
     const visibleDockParts = visibleParts.filter((part) => !runtime.poppedOutTabIds.has(part.instanceId));
 
-    // Preserve mounted plugin content across structural re-renders.
-    // Without this, innerHTML destroys all mounted content and forces
-    // async re-mounting via Module Federation, causing a visible blank flash.
-    // In teardownMode (workspace switch), skip preservation — all content is being destroyed.
-    const preserved = new Map<string, HTMLElement>();
-    if (!options?.teardownMode) {
-      for (const el of dockHost.querySelectorAll<HTMLElement>("[data-part-content-for]")) {
-        const partId = el.dataset.partContentFor;
-        if (partId && el.childNodes.length > 0) {
-          preserved.set(partId, el);
+    if (shouldUseCompactRenderer() && runtime.contextState.dockTree.root) {
+      renderCompactDockMode(dockHost, runtime, visibleDockParts, deps);
+    } else {
+      // Expanded renderer — destroy any lingering compact handle
+      if (compactHandle) {
+        compactHandle.destroy();
+        compactHandle = null;
+      }
+
+      // Preserve mounted plugin content across structural re-renders.
+      // Without this, innerHTML destroys all mounted content and forces
+      // async re-mounting via Module Federation, causing a visible blank flash.
+      // In teardownMode (workspace switch), skip preservation — all content is being destroyed.
+      const preserved = new Map<string, HTMLElement>();
+      if (!options?.teardownMode) {
+        for (const el of dockHost.querySelectorAll<HTMLElement>("[data-part-content-for]")) {
+          const partId = el.dataset.partContentFor;
+          if (partId && el.childNodes.length > 0) {
+            preserved.set(partId, el);
+          }
         }
       }
-    }
 
-    dockHost.innerHTML = renderDockTree(runtime.contextState.dockTree.root, visibleDockParts, runtime);
+      dockHost.innerHTML = renderDockTree(runtime.contextState.dockTree.root, visibleDockParts, runtime);
 
-    // Re-attach preserved content elements into matching new containers.
-    // This keeps the same DOM element references so that syncRenderedParts
-    // recognizes them (target === entry.target) and skips re-mounting.
-    for (const [partId, oldEl] of preserved) {
-      const newEl = dockHost.querySelector<HTMLElement>(`[data-part-content-for="${partId}"]`);
-      if (newEl) {
-        newEl.replaceWith(oldEl);
+      // Re-attach preserved content elements into matching new containers.
+      // This keeps the same DOM element references so that syncRenderedParts
+      // recognizes them (target === entry.target) and skips re-mounting.
+      for (const [partId, oldEl] of preserved) {
+        const newEl = dockHost.querySelector<HTMLElement>(`[data-part-content-for="${partId}"]`);
+        if (newEl) {
+          newEl.replaceWith(oldEl);
+        }
       }
     }
   }
@@ -132,6 +155,39 @@ export function renderParts(
     root,
     visibleParts.filter((part) => !runtime.poppedOutTabIds.has(part.instanceId)),
   );
+}
+
+function renderCompactDockMode(
+  dockHost: HTMLElement,
+  runtime: ShellRuntime,
+  visibleDockParts: ComposedShellPart[],
+  deps: PartsControllerDeps,
+): void {
+  const dockTree = runtime.contextState.dockTree.root!;
+  const tabMeta = new Map<string, ContextTab>(
+    Object.entries(runtime.contextState.tabs),
+  );
+  const partsMap = new Map(visibleDockParts.map((p) => [p.instanceId, p]));
+  const activeTabId = runtime.selectedPartId ?? runtime.contextState.activeTabId ?? "";
+
+  const onTabSelect = (tabId: string): void => {
+    if (runtime.syncDegraded) return;
+    dispatchLocalLifecycleAction(
+      runtime,
+      {
+        actionId: "part-instance.activate",
+        tabInstanceId: tabId,
+        partTitle: resolvePartTitle(tabId, runtime),
+      },
+      deps as PartLifecycleDeps,
+    );
+  };
+
+  if (compactHandle) {
+    compactHandle.update(dockTree, tabMeta, activeTabId, partsMap);
+  } else {
+    compactHandle = renderCompactDock(dockHost, dockTree, tabMeta, activeTabId, onTabSelect, partsMap);
+  }
 }
 
 function previewDockSplitStyle(
