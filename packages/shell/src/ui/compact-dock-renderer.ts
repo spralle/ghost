@@ -1,11 +1,12 @@
 // compact-dock-renderer.ts — Renders all dock tree tabs as a flat bottom bar with full-screen active content.
 
 import type { DockNode } from "../context-state.js";
-import type { ContextTab } from "@ghost-shell/state";
+import type { ContextTab, DockStackNode } from "@ghost-shell/state";
 import { escapeHtml } from "../app/utils.js";
 import { injectCompactDockStyles } from "./compact-dock-styles.js";
 import { renderPartBody } from "./parts-rendering-body.js";
 import type { ComposedShellPart } from "./parts-rendering.js";
+import { createCompactHeader, type CompactHeaderHandle } from "./compact-header.js";
 
 // ---------------------------------------------------------------------------
 // Tab collection
@@ -80,6 +81,22 @@ function renderContentAreaHtml(
 }
 
 // ---------------------------------------------------------------------------
+// Nav history helper
+// ---------------------------------------------------------------------------
+
+function canGoBack(tree: DockNode, activeTabId: string): boolean {
+  const stack = findStackForTab(tree, activeTabId);
+  return (stack?.navHistory?.back.length ?? 0) > 0;
+}
+
+function findStackForTab(node: DockNode, tabId: string): DockStackNode | null {
+  if (node.kind === "stack") {
+    return node.tabIds.includes(tabId) ? node : null;
+  }
+  return findStackForTab(node.first, tabId) ?? findStackForTab(node.second, tabId);
+}
+
+// ---------------------------------------------------------------------------
 // Handle interface
 // ---------------------------------------------------------------------------
 
@@ -104,8 +121,21 @@ export function renderCompactDock(
   activeTabId: string,
   onTabSelect: (tabId: string) => void,
   parts?: ReadonlyMap<string, ComposedShellPart>,
+  onBack?: () => void,
+  onOverflow?: () => void,
 ): CompactDockHandle {
   injectCompactDockStyles();
+
+  const header = createCompactHeader({
+    onBack: () => onBack?.(),
+    onOverflow: () => onOverflow?.(),
+  });
+
+  function updateHeader(tree: DockNode, tabMeta: ReadonlyMap<string, ContextTab>, active: string): void {
+    const meta = tabMeta.get(active);
+    const title = meta?.label ?? active;
+    header.update(title, canGoBack(tree, active));
+  }
 
   function render(tree: DockNode, tabMeta: ReadonlyMap<string, ContextTab>, active: string, partsMap?: ReadonlyMap<string, ComposedShellPart>): void {
     const collected = collectAllTabs(tree);
@@ -121,6 +151,14 @@ export function renderCompactDock(
     }
 
     container.innerHTML = `<div class="ghost-compact-layout">${renderContentAreaHtml(collected, effectiveParts, active)}${renderBottomBarHtml(collected, tabMeta, active)}</div>`;
+
+    // Insert header at top of layout
+    const layout = container.querySelector<HTMLElement>(".ghost-compact-layout");
+    if (layout) {
+      layout.prepend(header.element);
+    }
+
+    updateHeader(tree, tabMeta, active);
 
     // Re-attach preserved content
     for (const [partId, oldEl] of preserved) {
@@ -148,6 +186,7 @@ export function renderCompactDock(
       render(tree, tabMeta, active, partsMap);
     },
     destroy() {
+      header.destroy();
       container.innerHTML = "";
     },
   };
