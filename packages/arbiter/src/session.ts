@@ -22,7 +22,7 @@ import { createTms } from "./tms.js";
 // Factory
 // ---------------------------------------------------------------------------
 
-export function createSession(config?: SessionConfig): RuleSession {
+export function createSession<TState = Record<string, unknown>>(config?: SessionConfig<TState>): RuleSession<TState> {
   const scope = createScopeManager(config?.initialState);
   const network = createAlphaNetwork();
   const agenda = createAgenda();
@@ -68,13 +68,13 @@ export function createSession(config?: SessionConfig): RuleSession {
     return ctx;
   }
 
-  function registerRuleInternal(rule: ProductionRule): void {
-    const compiled = compileRule(rule);
+  function registerRuleInternal(rule: ProductionRule<TState>): void {
+    const compiled = compileRule(rule as ProductionRule<unknown>);
     compiledRules.set(compiled.name, compiled);
     network.addRule(compiled);
   }
 
-  function registerRule(rule: ProductionRule): void {
+  function registerRule(rule: ProductionRule<TState>): void {
     assertNotDisposed();
     registerRuleInternal(rule);
   }

@@ -6,7 +6,7 @@ import { compileThenActions } from "./then-compiler.js";
 /**
  * Compiles a ProductionRule into a CompiledRule ready for the engine.
  */
-export function compileRule(rule: ProductionRule): CompiledRule {
+export function compileRule(rule: ProductionRule<unknown>): CompiledRule {
   if (!rule.name) {
     throw new ArbiterError(ArbiterErrorCode.RULE_COMPILATION_FAILED, "Rule must have a name");
   }
@@ -27,7 +27,7 @@ export function compileRule(rule: ProductionRule): CompiledRule {
     );
   }
 
-  const condition = compile(rule.when);
+  const condition = compile(rule.when as Record<string, unknown>);
   const actions = compileThenActions(rule.then);
   const elseActions = rule.else ? compileThenActions(rule.else) : undefined;
 

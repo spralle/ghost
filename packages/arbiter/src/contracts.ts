@@ -1,3 +1,5 @@
+import type { DotPaths, PathValue, TypedQuery } from "@ghost-shell/predicate";
+
 // ---------------------------------------------------------------------------
 // ThenStage — MongoDB pipeline-style update operations (ADR §2.2)
 // Each stage is a single-key object with a $-prefixed operator.
@@ -19,7 +21,10 @@ export interface ThenOperatorRegistry {
 }
 
 /** A single pipeline stage — one $-prefixed operator key. */
-export type ThenStage = Readonly<Record<string, unknown>>;
+export type ThenStage<TState = Record<string, unknown>> = Readonly<Record<string, unknown>> & {
+  /** Type-safe $set: paths are constrained to DotPaths<TState>. */
+  readonly $set?: { readonly [P in DotPaths<TState>]?: PathValue<TState, P> };
+};
 
 /** Expression or literal value — validated at compile time, not type level. */
 export type ThenValue = unknown;
@@ -28,11 +33,11 @@ export type ThenValue = unknown;
 // ProductionRule (ADR §2.1)
 // ---------------------------------------------------------------------------
 
-export interface ProductionRule {
+export interface ProductionRule<TState = Record<string, unknown>> {
   readonly name: string;
-  readonly when: Record<string, unknown>;
-  readonly then: readonly ThenStage[];
-  readonly else?: readonly ThenStage[] | undefined;
+  readonly when: TypedQuery<TState>;
+  readonly then: readonly ThenStage<TState>[];
+  readonly else?: readonly ThenStage<TState>[] | undefined;
   readonly salience?: number | undefined;
   readonly activationGroup?: string | undefined;
   readonly onConflict?: "override" | "warn" | "error" | undefined;
@@ -61,8 +66,8 @@ export interface TmsConfig {
   readonly autoRetract?: "ui-contributions" | "all" | undefined;
 }
 
-export interface SessionConfig {
-  readonly rules?: readonly ProductionRule[] | undefined;
+export interface SessionConfig<TState = Record<string, unknown>> {
+  readonly rules?: readonly ProductionRule<TState>[] | undefined;
   readonly initialState?: Readonly<Record<string, unknown>> | undefined;
   readonly operators?: OperatorRegistryConfig | undefined;
   readonly limits?: SessionLimits | undefined;
@@ -105,8 +110,8 @@ export interface FiringResult {
 export type SubscriptionCallback = (value: unknown, previousValue: unknown) => void;
 export type Unsubscribe = () => void;
 
-export interface RuleSession {
-  readonly registerRule: (rule: ProductionRule) => void;
+export interface RuleSession<TState = Record<string, unknown>> {
+  readonly registerRule: (rule: ProductionRule<TState>) => void;
   readonly removeRule: (name: string) => void;
   readonly assert: (path: string, value: unknown) => void;
   readonly retract: (path: string) => void;
@@ -148,7 +153,7 @@ export interface CompiledRule {
   readonly onConflict: "override" | "warn" | "error";
   readonly enabled: boolean;
   readonly hasTms: boolean;
-  readonly source: ProductionRule;
+  readonly source: ProductionRule<unknown>;
 }
 
 export interface CompiledStage {

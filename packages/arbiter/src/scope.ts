@@ -1,3 +1,4 @@
+import { collectPath } from "@ghost-shell/predicate";
 import type { WriteRecord } from "./contracts.js";
 import { ArbiterError, ArbiterErrorCode } from "./errors.js";
 import { splitPath, validatePath } from "./path-utils.js";
@@ -50,14 +51,7 @@ function resolveNamespace(path: string): { namespace: Namespace; localPath: stri
 }
 
 function deepGet(obj: Record<string, unknown>, segments: readonly string[]): unknown {
-  let current: unknown = obj;
-  for (const seg of segments) {
-    if (current === null || current === undefined || typeof current !== "object") {
-      return undefined;
-    }
-    current = (current as Record<string, unknown>)[seg];
-  }
-  return current;
+  return collectPath(obj, segments);
 }
 
 function deepSet(obj: Record<string, unknown>, segments: readonly string[], value: unknown): void {
