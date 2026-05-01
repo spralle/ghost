@@ -1,8 +1,11 @@
+import type { z } from "zod";
 import type { ContextApi } from "./context-contribution-registry.js";
 import type { Disposable } from "./disposable.js";
 import type { Event } from "./event.js";
 import type { PluginServices } from "./plugin-services.js";
 import type { ServiceToken } from "./service-token.js";
+import type { ActionToken } from "./tokens/action-token.js";
+import type { ViewToken } from "./tokens/view-token.js";
 import type { WorkspaceService } from "./workspace-service.js";
 import type { LayoutApiService } from "./layout-service.js";
 
@@ -33,10 +36,20 @@ export type { LayoutApiService } from "./layout-service.js";
 
 /** Service for registering, executing, and discovering actions. */
 export interface ActionService {
-  /** Register a runtime action handler. Returns Disposable for cleanup. */
+  /** Register a typed action handler using an ActionToken. */
+  registerAction<TArgs extends z.ZodType>(
+    token: ActionToken<TArgs>,
+    handler: (args: z.infer<TArgs>) => unknown,
+  ): Disposable;
+  /** @deprecated Use token-based overload. */
   registerAction(id: string, handler: (...args: unknown[]) => unknown): Disposable;
 
-  /** Execute an action by ID. Shell handles plugin activation transparently. */
+  /** Execute a typed action using an ActionToken. */
+  executeAction<TArgs extends z.ZodType>(
+    token: ActionToken<TArgs>,
+    args: z.infer<TArgs>,
+  ): Promise<void>;
+  /** @deprecated Use token-based overload. */
   executeAction<T = void>(id: string, ...args: unknown[]): Promise<T | undefined>;
 
   /** Get all registered actions with current enabled state and keybinding hints. */
@@ -177,7 +190,9 @@ export interface OpenViewOptions {
 export interface ViewService {
   /** Get all available part definitions from enabled plugins. */
   getViewDefinitions(): ViewDescriptor[];
-  /** Open a view as a new tab in the dock tree. Returns the new tab ID. */
+  /** Open a typed view using a ViewToken. */
+  openView<TArgs extends z.ZodType>(token: ViewToken<TArgs>, args: z.infer<TArgs>, options?: OpenViewOptions): string;
+  /** @deprecated Use token-based overload. */
   openView(definitionId: string, options?: OpenViewOptions): string;
 }
 
