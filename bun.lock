@@ -323,6 +323,13 @@
         "@ghost-shell/predicate": "workspace:*",
       },
     },
+    "packages/sentinel-arbiter": {
+      "name": "@ghost-shell/sentinel-arbiter",
+      "version": "0.0.0",
+      "dependencies": {
+        "@ghost-shell/arbiter": "workspace:*",
+      },
+    },
     "packages/shell": {
       "name": "@ghost-shell/shell",
       "version": "0.0.0",
@@ -953,6 +960,8 @@
     "@ghost-shell/router": ["@ghost-shell/router@workspace:packages/router"],
 
     "@ghost-shell/schema-core": ["@ghost-shell/schema-core@workspace:packages/schema-core"],
+
+    "@ghost-shell/sentinel-arbiter": ["@ghost-shell/sentinel-arbiter@workspace:packages/sentinel-arbiter"],
 
     "@ghost-shell/shell": ["@ghost-shell/shell@workspace:packages/shell"],
 
