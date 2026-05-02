@@ -1,3 +1,5 @@
+import type { ScrollPersistence } from "./scroll-persistence.js";
+
 /** Stored scroll position for a navigation entry. */
 export interface ScrollPosition {
   readonly x: number;
@@ -14,6 +16,10 @@ export interface ScrollSnapshot {
 export interface ScrollRestorationOptions {
   /** Whether to scroll to top on new navigations. Default: true. */
   readonly scrollToTopOnNew?: boolean;
+  /** Optional persistence backend. When provided, snapshots hydrate on init and flush on pagehide/dispose. */
+  readonly persistence?: ScrollPersistence;
+  /** Max entries before oldest-25% pruning. Default: 500. Only applies when persistence is set. */
+  readonly maxEntries?: number;
 }
 
 /** A registered scrollable container. */
@@ -25,12 +31,48 @@ interface RegisteredContainer {
 /** Create a scroll restoration manager. */
 export function createScrollRestoration(options: ScrollRestorationOptions = {}) {
   const scrollToTopOnNew = options.scrollToTopOnNew ?? true;
+  const persistence = options.persistence;
+  const maxEntries = options.maxEntries ?? 500;
   const snapshots = new Map<string, ScrollSnapshot>();
   const containers: RegisteredContainer[] = [];
+
+  // Hydrate from persistence
+  if (persistence) {
+    for (const [key, snapshot] of persistence.load()) {
+      snapshots.set(key, snapshot);
+    }
+  }
 
   // Disable browser's auto-restore
   if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
     window.history.scrollRestoration = "manual";
+  }
+
+  /** Flush snapshots to persistence backend. */
+  function flush(): void {
+    if (persistence) persistence.persist(snapshots);
+  }
+
+  /** Prune oldest 25% of entries when over capacity. */
+  function maybePrune(): void {
+    if (!persistence || snapshots.size <= maxEntries) return;
+    const deleteCount = Math.floor(snapshots.size * 0.25);
+    let removed = 0;
+    for (const key of snapshots.keys()) {
+      if (removed >= deleteCount) break;
+      snapshots.delete(key);
+      removed++;
+    }
+    flush();
+  }
+
+  // Pagehide listener for flushing on tab close
+  const pagehideHandler = persistence && typeof window !== "undefined"
+    ? () => { flush(); }
+    : undefined;
+
+  if (pagehideHandler) {
+    window.addEventListener("pagehide", pagehideHandler);
   }
 
   /** Capture current scroll positions. */
@@ -48,6 +90,7 @@ export function createScrollRestoration(options: ScrollRestorationOptions = {}) 
   /** Save scroll positions for a navigation key. */
   function save(navigationKey: string): void {
     snapshots.set(navigationKey, capture());
+    maybePrune();
   }
 
   /** Restore scroll positions for a navigation key. Returns true if restored. */
@@ -86,6 +129,14 @@ export function createScrollRestoration(options: ScrollRestorationOptions = {}) 
     };
   }
 
+  /** Remove all entries matching a key prefix and flush. */
+  function removeByPrefix(prefix: string): void {
+    for (const key of [...snapshots.keys()]) {
+      if (key.startsWith(prefix)) snapshots.delete(key);
+    }
+    flush();
+  }
+
   /** Handle a navigation event. */
   function onNavigate(event: { prevKey?: string; nextKey: string; isBack: boolean }): void {
     if (event.prevKey) save(event.prevKey);
@@ -99,12 +150,17 @@ export function createScrollRestoration(options: ScrollRestorationOptions = {}) 
 
   /** Dispose — restore browser's default scroll behavior. */
   function dispose(): void {
+    flush();
     snapshots.clear();
     containers.length = 0;
+    if (pagehideHandler) {
+      window.removeEventListener("pagehide", pagehideHandler);
+    }
+    persistence?.dispose?.();
     if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
       window.history.scrollRestoration = "auto";
     }
   }
 
-  return { save, restore, scrollToTop, registerContainer, onNavigate, dispose };
+  return { save, restore, scrollToTop, registerContainer, onNavigate, dispose, flush, removeByPrefix };
 }

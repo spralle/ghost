@@ -82,6 +82,8 @@ export type { AttachNavigationOptions } from "./dom/attach-navigation.js";
 export { attachNavigation } from "./dom/attach-navigation.js";
 export type { ScrollPosition, ScrollRestorationOptions, ScrollSnapshot } from "./dom/scroll-restoration.js";
 export { createScrollRestoration } from "./dom/scroll-restoration.js";
+export type { ScrollPersistence, SessionScrollPersistenceOptions } from "./dom/scroll-persistence.js";
+export { createSessionScrollPersistence } from "./dom/scroll-persistence.js";
 export { createDelegatedNavigation, parseNavigationTarget } from "./dom/delegated-navigation.js";
 export type { LinkInterceptorOptions } from "./dom/link-interceptor.js";
 export { createLinkInterceptor, parseGhostUrl } from "./dom/link-interceptor.js";
