@@ -1,4 +1,9 @@
-// ---------- Dot-path generation (depth 3 max, explicit unrolling) ----------
+// ---------- Untyped query for consumers who explicitly want no type checking ----------
+
+/** Untyped query — allows arbitrary string keys without compile-time validation. */
+export type UntypedQuery = Record<string, unknown>;
+
+// ---------- Dot-path generation (depth 4 max, explicit unrolling) ----------
 
 /** True when V is a plain object — excludes arrays, primitives, Date, RegExp, Function. */
 type IsPlainObject<V> = V extends readonly unknown[]
@@ -14,7 +19,7 @@ type IsPlainObject<V> = V extends readonly unknown[]
           : false;
 
 /**
- * Generate all valid dot-paths up to depth 3.
+ * Generate all valid dot-paths up to depth 4.
  * Uses explicit unrolling (no recursion) to keep IDE performance safe.
  * Array-of-objects paths are NOT generated — use $elemMatch instead.
  */
@@ -33,7 +38,13 @@ type DotPathsD1<T> = {
     | (IsPlainObject<NonNullable<T[K]>> extends true ? `${K}.${DotPathsD2<NonNullable<T[K]>>}` : never);
 }[keyof T & string];
 
-type DotPathsD2<T> = keyof T & string;
+type DotPathsD2<T> = {
+  [K in keyof T & string]:
+    | K
+    | (IsPlainObject<NonNullable<T[K]>> extends true ? `${K}.${DotPathsD3<NonNullable<T[K]>>}` : never);
+}[keyof T & string];
+
+type DotPathsD3<T> = keyof T & string;
 
 // ---------- Path value resolution ----------
 
@@ -51,6 +62,23 @@ export type PathValue<T, P extends string> = P extends `${infer Head}.${infer Ta
   : P extends keyof T
     ? T[P]
     : unknown;
+
+// ---------- Custom operator extension point ----------
+
+/**
+ * Extension point for custom field operators.
+ * Consumers can augment this interface via module augmentation:
+ *
+ * ```typescript
+ * declare module '@ghost-shell/predicate' {
+ *   interface CustomFieldOps<V> {
+ *     $inGraph?: V extends string ? { relation: string; rootId: string } : never;
+ *   }
+ * }
+ * ```
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/no-unused-vars
+export interface CustomFieldOps<V> {}
 
 // ---------- Operator conditions per type ----------
 
@@ -85,7 +113,7 @@ interface BaseOps<V> {
 }
 
 /** Assemble the correct operator set based on the value type V. */
-export type FieldCondition<V> = V extends readonly (infer E)[]
+export type FieldCondition<V> = (V extends readonly (infer E)[]
   ? BaseOps<V | E> &
       ArrayOps<E> &
       (E extends string ? StringOps & OrderedOps<E> : E extends number | Date ? OrderedOps<E> : unknown)
@@ -93,7 +121,8 @@ export type FieldCondition<V> = V extends readonly (infer E)[]
     ? BaseOps<V> & OrderedOps<V> & StringOps
     : V extends number | Date
       ? BaseOps<V> & OrderedOps<V>
-      : BaseOps<V>;
+      : BaseOps<V>) &
+  CustomFieldOps<V>;
 
 // ---------- Top-level query ----------
 
@@ -111,12 +140,11 @@ interface LogicalOps<T> {
  * When T is a concrete type, field names are validated against dot-paths of T,
  * operator names are constrained per field type, and value types are checked.
  *
- * When T is Record<string, unknown> (or unspecified), degrades gracefully to
- * Record<string, unknown> for full backward compatibility.
+ * For untyped queries, use `UntypedQuery` explicitly.
  */
 export type TypedQuery<T> =
   IsPlainObject<T> extends true
     ? string extends keyof T
-      ? Record<string, unknown> // fallback for wide Record types
+      ? Record<string, unknown> // fallback for wide Record types (e.g. Record<string, unknown>)
       : { [P in DotPaths<T>]?: PathValue<T, P> | FieldCondition<PathValue<T, P>> } & LogicalOps<T>
     : Record<string, unknown>;
