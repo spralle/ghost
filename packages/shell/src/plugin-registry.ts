@@ -297,6 +297,23 @@ export function createShellPluginRegistry(options: ShellPluginRegistryOptions = 
       const state = states.get(provider.providerPluginId);
       return state?.builtinServiceOptions?.get(serviceId) ?? null;
     },
+    getServiceState(serviceId: string): object | null {
+      const service = this.getService(serviceId);
+      if (!service || typeof service !== "object") return null;
+      const candidate = (service as Record<string, unknown>)["state"];
+      return candidate && typeof candidate === "object" ? (candidate as object) : null;
+    },
+    getRegisteredServiceIds(): string[] {
+      const ids: string[] = [];
+      for (const state of states.values()) {
+        if (state.builtinServiceInstances) {
+          for (const id of state.builtinServiceInstances.keys()) {
+            ids.push(id);
+          }
+        }
+      }
+      return ids;
+    },
     hasService(serviceId: string): boolean {
       return this.getService(serviceId) !== null;
     },
