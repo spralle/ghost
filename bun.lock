@@ -385,6 +385,17 @@
         "mongodb": ">=6.0.0",
       },
     },
+    "packages/sentinel-sync": {
+      "name": "@ghost/sentinel-sync",
+      "version": "0.1.0",
+      "devDependencies": {
+        "@types/bun": "latest",
+        "typescript": "^5.8.3",
+      },
+      "peerDependencies": {
+        "@ghost/sentinel": "workspace:*",
+      },
+    },
     "packages/shell": {
       "name": "@ghost-shell/shell",
       "version": "0.0.0",
@@ -1045,6 +1056,8 @@
     "@ghost/sentinel-store-memory": ["@ghost/sentinel-store-memory@workspace:packages/sentinel-store-memory"],
 
     "@ghost/sentinel-store-mongodb": ["@ghost/sentinel-store-mongodb@workspace:packages/sentinel-store-mongodb"],
+
+    "@ghost/sentinel-sync": ["@ghost/sentinel-sync@workspace:packages/sentinel-sync"],
 
     "@jridgewell/gen-mapping": ["@jridgewell/gen-mapping@0.3.13", "", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.5.0", "@jridgewell/trace-mapping": "^0.3.24" } }, "sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA=="],
 
