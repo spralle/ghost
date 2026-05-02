@@ -330,6 +330,22 @@
         "@ghost-shell/arbiter": "workspace:*",
       },
     },
+    "packages/sentinel-react": {
+      "name": "@ghost/sentinel-react",
+      "version": "0.1.0",
+      "dependencies": {
+        "@ghost/sentinel": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/react": "^19.0.0",
+        "@types/react-dom": "^19.0.0",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+      },
+      "peerDependencies": {
+        "react": "^18.0.0 || ^19.0.0",
+      },
+    },
     "packages/sentinel-store-memory": {
       "name": "@ghost/sentinel-store-memory",
       "version": "0.1.0",
@@ -987,6 +1003,8 @@
     "@ghost-shell/weaver-formr-bridge": ["@ghost-shell/weaver-formr-bridge@workspace:packages/weaver-formr-bridge"],
 
     "@ghost/sentinel": ["@ghost/sentinel@workspace:packages/sentinel"],
+
+    "@ghost/sentinel-react": ["@ghost/sentinel-react@workspace:packages/sentinel-react"],
 
     "@ghost/sentinel-store-memory": ["@ghost/sentinel-store-memory@workspace:packages/sentinel-store-memory"],
 
@@ -1906,6 +1924,14 @@
 
     "@ghost-shell/weaver-formr-bridge/react": ["react@19.2.5", "", {}, "sha512-llUJLzz1zTUBrskt2pwZgLq59AemifIftw4aB7JxOqf1HY2FDaGDxgwpAPVzHU1kdWabH7FauP4i1oEeer2WCA=="],
 
+    "@ghost/sentinel-react/@types/react": ["@types/react@19.2.14", "", { "dependencies": { "csstype": "^3.2.2" } }, "sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w=="],
+
+    "@ghost/sentinel-react/@types/react-dom": ["@types/react-dom@19.2.3", "", { "peerDependencies": { "@types/react": "^19.2.0" } }, "sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ=="],
+
+    "@ghost/sentinel-react/react": ["react@19.2.5", "", {}, "sha512-llUJLzz1zTUBrskt2pwZgLq59AemifIftw4aB7JxOqf1HY2FDaGDxgwpAPVzHU1kdWabH7FauP4i1oEeer2WCA=="],
+
+    "@ghost/sentinel-react/react-dom": ["react-dom@19.2.5", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.5" } }, "sha512-J5bAZz+DXMMwW/wV3xzKke59Af6CHY7G4uYLN1OvBcKEsWOs4pQExj86BBKamxl/Ik5bx9whOrvBlSDfWzgSag=="],
+
     "@module-federation/bridge-react-webpack-plugin/semver": ["semver@7.6.3", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A=="],
 
     "@module-federation/cli/commander": ["commander@11.1.0", "", {}, "sha512-yPVavfyCcRhmorC7rWlkHn15b4wDVgVmBA7kV4QVBsF7kv/9TKJAbAXVTxvTnwP8HHKjRCJDClKbciiYS7p0DQ=="],
@@ -2077,6 +2103,8 @@
     "@ghost-shell/backend-app/@ghost-shell/config-plugin-runtime/@ghost-shell/contracts": ["@ghost-shell/contracts@file:packages/plugin-contracts", { "dependencies": { "@weaver/config-types": "link:@weaver/config-types", "zod": "^4.0.0" } }],
 
     "@ghost-shell/react/react-dom/scheduler": ["scheduler@0.27.0", "", {}, "sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q=="],
+
+    "@ghost/sentinel-react/react-dom/scheduler": ["scheduler@0.27.0", "", {}, "sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q=="],
 
     "@module-federation/runtime-tools/@module-federation/runtime/@module-federation/runtime-core": ["@module-federation/runtime-core@2.4.0", "", { "dependencies": { "@module-federation/error-codes": "2.4.0", "@module-federation/sdk": "2.4.0" } }, "sha512-0S8fDw28DXDW17lTQwq5vfJWe2lG0Lw3+w4vk3DVVImLwXXay+OGxLDxzWUfypWcMznfpnoAnFUMO3PtuXziuA=="],
 
