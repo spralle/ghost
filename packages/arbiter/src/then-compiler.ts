@@ -6,7 +6,7 @@ import { validatePath } from "./path-utils.js";
 /**
  * Extracts the single $-prefixed operator key and body from a pipeline stage.
  */
-function extractOperator(stage: ThenStage): { readonly operator: string; readonly body: unknown } {
+function extractOperator(stage: ThenStage<unknown>): { readonly operator: string; readonly body: unknown } {
   const keys = Object.keys(stage);
   const opKeys = keys.filter((k) => k.startsWith("$"));
   if (opKeys.length !== 1) {
@@ -21,7 +21,7 @@ function extractOperator(stage: ThenStage): { readonly operator: string; readonl
 /**
  * Compiles a single ThenStage into a CompiledStage.
  */
-function compileStage(stage: ThenStage): CompiledStage {
+function compileStage(stage: ThenStage<unknown>): CompiledStage {
   const { operator, body } = extractOperator(stage);
 
   if (operator === "$focus") {
@@ -49,6 +49,6 @@ function compileStage(stage: ThenStage): CompiledStage {
 /**
  * Compiles an array of ThenStage into CompiledStage[].
  */
-export function compileThenActions(stages: readonly ThenStage[]): readonly CompiledStage[] {
+export function compileThenActions(stages: readonly ThenStage<unknown>[]): readonly CompiledStage[] {
   return stages.map(compileStage);
 }
