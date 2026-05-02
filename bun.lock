@@ -346,6 +346,17 @@
         "react": "^18.0.0 || ^19.0.0",
       },
     },
+    "packages/sentinel-redemeine": {
+      "name": "@ghost/sentinel-redemeine",
+      "version": "0.1.0",
+      "devDependencies": {
+        "@types/bun": "latest",
+        "typescript": "^5.8.3",
+      },
+      "peerDependencies": {
+        "@ghost/sentinel": "workspace:*",
+      },
+    },
     "packages/sentinel-roles": {
       "name": "@ghost/sentinel-roles",
       "version": "0.1.0",
@@ -1026,6 +1037,8 @@
     "@ghost/sentinel": ["@ghost/sentinel@workspace:packages/sentinel"],
 
     "@ghost/sentinel-react": ["@ghost/sentinel-react@workspace:packages/sentinel-react"],
+
+    "@ghost/sentinel-redemeine": ["@ghost/sentinel-redemeine@workspace:packages/sentinel-redemeine"],
 
     "@ghost/sentinel-roles": ["@ghost/sentinel-roles@workspace:packages/sentinel-roles"],
 
