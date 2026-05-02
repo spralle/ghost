@@ -1,3 +1,4 @@
+import type { PluginRouterServiceApi } from "@ghost-shell/contracts";
 import type { ShellRuntime } from "../app/types.js";
 import { updateContextState } from "../context/runtime-state.js";
 import { openPartInstanceWithArgs } from "../part-instance-flow.js";
@@ -18,6 +19,7 @@ export function createGhostApiDeps(
   quickPickBridge: QuickPickBridge,
   options?: {
     getWorkspaceSwitchDeps?: () => WorkspaceSwitchDeps;
+    routerService?: PluginRouterServiceApi;
   },
 ): GhostApiFactoryDependencies {
   return {
@@ -66,5 +68,7 @@ export function createGhostApiDeps(
       getActionSurface: () => runtime.actionSurface,
       getIntentRuntime: () => runtime.intentRuntime,
     },
+
+    routerService: options?.routerService,
   };
 }

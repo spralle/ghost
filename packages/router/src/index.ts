@@ -1,4 +1,6 @@
 // Core
+export type { PendingConfig, PendingDefaults } from "./core/pending-config.js";
+export { resolvePendingConfig } from "./core/pending-config.js";
 
 export { createActiveViewCodec } from "./codec/active-view-codec.js";
 export { createUrlCodecRegistry } from "./codec/codec-registry.js";
@@ -7,6 +9,8 @@ export type { DecodedShellState, UrlCodecRegistry, UrlCodecState, UrlCodecStrate
 // Codec runtime
 export { createWorkspaceHintCodec } from "./codec/workspace-hint-codec.js";
 export { createWorkspaceRefCodec } from "./codec/workspace-ref-codec.js";
+export type { HeadConfig, HeadManagerOptions, LinkTag, MetaTag } from "./core/head-types.js";
+export { applyTitleTemplate, createHeadManager, mergeHeadConfigs } from "./core/head-manager.js";
 export type {
   InferRouteParams,
   ResolvedRoute,
@@ -15,7 +19,20 @@ export type {
   TypedRouteMap,
 } from "./core/define-routes.js";
 export { defineRoutes } from "./core/define-routes.js";
+export type {
+  NavigationGuard,
+  NavigationGuardContext,
+  NavigationGuardRegistry,
+  NavigationGuardResult,
+} from "./core/navigation-guard.js";
+export { createNavigationGuardRegistry } from "./core/navigation-guard.js";
+export type { PermissionChecker, RoutePermissionMap } from "./core/permission-guard.js";
+export { createPermissionGuard } from "./core/permission-guard.js";
 export type { AnyRouteMap, RouteId, RouteParams, RouteRef, RouteRefUnion } from "./core/route-map.js";
+export type { ChildRouteDefinition, ChildSlotRegistry } from "./core/child-slot.js";
+export { createChildSlotRegistry } from "./core/child-slot.js";
+export type { NestedResolutionResult, NestedRouteTarget, ParentRouteEntry } from "./core/nested-resolution.js";
+export { resolveNestedRoute } from "./core/nested-resolution.js";
 export type {
   LinkOpenPolicy,
   NavigationHints,
@@ -23,11 +40,53 @@ export type {
   NavigationTarget,
   PlacementHint,
 } from "./core/types.js";
+export type { NavigationGuard as GuardType, NavigationGuardResult as GuardResultType } from "./core/guard-types.js";
+export type { TypedIntentTarget, TypedRouteTarget } from "./core/typed-targets.js";
+export { intentTarget, routeTarget, viewTarget } from "./core/typed-targets.js";
+export type {
+  NavigationEvent,
+  NavigationEventSink,
+  NavigationObserver,
+  NavigationSource,
+  SanitizedTarget,
+} from "./core/navigation-observer.js";
+export {
+  createConsoleNavigationSink,
+  createNavigationObserver,
+  sanitizeTarget,
+} from "./core/navigation-observer.js";
+export type {
+  CancelledError,
+  LoadError,
+  NavigationError,
+  NavigationErrorBase,
+  NavigationErrorCode,
+  NotFoundError,
+  PermissionDeniedError,
+  TimeoutError,
+} from "./core/navigation-error.js";
+export type { ErrorRecoveryRegistry, ErrorRecoveryStrategy } from "./core/error-recovery.js";
+export { createErrorRecoveryRegistry } from "./core/error-recovery.js";
 export type { PlacementCapabilities } from "./core/resolve-placement-hint.js";
 export { resolvePlacementHint } from "./core/resolve-placement-hint.js";
+export type { ConcretePlacement, ViewportInfo, ViewportStrategy, ViewportType } from "./core/viewport-strategy.js";
+export {
+  classifyViewport,
+  createDesktopStrategy,
+  createMobileStrategy,
+  createTabletStrategy,
+  detectViewport,
+  selectStrategy,
+} from "./core/viewport-strategy.js";
 export type { AttachNavigationOptions } from "./dom/attach-navigation.js";
 export { attachNavigation } from "./dom/attach-navigation.js";
+export type { ScrollPosition, ScrollRestorationOptions, ScrollSnapshot } from "./dom/scroll-restoration.js";
+export { createScrollRestoration } from "./dom/scroll-restoration.js";
+export type { ScrollPersistence, SessionScrollPersistenceOptions } from "./dom/scroll-persistence.js";
+export { createSessionScrollPersistence } from "./dom/scroll-persistence.js";
 export { createDelegatedNavigation, parseNavigationTarget } from "./dom/delegated-navigation.js";
+export type { LinkInterceptorOptions } from "./dom/link-interceptor.js";
+export { createLinkInterceptor, parseGhostUrl } from "./dom/link-interceptor.js";
 // DOM
 export type {
   DelegatedNavigationOptions,

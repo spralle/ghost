@@ -12,6 +12,7 @@ export { GhostContext, GhostProvider } from "./ghost-context.js";
 export {
   createContextHook,
   createServiceHook,
+  useChildRoute,
   useContextValue,
   useGhostApi,
   usePluginContext,
@@ -19,3 +20,11 @@ export {
 } from "./hooks.js";
 export { PluginErrorBoundary } from "./PluginErrorBoundary.js";
 export { createReactPartRenderer } from "./react-part-renderer.js";
+export { GhostLink, type GhostLinkProps } from "./GhostLink.js";
+export { IntentLink, type IntentLinkProps } from "./IntentLink.js";
+export { ViewLink, type ViewLinkProps } from "./ViewLink.js";
+export { ActionLink, type ActionLinkProps } from "./ActionLink.js";
+export type { GhostPendingBoundaryProps } from "./GhostPendingBoundary.js";
+export { GhostPendingBoundary } from "./GhostPendingBoundary.js";
+export type { GhostNavigationErrorBoundaryProps } from "./GhostErrorBoundary.js";
+export { GhostNavigationErrorBoundary } from "./GhostErrorBoundary.js";

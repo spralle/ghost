@@ -11,7 +11,7 @@
  */
 
 import type { PopoutManifest, PopoutManifestContract } from "./popout-manifest.js";
-import { POPOUT_MANIFEST_CONTRACT_ID } from "./popout-manifest.js";
+import { POPOUT_MANIFEST_TOKEN } from "./popout-manifest.js";
 import type { ScompPeer } from "./scomp-runtime.js";
 import type { WindowIdentity } from "./window-identity.js";
 
@@ -45,9 +45,7 @@ export async function bootPopoutWindow(ctx: PopoutBootContext): Promise<PopoutBo
   const mountedParts: string[] = [];
 
   // Handshake — get manifest from host
-  const manifestService = ctx.scompPeer.resolve<PopoutManifestContract>({
-    id: POPOUT_MANIFEST_CONTRACT_ID,
-  });
+  const manifestService = ctx.scompPeer.resolve<PopoutManifestContract>(POPOUT_MANIFEST_TOKEN);
 
   let manifest: PopoutManifest;
   try {

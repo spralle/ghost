@@ -41,6 +41,8 @@ export function PluginConfigBrowser({ context }: { readonly context: PluginMount
   const catalogService = useService<PluginConfigCatalogService>(PLUGIN_CONFIG_CATALOG_SERVICE_ID);
   const configService = useService<ConfigurationService>(CONFIG_SERVICE_ID);
 
+  // [DIAG] temporary
+  console.debug("[settings-diag] services:", { registry: !!registryService, catalog: !!catalogService, config: !!configService });
   if (!registryService || !catalogService || !configService) {
     return (
       <Card>
@@ -85,7 +87,12 @@ function PluginConfigBrowserInner({
 
   // Tier 1: filter to plugins with configuration
   const configurablePlugins: readonly PluginRegistryEntry[] = useMemo(
-    () => snapshot.plugins.filter((p) => p.contributions.hasConfiguration && p.enabled),
+    () => {
+      const r = snapshot.plugins.filter((p) => p.contributions.hasConfiguration && p.enabled);
+      // [DIAG] temporary
+      console.debug("[settings-diag] filter:", snapshot.plugins.length, "total,", r.length, "configurable", snapshot.plugins.map((p) => ({ id: p.pluginId, en: p.enabled, cfg: p.contributions.hasConfiguration, st: p.status })));
+      return r;
+    },
     [snapshot.plugins],
   );
 

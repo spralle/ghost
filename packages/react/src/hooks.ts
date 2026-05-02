@@ -1,4 +1,6 @@
 import { useContext, useSyncExternalStore } from "react";
+import type { ContextToken } from "@ghost-shell/contracts";
+import type { ChildRouteDefinition } from "@ghost-shell/router";
 import { GhostContext, type GhostContextValue } from "./ghost-context.js";
 
 /**
@@ -43,10 +45,17 @@ export function createServiceHook<T>(serviceId: string): () => T | undefined {
 }
 
 /**
- * Subscribe to a reactive context value by ID.
+ * Subscribe to a reactive context value using a typed ContextToken.
  * Uses useSyncExternalStore for concurrent-safe reads.
  */
-export function useContextValue<T>(id: string): T | undefined {
+export function useContextValue<T>(token: ContextToken<T>): T | undefined;
+/**
+ * @deprecated Use token-based overload.
+ * Subscribe to a reactive context value by ID.
+ */
+export function useContextValue<T>(id: string): T | undefined;
+export function useContextValue<T>(tokenOrId: ContextToken<T> | string): T | undefined {
+  const id = typeof tokenOrId === "string" ? tokenOrId : tokenOrId.id;
   const { contextRegistry } = useGhostApi();
 
   return useSyncExternalStore(
@@ -67,4 +76,12 @@ export function createContextHook<T>(id: string): () => T | undefined {
   return function useTypedContext(): T | undefined {
     return useContextValue<T>(id);
   };
+}
+
+/**
+ * Hook that returns the matched child route for the current parent route's child slot.
+ * Uses the "ghost.router.childRoute" context value set by the shell router.
+ */
+export function useChildRoute(): ChildRouteDefinition | undefined {
+  return useContextValue<ChildRouteDefinition>("ghost.router.childRoute");
 }

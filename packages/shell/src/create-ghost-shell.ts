@@ -36,7 +36,17 @@ import {
   ShellWiringContext,
   summarizeSelectionPriorities,
 } from "./shell-wiring.js";
+import { createPluginRouterServiceApi } from "./plugin-api/plugin-router-service-api.js";
+import { initializeShellRouter, type ShellRouterHandle } from "./router-initialization.js";
+import { createPopoutManifestHost } from "./popout-manifest-host.js";
+import { POPOUT_MANIFEST_CONTRACT_ID } from "./popout-manifest.js";
+import { createPopoutManifestRegistry } from "./popout-manifest-registry.js";
+import { bootPopoutWindow } from "./popout-boot.js";
+import { createPopoutPluginLoader, createPopoutPartMounter } from "./popout-boot-wiring.js";
+import type { ServiceGatewayTransport } from "./projected-plugin-services.js";
+import { wireGatewayHost } from "./gateway-host-wiring.js";
 import { resolveWindowIdentity } from "./window-identity.js";
+import { wirePopoutManifestContract } from "./popout-manifest-wiring.js";
 
 // ---------------------------------------------------------------------------
 // Options
@@ -123,6 +133,19 @@ export function createGhostShell(options: GhostShellOptions): GhostShell {
     windowId: identity.windowId,
   });
 
+  // Attach scomp peer if provided by app layer.
+  if (options.scomp) {
+    const scomp = options.scomp;
+    runtime.scomp = scomp;
+
+    // Wire popout manifest contract so popout windows can resolve their manifest.
+    const wiring = wirePopoutManifestContract(
+      scomp,
+      () => scomp.participantId,
+    );
+    runtime.popoutManifestRegistry = wiring.registry;
+  }
+
   // Re-wire partHost to use the shell's renderer registry (includes React renderer).
   // createShellRuntime creates a default partHost with vanilla-DOM-only renderer;
   // we replace it with one that shares the registry configured above.
@@ -130,6 +153,7 @@ export function createGhostShell(options: GhostShellOptions): GhostShell {
 
   let disposed = false;
   let disposeMount: (() => void) | null = null;
+  let routerHandle: ShellRouterHandle | null = null;
 
   return {
     runtime,
@@ -139,6 +163,14 @@ export function createGhostShell(options: GhostShellOptions): GhostShell {
     async start(): Promise<void> {
       if (disposed) {
         throw new Error("Cannot start a disposed GhostShell instance.");
+      }
+
+      // Assert window identity unification: scomp participantId must match runtime.windowId.
+      if (runtime.scomp && runtime.scomp.participantId !== runtime.windowId) {
+        throw new Error(
+          `Window identity mismatch: runtime.windowId="${runtime.windowId}" but scomp.participantId="${runtime.scomp.participantId}". ` +
+            `The app layer must pass the same windowId to both createShellRuntime and scomp transport initialization.`,
+        );
       }
 
       const ctx = new ShellWiringContext(root, runtime);
@@ -179,13 +211,35 @@ export function createGhostShell(options: GhostShellOptions): GhostShell {
 
       await ctx.primeEnabledPluginActivations();
 
+      // Initialize router after workspace state is ready
+      routerHandle = initializeShellRouter(root, runtime);
+
+      const routerService = createPluginRouterServiceApi({
+        getShellRouter: () => routerHandle?.router ?? null,
+      });
+
       // Plugin hydration (tenant manifest, config, themes)
       if (options.tenant) {
         await hydratePluginRegistry(root, runtime, () => !disposed, {
           tenantId: options.tenant.id,
           defaultThemeId: options.theme ?? "ghost.theme.tokyo-night",
+          routerService,
         });
       }
+
+      // Wire gateway host for cross-window service access (host windows only)
+      if (options.scomp && !runtime.isPopout) {
+        const gatewayWiring = wireGatewayHost({
+          pluginRegistry: runtime.registry,
+          scomp: options.scomp,
+        });
+        const previousDispose = disposeMount;
+        disposeMount = () => {
+          gatewayWiring.dispose();
+          previousDispose?.();
+        };
+      }
+
       if (runtime.isPopout && options.popoutTransport) {
         const { initializePopout } = await import("./popout-initialization.js");
         const popoutInit = await initializePopout(options.popoutTransport, document);
@@ -196,12 +250,54 @@ export function createGhostShell(options: GhostShellOptions): GhostShell {
           originalDispose?.();
         };
       }
+
+      // Host-side: register manifest contract with scomp
+      if (!runtime.isPopout && options.scomp) {
+        const registry = createPopoutManifestRegistry();
+        runtime.popoutManifestRegistry = registry;
+
+        const manifestHost = createPopoutManifestHost({
+          registry,
+          getRequestingPeerId: () => options.scomp!.participantId,
+        });
+
+        options.scomp.register({
+          contract: { id: POPOUT_MANIFEST_CONTRACT_ID },
+          implementation: manifestHost,
+        });
+      }
+
+      // Popout-side: manifest-driven boot sequence
+      if (runtime.isPopout && options.scomp) {
+        const federationRuntime = (await import("./federation-runtime.js")).createShellFederationRuntime();
+        const serviceGatewayTransport: ServiceGatewayTransport = {
+          callService: async () => ({ ok: true, value: undefined }),
+          getStateSnapshot: async () => ({ snapshot: null }),
+          subscribeOps: () => () => {},
+        };
+
+        const bootResult = await bootPopoutWindow({
+          identity: { windowId: identity.windowId, isSecondary: true, hostWindowId: identity.hostWindowId },
+          scompPeer: options.scomp,
+          loadPlugin: createPopoutPluginLoader({
+            federationRuntime,
+            scompPeer: options.scomp,
+            serviceGatewayTransport,
+          }),
+          mountPart: createPopoutPartMounter({}),
+        });
+
+        if (bootResult.errors.length > 0) {
+          console.warn("[ghost] popout boot errors:", bootResult.errors);
+        }
+      }
     },
 
     dispose(): void {
       if (disposed) return;
       disposed = true;
 
+      routerHandle?.dispose();
       disposeMount?.();
       runtime.registrySubscriptionDispose?.();
       runtime.pluginConfigSyncDispose?.();
