@@ -1,23 +1,15 @@
 import type {
   RelationTuple,
-  SentinelStore,
+  SentinelWriteStore,
   StoredPolicyRule,
+  StoreTuple,
 } from "@ghost/sentinel";
 
-/** Re-export-compatible tuple shape for loadTuplesFrom */
-interface StoreTuple {
-  readonly nodeType: string;
-  readonly nodeId: string;
-  readonly relation: string;
-  readonly targetType: string;
-  readonly targetId: string;
-}
-
 /**
- * In-memory implementation of SentinelStore for testing and development.
+ * In-memory implementation of SentinelWriteStore for testing and development.
  * Uses plain arrays and Maps for fast lookup without external dependencies.
  */
-export class MemorySentinelStore implements SentinelStore {
+export class MemorySentinelStore implements SentinelWriteStore {
   private readonly tuples: RelationTuple[] = [];
   private readonly policies: Map<string, StoredPolicyRule[]> = new Map();
   private readonly roles: Map<string, string[]> = new Map();
@@ -53,6 +45,37 @@ export class MemorySentinelStore implements SentinelStore {
 
   setRoles(principalId: string, roles: readonly string[]): this {
     this.roles.set(principalId, [...roles]);
+    return this;
+  }
+
+  removeTuple(tuple: RelationTuple): this {
+    const idx = this.tuples.findIndex(
+      (t) =>
+        t.nodeType === tuple.nodeType &&
+        t.nodeId === tuple.nodeId &&
+        t.relation === tuple.relation &&
+        t.targetType === tuple.targetType &&
+        t.targetId === tuple.targetId,
+    );
+    if (idx >= 0) this.tuples.splice(idx, 1);
+    return this;
+  }
+
+  removePolicy(resourceType: string, action: string): this {
+    const existing = this.policies.get(resourceType);
+    if (existing) {
+      const filtered = existing.filter((p) => p.action !== action);
+      if (filtered.length > 0) {
+        this.policies.set(resourceType, filtered);
+      } else {
+        this.policies.delete(resourceType);
+      }
+    }
+    return this;
+  }
+
+  removeRoles(principalId: string): this {
+    this.roles.delete(principalId);
     return this;
   }
 

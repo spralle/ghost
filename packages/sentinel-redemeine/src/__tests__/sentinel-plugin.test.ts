@@ -13,9 +13,9 @@ mock.module('@ghost/sentinel', () => ({
 }));
 
 // Now import our code (which imports @ghost/sentinel)
-const { resolveAction } = await import('../src/action-mapper.js');
-const { AuthorizationError } = await import('../src/types.js');
-const { createSentinelPlugin } = await import('../src/sentinel-plugin.js');
+const { resolveAction } = await import('../action-mapper.js');
+const { AuthorizationError } = await import('../types.js');
+const { createSentinelPlugin } = await import('../sentinel-plugin.js');
 
 type AuthorizationErrorInstance = InstanceType<typeof AuthorizationError>;
 

@@ -1,5 +1,5 @@
-import type { PolicyEffect, PolicyRule, PolicyTarget } from "./policy-types.js";
-import { SALIENCE } from "./policy-types.js";
+import type { PolicyEffect, PolicyRule, PolicyTarget } from "./policy-types";
+import { SALIENCE } from "./policy-types";
 
 export interface CompiledRule {
   readonly name: string;
@@ -31,7 +31,7 @@ export function compilePolicyRules(rules: readonly PolicyRule[]): CompiledPolicy
     salience: resolveSalience(rule),
   }));
 
-  compiled.sort((a, b) => b.salience - a.salience);
+  compiled.sort((a, b) => b.salience - a.salience || a.name.localeCompare(b.name));
 
   return Object.freeze({ rules: Object.freeze(compiled) });
 }

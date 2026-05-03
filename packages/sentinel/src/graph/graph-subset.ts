@@ -1,6 +1,6 @@
-import type { RelationNode } from "./relation-node.js";
-import { nodeKey } from "./relation-node.js";
-import type { RelationTuple } from "./relation-tuple.js";
+import type { RelationNode } from "./relation-node";
+import { nodeKey } from "./relation-node";
+import type { RelationTuple } from "./relation-tuple";
 
 const DEFAULT_MAX_DEPTH = 10;
 

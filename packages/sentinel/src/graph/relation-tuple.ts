@@ -1,4 +1,4 @@
-import type { RelationNode } from "./relation-node.js";
+import type { RelationNode } from "./relation-node";
 
 /** A directed edge in the relationship graph */
 export interface RelationTuple {

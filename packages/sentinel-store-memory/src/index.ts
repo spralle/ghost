@@ -1,1 +1,1 @@
-export { MemorySentinelStore } from "./memory-store.js";
+export { MemorySentinelStore } from "./memory-store";

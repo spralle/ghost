@@ -1,6 +1,6 @@
 import { buildSnapshot } from "@ghost/sentinel";
 import type { SentinelPrincipal, PermissionSnapshot, SentinelStore } from "@ghost/sentinel";
-import type { BatchBuildOptions, BatchBuildResult } from "./types.js";
+import type { BatchBuildOptions, BatchBuildResult } from "./types";
 
 /** Run async tasks with bounded concurrency using a worker pool */
 async function runPool<T>(

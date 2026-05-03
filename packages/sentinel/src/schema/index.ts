@@ -5,16 +5,16 @@ export type {
   RecursiveRelation,
   SelfRefKeys,
   TypedRelation,
-} from "./relation-types.js";
+} from "./relation-types";
 
 export type {
   AudienceOverride,
   DataBlockConfig,
   SensitivityTier,
-} from "./data-block-types.js";
+} from "./data-block-types";
 
 export {
   defineResourceSchema,
   type ResourceSchema,
   type ResourceSchemaConfig,
-} from "./define-resource.js";
+} from "./define-resource";

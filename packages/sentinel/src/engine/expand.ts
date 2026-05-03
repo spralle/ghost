@@ -1,6 +1,6 @@
-import type { CheckContext } from "./check.js";
-import { check } from "./check.js";
-import type { SentinelPrincipal } from "../principal/sentinel-principal.js";
+import type { CheckContext } from "./check";
+import { check } from "./check";
+import type { SentinelPrincipal } from "../principal/sentinel-principal";
 
 export interface DerivationNode {
   readonly type: "rule_match" | "graph_path" | "condition" | "decision";

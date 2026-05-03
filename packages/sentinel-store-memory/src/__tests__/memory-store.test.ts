@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach } from "bun:test";
-import { MemorySentinelStore } from "../memory-store.js";
+import { MemorySentinelStore } from "../memory-store";
 
 describe("MemorySentinelStore", () => {
   let store: MemorySentinelStore;
@@ -78,9 +78,9 @@ describe("MemorySentinelStore", () => {
     });
 
     it("returns policies for a resource type", async () => {
-      store.addPolicy({ resourceType: "doc", action: "read", condition: { role: "viewer" } });
-      store.addPolicy({ resourceType: "doc", action: "write", condition: { role: "editor" } });
-      store.addPolicy({ resourceType: "folder", action: "read", condition: null });
+      store.addPolicy({ resourceType: "doc", action: "read", condition: { role: "viewer" }, effect: "grant" });
+      store.addPolicy({ resourceType: "doc", action: "write", condition: { role: "editor" }, effect: "grant" });
+      store.addPolicy({ resourceType: "folder", action: "read", condition: null, effect: "grant" });
 
       const result = await store.loadPolicies("doc");
       expect(result).toHaveLength(2);
@@ -106,7 +106,7 @@ describe("MemorySentinelStore", () => {
     it("removes all data", async () => {
       store
         .addTuple({ nodeType: "doc", nodeId: "1", relation: "viewer", targetType: "user", targetId: "a" })
-        .addPolicy({ resourceType: "doc", action: "read", condition: null })
+        .addPolicy({ resourceType: "doc", action: "read", condition: null, effect: "grant" })
         .setRoles("alice", ["admin"]);
 
       store.clear();
@@ -121,7 +121,7 @@ describe("MemorySentinelStore", () => {
     it("supports chaining", () => {
       const result = store
         .addTuple({ nodeType: "doc", nodeId: "1", relation: "viewer", targetType: "user", targetId: "a" })
-        .addPolicy({ resourceType: "doc", action: "read", condition: null })
+        .addPolicy({ resourceType: "doc", action: "read", condition: null, effect: "grant" })
         .setRoles("alice", ["admin"]);
 
       expect(result).toBe(store);

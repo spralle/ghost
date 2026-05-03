@@ -1,6 +1,6 @@
 import { createPrincipal } from "@ghost/sentinel";
 import type { SentinelPrincipal, SentinelStore } from "@ghost/sentinel";
-import type { EnrichedJwtPayload, PrincipalResolverOptions } from "./types.js";
+import type { EnrichedJwtPayload, PrincipalResolverOptions } from "./types";
 
 /**
  * Resolve a JWT payload into a SentinelPrincipal.

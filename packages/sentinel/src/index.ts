@@ -11,13 +11,16 @@ export {
   type SelfRefKeys,
   type SensitivityTier,
   type TypedRelation,
-} from "./schema/index.js";
+} from "./schema/index";
 
 export type {
   PolicyRule as StoredPolicyRule,
+  PolicyTargetKind,
   RelationTuple,
   SentinelStore,
-} from "./storage/sentinel-store.js";
+  SentinelWriteStore,
+  StoreTuple,
+} from "./storage/sentinel-store";
 
 export {
   compilePolicyRules,
@@ -33,7 +36,7 @@ export {
   type PolicyEffect,
   type PolicyRule,
   type PolicyTarget,
-} from "./policy/index.js";
+} from "./policy/index";
 
 
 export {
@@ -45,7 +48,7 @@ export {
   type RelationNode,
   type RelationTuple as GraphRelationTuple,
   type ConeOptions,
-} from "./graph/index.js";
+} from "./graph/index";
 
 export {
   createPrincipal,
@@ -53,7 +56,7 @@ export {
   isImpersonated,
   type SentinelPrincipal,
   type ImpersonatedPrincipal,
-} from "./principal/index.js";
+} from "./principal/index";
 
 export {
   buildSnapshot,
@@ -63,7 +66,7 @@ export {
   DEFAULT_ROLE_TTLS,
   type PermissionSnapshot,
   type SnapshotBuilderOptions,
-} from "./snapshot/index.js";
+} from "./snapshot/index";
 
 export {
   check,
@@ -75,4 +78,6 @@ export {
   type CheckResult,
   type RedactContext,
   type DerivationNode,
-} from "./engine/index.js";
+  type AuditLogger,
+  type AuditEntry,
+} from "./engine/index";

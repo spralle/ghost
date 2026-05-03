@@ -4,9 +4,9 @@ import {
   createTuple,
   GraphSubset,
   buildCone,
-} from "../graph/index.js";
-import type { SentinelStore } from "../storage/sentinel-store.js";
-import type { StoreTuple } from "../storage/sentinel-store.js";
+} from "../graph/index";
+import type { SentinelStore } from "../storage/sentinel-store";
+import type { StoreTuple } from "../storage/sentinel-store";
 
 describe("GraphSubset", () => {
   const user = createNode("user", "u1");

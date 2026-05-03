@@ -1,6 +1,6 @@
 import { redact } from "@ghost/sentinel";
 import type { ResourceSchema } from "@ghost/sentinel";
-import type { RedactionContext, RedactionHook } from "./types.js";
+import type { RedactionContext, RedactionHook } from "./types";
 
 /**
  * Create a redaction hook that strips document fields per dataBlock grants.

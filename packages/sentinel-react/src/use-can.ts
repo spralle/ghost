@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { can } from "@ghost/sentinel";
 import type { CheckContext } from "@ghost/sentinel";
-import { useSentinel } from "./sentinel-context.js";
+import { useSentinel } from "./sentinel-context";
 
 export interface UseCanResult {
   readonly allowed: boolean;

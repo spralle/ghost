@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useCan } from "./use-can.js";
+import { useCan } from "./use-can";
 
 export interface PermissionGateProps {
   readonly action: string;

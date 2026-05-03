@@ -3,15 +3,15 @@ import {
   createPrincipal,
   impersonate,
   isImpersonated,
-} from "../principal/index.js";
+} from "../principal/index";
 import {
   isExpired,
   needsRefresh,
   getTtlForRoles,
-} from "../snapshot/snapshot-validator.js";
-import { buildSnapshot } from "../snapshot/snapshot-builder.js";
-import type { SentinelStore } from "../storage/sentinel-store.js";
-import type { SentinelPrincipal } from "../principal/sentinel-principal.js";
+} from "../snapshot/snapshot-validator";
+import { buildSnapshot } from "../snapshot/snapshot-builder";
+import type { SentinelStore } from "../storage/sentinel-store";
+import type { SentinelPrincipal } from "../principal/sentinel-principal";
 
 describe("principal", () => {
   const basePrincipal: SentinelPrincipal = {
@@ -32,21 +32,21 @@ describe("principal", () => {
   it("impersonate creates ImpersonatedPrincipal with target identity", () => {
     const target: SentinelPrincipal = {
       userId: "target-1",
-      tenantId: "tenant-2",
+      tenantId: "tenant-1",
       roles: ["tenant-admin"],
       partyIds: ["party-2"],
       orgChain: ["org-2"],
     };
     const result = impersonate(basePrincipal, target, "support ticket #123");
     expect(result.userId).toBe("target-1");
-    expect(result.tenantId).toBe("tenant-2");
+    expect(result.tenantId).toBe("tenant-1");
     expect(result.roles).toEqual(["tenant-admin"]);
   });
 
   it("impersonate carries original userId in impersonatedBy", () => {
     const target: SentinelPrincipal = {
       userId: "target-1",
-      tenantId: "tenant-2",
+      tenantId: "tenant-1",
       roles: ["user"],
       partyIds: [],
       orgChain: [],
@@ -57,13 +57,26 @@ describe("principal", () => {
     expect(result.impersonatedBy.reason).toBe("testing");
   });
 
+  it("impersonate rejects cross-tenant impersonation", () => {
+    const target: SentinelPrincipal = {
+      userId: "target-1",
+      tenantId: "tenant-2",
+      roles: ["user"],
+      partyIds: [],
+      orgChain: [],
+    };
+    expect(() => impersonate(basePrincipal, target, "reason")).toThrow(
+      "Cross-tenant impersonation is not allowed",
+    );
+  });
+
   it("isImpersonated correctly identifies impersonated principals", () => {
     const p = createPrincipal(basePrincipal);
     expect(isImpersonated(p)).toBe(false);
 
     const target: SentinelPrincipal = {
       userId: "target-1",
-      tenantId: "tenant-2",
+      tenantId: "tenant-1",
       roles: ["user"],
       partyIds: [],
       orgChain: [],

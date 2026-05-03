@@ -1,6 +1,6 @@
-export { createSentinelSession } from "./create-sentinel-session.js";
-export { evaluate, evaluateWithSession } from "./evaluate.js";
-export { toProductionRules } from "./to-production-rules.js";
+export { createSentinelSession } from "./create-sentinel-session";
+export { evaluate, evaluateWithSession } from "./evaluate";
+export { toProductionRules } from "./to-production-rules";
 export type {
   CompiledPolicy,
   CompiledRule,
@@ -10,5 +10,5 @@ export type {
   PolicyRule,
   PolicyTarget,
   SentinelSessionOptions,
-} from "./types.js";
-export { SALIENCE } from "./types.js";
+} from "./types";
+export { SALIENCE } from "./types";

@@ -1,4 +1,4 @@
-export { createSentinelPlugin } from './sentinel-plugin.js';
-export { resolveAction } from './action-mapper.js';
-export { AuthorizationError } from './types.js';
-export type { SentinelPluginConfig, PrincipalResolver, EvaluationMode, ActionMap, SentinelStoreReader } from './types.js';
+export { createSentinelPlugin } from './sentinel-plugin';
+export { resolveAction } from './action-mapper';
+export { AuthorizationError } from './types';
+export type { SentinelPluginConfig, PrincipalResolver, EvaluationMode, ActionMap, SentinelStoreReader } from './types';

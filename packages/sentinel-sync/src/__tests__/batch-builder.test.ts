@@ -1,5 +1,5 @@
 import { describe, it, expect, mock } from "bun:test";
-import { buildBatch } from "../src/batch-builder.js";
+import { buildBatch } from "../batch-builder.js";
 import type { SentinelStore, SentinelPrincipal } from "@ghost/sentinel";
 
 function createMockStore(overrides: Partial<SentinelStore> = {}): SentinelStore {

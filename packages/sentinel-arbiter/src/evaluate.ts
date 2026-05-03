@@ -3,8 +3,8 @@
  */
 
 import type { RuleSession } from "@ghost-shell/arbiter";
-import { createSentinelSession } from "./create-sentinel-session.js";
-import type { CompiledPolicy, EvalContext, PolicyDecision } from "./types.js";
+import { createSentinelSession } from "./create-sentinel-session";
+import type { CompiledPolicy, EvalContext, PolicyDecision } from "./types";
 
 /**
  * Asserts the EvalContext into the session state under the "ctx" prefix.

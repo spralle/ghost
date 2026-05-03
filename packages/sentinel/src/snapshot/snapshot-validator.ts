@@ -1,4 +1,4 @@
-import type { PermissionSnapshot } from "./permission-snapshot.js";
+import type { PermissionSnapshot } from "./permission-snapshot";
 
 /** Default TTLs per role */
 export const DEFAULT_ROLE_TTLS: Readonly<Record<string, number>> = {

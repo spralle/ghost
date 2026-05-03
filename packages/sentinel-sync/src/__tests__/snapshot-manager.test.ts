@@ -1,7 +1,7 @@
 import { describe, it, expect, mock } from "bun:test";
-import { createSnapshotManager } from "../src/snapshot-manager.js";
+import { createSnapshotManager } from "../snapshot-manager.js";
 import type { SentinelStore, SentinelPrincipal, PermissionSnapshot } from "@ghost/sentinel";
-import type { SnapshotCache } from "../src/types.js";
+import type { SnapshotCache } from "../types.js";
 
 function createMockStore(): SentinelStore {
   return {
@@ -31,11 +31,12 @@ describe("createSnapshotManager", () => {
     });
 
     const principal = createPrincipal();
-    const snapshot = await manager.build(principal);
+    const result = await manager.build(principal);
 
-    expect(snapshot.principalId).toBe("user-1");
-    expect(snapshot.tenantId).toBe("tenant-1");
-    expect(manager.get("user-1")).toBe(snapshot);
+    expect(result.stale).toBe(false);
+    expect(result.snapshot.principalId).toBe("user-1");
+    expect(result.snapshot.tenantId).toBe("tenant-1");
+    expect(manager.get("user-1")).toBe(result.snapshot);
   });
 
   it("invalidate removes from cache", async () => {
@@ -75,11 +76,47 @@ describe("createSnapshotManager", () => {
     });
 
     const snapshot = await manager.build(createPrincipal());
-    const json = manager.serialize(snapshot);
+    const json = manager.serialize(snapshot.snapshot);
     const parsed = JSON.parse(json);
 
     expect(parsed.principalId).toBe("user-1");
     expect(parsed.graphCone).toBeDefined();
     expect(parsed.graphCone.tuples).toBeDefined();
+  });
+
+  it("returns stale snapshot on build error when cache has expired entry", async () => {
+    const store = createMockStore();
+    const onError = mock(() => {});
+    const manager = createSnapshotManager({
+      store,
+      resourceTypes: ["document"],
+      onError,
+    });
+
+    // Build a valid snapshot first
+    const result = await manager.build(createPrincipal());
+    expect(result.stale).toBe(false);
+
+    // Make store throw on next build
+    store.loadRoles = mock(() => Promise.reject(new Error("store down")));
+
+    const fallback = await manager.build(createPrincipal());
+    expect(fallback.stale).toBe(true);
+    expect(fallback.snapshot.principalId).toBe("user-1");
+    expect(onError).toHaveBeenCalledTimes(1);
+  });
+
+  it("re-throws error when no cached snapshot available", async () => {
+    const store = createMockStore();
+    store.loadRoles = mock(() => Promise.reject(new Error("store down")));
+    const onError = mock(() => {});
+    const manager = createSnapshotManager({
+      store,
+      resourceTypes: ["document"],
+      onError,
+    });
+
+    await expect(manager.build(createPrincipal())).rejects.toThrow("store down");
+    expect(onError).toHaveBeenCalledTimes(1);
   });
 });

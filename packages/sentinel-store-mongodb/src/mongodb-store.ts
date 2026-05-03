@@ -1,30 +1,30 @@
 import type { Collection, Db } from 'mongodb';
+import type {
+  RelationTuple,
+  StoredPolicyRule,
+  SentinelWriteStore,
+  PolicyEffect,
+} from '@ghost/sentinel';
 import type { MongoSentinelStoreConfig, TupleDocument, PolicyDocument, RoleDocument } from './types';
 import { COLLECTION_NAMES, INDEXES } from './collections';
 
-interface RelationTuple {
-  readonly nodeType: string;
-  readonly nodeId: string;
-  readonly relation: string;
-  readonly targetType: string;
-  readonly targetId: string;
+const VALID_EFFECTS: readonly PolicyEffect[] = ["deny", "reject", "grant"];
+
+function assertNonEmpty(value: string, field: string): void {
+  if (!value || value.trim().length === 0) {
+    throw new Error(`${field} must be a non-empty string`);
+  }
 }
 
-interface PolicyRule {
-  readonly resourceType: string;
-  readonly action: string;
-  readonly condition: unknown;
+function assertValidEffect(effect: string): asserts effect is PolicyEffect {
+  if (!VALID_EFFECTS.includes(effect as PolicyEffect)) {
+    throw new Error(`effect must be one of: ${VALID_EFFECTS.join(", ")}; got "${effect}"`);
+  }
 }
 
-interface SentinelStore {
-  loadTuples(nodeType: string, nodeId: string, relation: string): Promise<RelationTuple[]>;
-  loadTuplesFrom(node: { readonly type: string; readonly id: string }): Promise<RelationTuple[]>;
-  loadPolicies(resourceType: string): Promise<PolicyRule[]>;
-  loadRoles(principalId: string): Promise<string[]>;
-}
-
-export class MongoSentinelStore implements SentinelStore {
+export class MongoSentinelStore implements SentinelWriteStore {
   private readonly db: Db;
+  private readonly tenantId: string;
   private readonly prefix: string;
   private readonly tuples: Collection<TupleDocument>;
   private readonly policies: Collection<PolicyDocument>;
@@ -32,6 +32,7 @@ export class MongoSentinelStore implements SentinelStore {
 
   constructor(config: MongoSentinelStoreConfig) {
     this.db = config.db;
+    this.tenantId = config.tenantId;
     this.prefix = config.collectionPrefix ?? 'sentinel_';
     this.tuples = this.db.collection<TupleDocument>(`${this.prefix}${COLLECTION_NAMES.tuples}`);
     this.policies = this.db.collection<PolicyDocument>(`${this.prefix}${COLLECTION_NAMES.policies}`);
@@ -40,41 +41,59 @@ export class MongoSentinelStore implements SentinelStore {
 
   async loadTuples(nodeType: string, nodeId: string, relation: string): Promise<RelationTuple[]> {
     return this.tuples
-      .find({ nodeType, nodeId, relation }, { projection: { _id: 0 } })
+      .find(
+        { tenantId: this.tenantId, nodeType, nodeId, relation },
+        { projection: { _id: 0, tenantId: 0 } },
+      )
       .toArray() as Promise<RelationTuple[]>;
   }
 
   async loadTuplesFrom(node: { readonly type: string; readonly id: string }): Promise<RelationTuple[]> {
     return this.tuples
-      .find({ nodeType: node.type, nodeId: node.id }, { projection: { _id: 0 } })
+      .find(
+        { tenantId: this.tenantId, nodeType: node.type, nodeId: node.id },
+        { projection: { _id: 0, tenantId: 0 } },
+      )
       .toArray() as Promise<RelationTuple[]>;
   }
 
-  async loadPolicies(resourceType: string): Promise<PolicyRule[]> {
+  async loadPolicies(resourceType: string): Promise<StoredPolicyRule[]> {
     return this.policies
-      .find({ resourceType }, { projection: { _id: 0 } })
-      .toArray() as Promise<PolicyRule[]>;
+      .find(
+        { tenantId: this.tenantId, resourceType },
+        { projection: { _id: 0, tenantId: 0 } },
+      )
+      .toArray() as Promise<StoredPolicyRule[]>;
   }
 
   async loadRoles(principalId: string): Promise<string[]> {
-    const doc = await this.roles.findOne({ principalId }, { projection: { _id: 0 } });
+    const doc = await this.roles.findOne(
+      { tenantId: this.tenantId, principalId },
+      { projection: { _id: 0, tenantId: 0 } },
+    );
     return doc ? [...doc.roles] : [];
   }
 
-  async addTuple(tuple: TupleDocument): Promise<this> {
-    await this.tuples.insertOne({ ...tuple });
+  async addTuple(tuple: Omit<TupleDocument, 'tenantId'>): Promise<this> {
+    assertNonEmpty(tuple.nodeType, "nodeType");
+    assertNonEmpty(tuple.nodeId, "nodeId");
+    assertNonEmpty(tuple.relation, "relation");
+    assertNonEmpty(tuple.targetType, "targetType");
+    assertNonEmpty(tuple.targetId, "targetId");
+    await this.tuples.insertOne({ ...tuple, tenantId: this.tenantId });
     return this;
   }
 
-  async addTuples(tuples: readonly TupleDocument[]): Promise<this> {
+  async addTuples(tuples: readonly Omit<TupleDocument, 'tenantId'>[]): Promise<this> {
     if (tuples.length > 0) {
-      await this.tuples.insertMany(tuples.map((t) => ({ ...t })));
+      await this.tuples.insertMany(tuples.map((t) => ({ ...t, tenantId: this.tenantId })));
     }
     return this;
   }
 
-  async removeTuple(tuple: TupleDocument): Promise<this> {
+  async removeTuple(tuple: Omit<TupleDocument, 'tenantId'>): Promise<this> {
     await this.tuples.deleteOne({
+      tenantId: this.tenantId,
       nodeType: tuple.nodeType,
       nodeId: tuple.nodeId,
       relation: tuple.relation,
@@ -84,34 +103,38 @@ export class MongoSentinelStore implements SentinelStore {
     return this;
   }
 
-  async addPolicy(policy: PolicyDocument): Promise<this> {
-    await this.policies.insertOne({ ...policy });
+  async addPolicy(policy: Omit<PolicyDocument, 'tenantId'>): Promise<this> {
+    assertNonEmpty(policy.resourceType, "resourceType");
+    assertNonEmpty(policy.action, "action");
+    assertValidEffect(policy.effect);
+    await this.policies.insertOne({ ...policy, tenantId: this.tenantId });
     return this;
   }
 
-  async addPolicies(policies: readonly PolicyDocument[]): Promise<this> {
+  async addPolicies(policies: readonly Omit<PolicyDocument, 'tenantId'>[]): Promise<this> {
     if (policies.length > 0) {
-      await this.policies.insertMany(policies.map((p) => ({ ...p })));
+      await this.policies.insertMany(policies.map((p) => ({ ...p, tenantId: this.tenantId })));
     }
     return this;
   }
 
   async removePolicy(resourceType: string, action: string): Promise<this> {
-    await this.policies.deleteOne({ resourceType, action });
+    await this.policies.deleteOne({ tenantId: this.tenantId, resourceType, action });
     return this;
   }
 
   async setRoles(principalId: string, roles: readonly string[]): Promise<this> {
+    assertNonEmpty(principalId, "principalId");
     await this.roles.updateOne(
-      { principalId },
-      { $set: { principalId, roles: [...roles] } },
+      { tenantId: this.tenantId, principalId },
+      { $set: { tenantId: this.tenantId, principalId, roles: [...roles] } },
       { upsert: true },
     );
     return this;
   }
 
   async removeRoles(principalId: string): Promise<this> {
-    await this.roles.deleteOne({ principalId });
+    await this.roles.deleteOne({ tenantId: this.tenantId, principalId });
     return this;
   }
 
@@ -128,8 +151,8 @@ export class MongoSentinelStore implements SentinelStore {
   }
 
   async clear(): Promise<void> {
-    await this.tuples.deleteMany({});
-    await this.policies.deleteMany({});
-    await this.roles.deleteMany({});
+    await this.tuples.deleteMany({ tenantId: this.tenantId });
+    await this.policies.deleteMany({ tenantId: this.tenantId });
+    await this.roles.deleteMany({ tenantId: this.tenantId });
   }
 }

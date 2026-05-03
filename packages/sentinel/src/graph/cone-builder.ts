@@ -1,9 +1,9 @@
-import type { SentinelStore } from "../storage/sentinel-store.js";
-import type { RelationNode } from "./relation-node.js";
-import { createNode, nodeKey } from "./relation-node.js";
-import { createTuple } from "./relation-tuple.js";
-import type { RelationTuple } from "./relation-tuple.js";
-import { GraphSubset } from "./graph-subset.js";
+import type { SentinelStore } from "../storage/sentinel-store";
+import type { RelationNode } from "./relation-node";
+import { createNode, nodeKey } from "./relation-node";
+import { createTuple } from "./relation-tuple";
+import type { RelationTuple } from "./relation-tuple";
+import { GraphSubset } from "./graph-subset";
 
 export interface ConeOptions {
   readonly maxDepth?: number;

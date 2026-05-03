@@ -6,13 +6,13 @@ export const COLLECTION_NAMES = {
 
 export const INDEXES = {
   tuples: [
-    { key: { nodeType: 1, nodeId: 1, relation: 1 }, name: 'tuples_node_relation' },
-    { key: { nodeType: 1, nodeId: 1 }, name: 'tuples_node' },
+    { key: { tenantId: 1, nodeType: 1, nodeId: 1, relation: 1 }, name: 'tuples_tenant_node_relation' },
+    { key: { tenantId: 1, nodeType: 1, nodeId: 1 }, name: 'tuples_tenant_node' },
   ],
   policies: [
-    { key: { resourceType: 1 }, name: 'policies_resource_type' },
+    { key: { tenantId: 1, resourceType: 1 }, name: 'policies_tenant_resource_type' },
   ],
   roles: [
-    { key: { principalId: 1 }, unique: true, name: 'roles_principal' },
+    { key: { tenantId: 1, principalId: 1 }, unique: true, name: 'roles_tenant_principal' },
   ],
 } as const;

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { defineBundle, expandBundles, grantsContain, STANDARD_BUNDLES } from '../src/permission-bundle';
+import { defineBundle, expandBundles, grantsContain, STANDARD_BUNDLES } from '../permission-bundle';
 
 describe('defineBundle', () => {
   test('freezes the bundle', () => {

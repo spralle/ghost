@@ -1,5 +1,5 @@
-import type { ResourceSchema } from "../schema/define-resource.js";
-import type { TypedRelation } from "../schema/relation-types.js";
+import type { ResourceSchema } from "../schema/define-resource";
+import type { TypedRelation } from "../schema/relation-types";
 
 /**
  * Generate a MongoDB query filter that restricts documents to those
@@ -10,7 +10,11 @@ export function filterQuery(
   relation: string,
   principalPartyIds: readonly string[],
 ): Record<string, unknown> {
-  const rel = schema.relations[relation] as TypedRelation<unknown> | undefined;
+  const rel = schema.relations[relation] as
+    | string
+    | FilteredRelationShape
+    | RecursiveRelationShape
+    | undefined;
   if (!rel) {
     throw new Error(`Relation "${relation}" not found in schema "${schema.name}"`);
   }
@@ -23,26 +27,37 @@ export function filterQuery(
   // FilteredRelation: { from, $match?, $project }
   if (isFilteredRelation(rel)) {
     const elemMatch: Record<string, unknown> = {
-      ...((rel as { $match?: Record<string, unknown> }).$match ?? {}),
-      [`${(rel as { $project: string }).$project}.id`]: { $in: [...principalPartyIds] },
+      ...(rel.$match ?? {}),
+      [`${rel.$project}.id`]: { $in: [...principalPartyIds] },
     };
-    return { [(rel as { from: string }).from]: { $elemMatch: elemMatch } };
+    return { [rel.from]: { $elemMatch: elemMatch } };
   }
 
   // RecursiveRelation: { $recurse, $project }
   if (isRecursiveRelation(rel)) {
-    const path = (rel as { $project: string }).$project;
-    const arrayField = (rel as { $recurse: string }).$recurse;
+    const path = rel.$project;
+    const arrayField = rel.$recurse;
     return { [arrayField]: { $elemMatch: { [`${path}.id`]: { $in: [...principalPartyIds] } } } };
   }
 
   throw new Error(`Unsupported relation type for "${relation}"`);
 }
 
-function isFilteredRelation(rel: unknown): boolean {
+interface FilteredRelationShape {
+  readonly from: string;
+  readonly $project: string;
+  readonly $match?: Record<string, unknown>;
+}
+
+interface RecursiveRelationShape {
+  readonly $recurse: string;
+  readonly $project: string;
+}
+
+function isFilteredRelation(rel: unknown): rel is FilteredRelationShape {
   return typeof rel === "object" && rel !== null && "from" in rel && "$project" in rel;
 }
 
-function isRecursiveRelation(rel: unknown): boolean {
+function isRecursiveRelation(rel: unknown): rel is RecursiveRelationShape {
   return typeof rel === "object" && rel !== null && "$recurse" in rel && "$project" in rel;
 }

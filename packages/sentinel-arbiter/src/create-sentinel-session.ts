@@ -4,8 +4,8 @@
 
 import type { RuleSession } from "@ghost-shell/arbiter";
 import { createSession } from "@ghost-shell/arbiter";
-import { toProductionRules } from "./to-production-rules.js";
-import type { CompiledPolicy, SentinelSessionOptions } from "./types.js";
+import { toProductionRules } from "./to-production-rules";
+import type { CompiledPolicy, SentinelSessionOptions } from "./types";
 
 /**
  * Creates an arbiter session pre-loaded with sentinel policy rules.

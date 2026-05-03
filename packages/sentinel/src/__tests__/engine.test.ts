@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 import {
   check,
   can,
@@ -7,13 +7,13 @@ import {
   expand,
   type SentinelPrincipal,
   type CheckContext,
-} from "../index.js";
-import { compilePolicyRules } from "../policy/compile-policy.js";
-import { GraphSubset } from "../graph/graph-subset.js";
-import { createTuple } from "../graph/relation-tuple.js";
-import { createNode } from "../graph/relation-node.js";
-import { defineResourceSchema } from "../schema/define-resource.js";
-import type { PolicyRule } from "../policy/policy-types.js";
+} from "../index";
+import { compilePolicyRules } from "../policy/compile-policy";
+import { GraphSubset } from "../graph/graph-subset";
+import { createTuple } from "../graph/relation-tuple";
+import { createNode } from "../graph/relation-node";
+import { defineResourceSchema } from "../schema/define-resource";
+import type { PolicyRule } from "../policy/policy-types";
 
 const principal: SentinelPrincipal = {
   userId: "user-1",

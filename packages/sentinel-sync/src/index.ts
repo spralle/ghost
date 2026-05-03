@@ -1,9 +1,9 @@
-export { resolvePrincipal } from "./principal-resolver.js";
-export { createSnapshotManager } from "./snapshot-manager.js";
-export { buildBatch } from "./batch-builder.js";
-export { createQueryDecoratorFactory } from "./query-decorator.js";
-export { createRedactionHook } from "./redaction-middleware.js";
-export { createInvalidationProcessor } from "./invalidation.js";
+export { resolvePrincipal } from "./principal-resolver";
+export { createSnapshotManager } from "./snapshot-manager";
+export { buildBatch } from "./batch-builder";
+export { createQueryDecoratorFactory } from "./query-decorator";
+export { createRedactionHook } from "./redaction-middleware";
+export { createInvalidationProcessor } from "./invalidation";
 
 export type {
   AccountsJwtPayload,
@@ -12,6 +12,7 @@ export type {
   SnapshotCache,
   SnapshotManagerConfig,
   SnapshotManager,
+  SnapshotBuildResult,
   BatchBuildOptions,
   BatchBuildResult,
   RedactionContext,
@@ -24,4 +25,4 @@ export type {
   InvalidationHandler,
   InvalidationProcessorConfig,
   InvalidationProcessor,
-} from "./types.js";
+} from "./types";

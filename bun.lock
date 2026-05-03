@@ -324,18 +324,18 @@
       },
     },
     "packages/sentinel-arbiter": {
-      "name": "@ghost-shell/sentinel-arbiter",
+      "name": "@ghost/sentinel-arbiter",
       "version": "0.0.0",
       "dependencies": {
         "@ghost-shell/arbiter": "workspace:*",
+      },
+      "peerDependencies": {
+        "@ghost/sentinel": "workspace:*",
       },
     },
     "packages/sentinel-react": {
       "name": "@ghost/sentinel-react",
       "version": "0.1.0",
-      "dependencies": {
-        "@ghost/sentinel": "workspace:*",
-      },
       "devDependencies": {
         "@types/react": "^19.0.0",
         "@types/react-dom": "^19.0.0",
@@ -343,6 +343,7 @@
         "react-dom": "^19.0.0",
       },
       "peerDependencies": {
+        "@ghost/sentinel": "workspace:*",
         "react": "^18.0.0 || ^19.0.0",
       },
     },
@@ -361,14 +362,18 @@
       "name": "@ghost/sentinel-roles",
       "version": "0.1.0",
       "devDependencies": {
+        "@ghost/sentinel": "workspace:*",
         "@types/bun": "latest",
         "typescript": "^5.8.3",
+      },
+      "peerDependencies": {
+        "@ghost/sentinel": "workspace:*",
       },
     },
     "packages/sentinel-store-memory": {
       "name": "@ghost/sentinel-store-memory",
       "version": "0.1.0",
-      "dependencies": {
+      "peerDependencies": {
         "@ghost/sentinel": "workspace:*",
       },
     },
@@ -1027,8 +1032,6 @@
 
     "@ghost-shell/schema-core": ["@ghost-shell/schema-core@workspace:packages/schema-core"],
 
-    "@ghost-shell/sentinel-arbiter": ["@ghost-shell/sentinel-arbiter@workspace:packages/sentinel-arbiter"],
-
     "@ghost-shell/shell": ["@ghost-shell/shell@workspace:packages/shell"],
 
     "@ghost-shell/shell-app": ["@ghost-shell/shell-app@workspace:apps/shell"],
@@ -1046,6 +1049,8 @@
     "@ghost-shell/weaver-formr-bridge": ["@ghost-shell/weaver-formr-bridge@workspace:packages/weaver-formr-bridge"],
 
     "@ghost/sentinel": ["@ghost/sentinel@workspace:packages/sentinel"],
+
+    "@ghost/sentinel-arbiter": ["@ghost/sentinel-arbiter@workspace:packages/sentinel-arbiter"],
 
     "@ghost/sentinel-react": ["@ghost/sentinel-react@workspace:packages/sentinel-react"],
 

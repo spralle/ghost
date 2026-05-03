@@ -1,5 +1,5 @@
 import { filterQuery } from "@ghost/sentinel";
-import type { QueryDecoratorConfig, QueryDecoratorFactory, ViewDbQueryDecorator } from "./types.js";
+import type { QueryDecoratorConfig, QueryDecoratorFactory, ViewDbQueryDecorator } from "./types";
 
 /**
  * Factory that produces a viewdb queryDecorator function.

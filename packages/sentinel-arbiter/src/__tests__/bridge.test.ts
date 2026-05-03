@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { createSentinelSession } from "../create-sentinel-session.js";
-import { evaluate } from "../evaluate.js";
-import { toProductionRules } from "../to-production-rules.js";
-import type { CompiledPolicy, CompiledRule, EvalContext } from "../types.js";
+import { createSentinelSession } from "../create-sentinel-session";
+import { evaluate } from "../evaluate";
+import { toProductionRules } from "../to-production-rules";
+import type { CompiledPolicy, CompiledRule, EvalContext } from "../types";
 
 function makeContext(overrides: Partial<EvalContext> = {}): EvalContext {
   return {

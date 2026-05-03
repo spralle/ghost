@@ -8,7 +8,7 @@
  */
 
 import type { ProductionRule } from "@ghost-shell/arbiter";
-import type { CompiledRule } from "./types.js";
+import type { CompiledRule } from "./types";
 
 const DEFAULT_ACTIVATION_GROUP = "sentinel-decision";
 

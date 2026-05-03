@@ -1,5 +1,5 @@
 {
-  "name": "@ghost-shell/sentinel-arbiter",
+  "name": "@ghost/sentinel-arbiter",
   "version": "0.0.0",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -19,6 +19,9 @@
   "sideEffects": false,
   "dependencies": {
     "@ghost-shell/arbiter": "workspace:*"
+  },
+  "peerDependencies": {
+    "@ghost/sentinel": "workspace:*"
   },
   "scripts": {
     "build:dist": "tsup"

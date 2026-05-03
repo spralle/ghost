@@ -1,5 +1,5 @@
 import { describe, it, expect } from "bun:test";
-import { createQueryDecoratorFactory } from "../src/query-decorator.js";
+import { createQueryDecoratorFactory } from "../query-decorator.js";
 import type { ResourceSchema } from "@ghost/sentinel";
 
 function createSchema(name: string): ResourceSchema<unknown, string> {

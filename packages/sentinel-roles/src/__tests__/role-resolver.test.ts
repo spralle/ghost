@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { RoleRegistry } from '../src/role-registry';
-import { MemoryRoleStore } from '../src/role-store';
-import { STANDARD_BUNDLES } from '../src/permission-bundle';
-import { resolveRole, resolveRoles } from '../src/role-resolver';
-import type { SystemRole } from '../src/types';
+import { RoleRegistry } from '../role-registry';
+import { MemoryRoleStore } from '../role-store';
+import { STANDARD_BUNDLES } from '../permission-bundle';
+import { resolveRole, resolveRoles } from '../role-resolver';
+import type { SystemRole } from '../types';
 
 const SYSTEM_ROLES: readonly SystemRole[] = [
   {

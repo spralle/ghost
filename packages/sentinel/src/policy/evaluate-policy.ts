@@ -1,7 +1,7 @@
 import { compileFilter } from "@ghost-shell/predicate";
 
-import type { CompiledPolicy, CompiledRule } from "./compile-policy.js";
-import type { EvalContext } from "./policy-types.js";
+import type { CompiledPolicy, CompiledRule } from "./compile-policy";
+import type { EvalContext } from "./policy-types";
 
 export interface PolicyDecision {
   readonly effect: "allow" | "deny";

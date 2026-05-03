@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'bun:test';
-import { MongoSentinelStore } from '../src/mongodb-store';
+import { MongoSentinelStore } from '../mongodb-store';
 import type { Db, Collection } from 'mongodb';
 
 /** Minimal in-memory mock of a MongoDB Collection */
@@ -14,8 +14,15 @@ function createMockCollection<T extends Record<string, unknown>>(): Collection<T
         }
         return true;
       });
-      const mapped = options?.projection?._id === 0
-        ? results.map((d) => { const { _id, ...rest } = d; return rest; })
+      const mapped = options?.projection
+        ? results.map((d) => {
+            const copy = { ...d };
+            const proj = options.projection!;
+            for (const [key, val] of Object.entries(proj)) {
+              if (val === 0) delete copy[key];
+            }
+            return copy;
+          })
         : results;
       return { toArray: () => Promise.resolve(mapped) };
     },
@@ -27,9 +34,13 @@ function createMockCollection<T extends Record<string, unknown>>(): Collection<T
         return true;
       });
       if (!found) return Promise.resolve(null);
-      if (options?.projection?._id === 0) {
-        const { _id, ...rest } = found;
-        return Promise.resolve(rest);
+      if (options?.projection) {
+        const copy = { ...found };
+        const proj = options.projection!;
+        for (const [key, val] of Object.entries(proj)) {
+          if (val === 0) delete copy[key];
+        }
+        return Promise.resolve(copy);
       }
       return Promise.resolve(found);
     },
@@ -71,12 +82,19 @@ function createMockCollection<T extends Record<string, unknown>>(): Collection<T
       if (idx >= 0) docs.splice(idx, 1);
       return Promise.resolve({ deletedCount: idx >= 0 ? 1 : 0 });
     },
-    deleteMany(_filter: Record<string, unknown>) {
+    deleteMany(filter: Record<string, unknown>) {
       const before = docs.length;
-      if (Object.keys(_filter).length === 0) {
+      if (Object.keys(filter).length === 0) {
         docs = [];
+      } else {
+        docs = docs.filter((doc) => {
+          for (const [key, val] of Object.entries(filter)) {
+            if (doc[key] !== val) return true;
+          }
+          return false;
+        });
       }
-      return Promise.resolve({ deletedCount: before });
+      return Promise.resolve({ deletedCount: before - docs.length });
     },
     createIndex() {
       return Promise.resolve('ok');
@@ -89,9 +107,9 @@ function createMockCollection<T extends Record<string, unknown>>(): Collection<T
 function createMockDb(): Db {
   const collections = new Map<string, unknown>();
   return {
-    collection<T>(name: string) {
+    collection(name: string) {
       if (!collections.has(name)) {
-        collections.set(name, createMockCollection<T>());
+        collections.set(name, createMockCollection<Record<string, unknown>>());
       }
       return collections.get(name);
     },
@@ -103,7 +121,7 @@ describe('MongoSentinelStore', () => {
 
   beforeEach(() => {
     const db = createMockDb();
-    store = new MongoSentinelStore({ db });
+    store = new MongoSentinelStore({ db, tenantId: 'tenant-1' });
   });
 
   it('loadTuples returns empty array when no tuples match', async () => {
@@ -134,7 +152,7 @@ describe('MongoSentinelStore', () => {
   });
 
   it('loadPolicies returns policies for given resourceType', async () => {
-    await store.addPolicy({ resourceType: 'document', action: 'read', condition: { role: 'viewer' } });
+    await store.addPolicy({ resourceType: 'document', action: 'read', condition: { role: 'viewer' }, effect: 'grant' });
     const result = await store.loadPolicies('document');
     expect(result).toHaveLength(1);
     expect(result[0].action).toBe('read');
@@ -192,7 +210,7 @@ describe('MongoSentinelStore', () => {
 
   it('clear removes all data', async () => {
     await store.addTuple({ nodeType: 'org', nodeId: 'o1', relation: 'member', targetType: 'user', targetId: 'u1' });
-    await store.addPolicy({ resourceType: 'doc', action: 'read', condition: null });
+    await store.addPolicy({ resourceType: 'doc', action: 'read', condition: null, effect: 'grant' });
     await store.setRoles('u1', ['admin']);
     await store.clear();
     expect(await store.loadTuples('org', 'o1', 'member')).toEqual([]);
@@ -203,5 +221,48 @@ describe('MongoSentinelStore', () => {
   it('write methods return store instance (fluent)', async () => {
     const result = await store.addTuple({ nodeType: 'a', nodeId: 'b', relation: 'c', targetType: 'd', targetId: 'e' });
     expect(result).toBe(store);
+  });
+
+  it('tenant isolation: store A cannot see store B tuples', async () => {
+    const db = createMockDb();
+    const storeA = new MongoSentinelStore({ db, tenantId: 'tenant-a' });
+    const storeB = new MongoSentinelStore({ db, tenantId: 'tenant-b' });
+    await storeA.addTuple({ nodeType: 'org', nodeId: 'o1', relation: 'member', targetType: 'user', targetId: 'u1' });
+    await storeB.addTuple({ nodeType: 'org', nodeId: 'o1', relation: 'member', targetType: 'user', targetId: 'u2' });
+    const resultA = await storeA.loadTuples('org', 'o1', 'member');
+    const resultB = await storeB.loadTuples('org', 'o1', 'member');
+    expect(resultA).toHaveLength(1);
+    expect(resultA[0].targetId).toBe('u1');
+    expect(resultB).toHaveLength(1);
+    expect(resultB[0].targetId).toBe('u2');
+  });
+
+  it('tenant isolation: policies are scoped per tenant', async () => {
+    const db = createMockDb();
+    const storeA = new MongoSentinelStore({ db, tenantId: 'tenant-a' });
+    const storeB = new MongoSentinelStore({ db, tenantId: 'tenant-b' });
+    await storeA.addPolicy({ resourceType: 'doc', action: 'read', condition: null, effect: 'grant' });
+    expect(await storeA.loadPolicies('doc')).toHaveLength(1);
+    expect(await storeB.loadPolicies('doc')).toHaveLength(0);
+  });
+
+  it('tenant isolation: roles are scoped per tenant', async () => {
+    const db = createMockDb();
+    const storeA = new MongoSentinelStore({ db, tenantId: 'tenant-a' });
+    const storeB = new MongoSentinelStore({ db, tenantId: 'tenant-b' });
+    await storeA.setRoles('u1', ['admin']);
+    expect(await storeA.loadRoles('u1')).toEqual(['admin']);
+    expect(await storeB.loadRoles('u1')).toEqual([]);
+  });
+
+  it('tenant isolation: clear only removes current tenant data', async () => {
+    const db = createMockDb();
+    const storeA = new MongoSentinelStore({ db, tenantId: 'tenant-a' });
+    const storeB = new MongoSentinelStore({ db, tenantId: 'tenant-b' });
+    await storeA.addTuple({ nodeType: 'org', nodeId: 'o1', relation: 'member', targetType: 'user', targetId: 'u1' });
+    await storeB.addTuple({ nodeType: 'org', nodeId: 'o1', relation: 'member', targetType: 'user', targetId: 'u2' });
+    await storeA.clear();
+    expect(await storeA.loadTuples('org', 'o1', 'member')).toEqual([]);
+    expect(await storeB.loadTuples('org', 'o1', 'member')).toHaveLength(1);
   });
 });

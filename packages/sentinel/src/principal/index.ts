@@ -1,2 +1,2 @@
-export { createPrincipal, type SentinelPrincipal } from "./sentinel-principal.js";
-export { impersonate, isImpersonated, type ImpersonatedPrincipal } from "./impersonation.js";
+export { createPrincipal, type SentinelPrincipal } from "./sentinel-principal";
+export { impersonate, isImpersonated, type ImpersonatedPrincipal } from "./impersonation";

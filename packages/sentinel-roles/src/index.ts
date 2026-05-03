@@ -15,3 +15,4 @@ export { RoleRegistry } from './role-registry';
 export type { RoleRegistryConfig } from './role-registry';
 export { resolveRole, resolveRoles } from './role-resolver';
 export { MemoryRoleStore } from './role-store';
+export { grantsToPolicyRules } from './to-policy-rules';

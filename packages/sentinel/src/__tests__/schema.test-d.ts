@@ -1,4 +1,4 @@
-import { defineResourceSchema, type TypedRelation } from "../index.js";
+import { defineResourceSchema, type TypedRelation } from "../index";
 
 // --- Mock domain types ---
 

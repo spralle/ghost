@@ -1,9 +1,10 @@
-import type { CompiledPolicy } from "../policy/compile-policy.js";
-import type { EvalContext } from "../policy/policy-types.js";
-import { evaluatePolicy } from "../policy/evaluate-policy.js";
-import type { GraphSubset } from "../graph/graph-subset.js";
-import { createNode } from "../graph/relation-node.js";
-import type { SentinelPrincipal } from "../principal/sentinel-principal.js";
+import type { CompiledPolicy } from "../policy/compile-policy";
+import type { EvalContext } from "../policy/policy-types";
+import { evaluatePolicy } from "../policy/evaluate-policy";
+import type { GraphSubset } from "../graph/graph-subset";
+import { createNode } from "../graph/relation-node";
+import type { SentinelPrincipal } from "../principal/sentinel-principal";
+import type { AuditLogger } from "./audit-logger";
 
 export interface CheckContext {
   readonly policy: CompiledPolicy;
@@ -49,9 +50,22 @@ export function check(
   principal: SentinelPrincipal,
   action: string,
   context: CheckContext,
+  auditLogger?: AuditLogger,
 ): CheckResult {
   const evalContext = buildEvalContext(principal, action, context);
   const decision = evaluatePolicy(context.policy, action, evalContext);
+
+  if (auditLogger) {
+    const resourceId = context.resource["id"] as string | undefined;
+    auditLogger.logDecision({
+      principal: principal.userId,
+      action,
+      ...(resourceId !== undefined && { resource: resourceId }),
+      effect: decision.effect,
+      matchedRules: decision.matchedRules.map((r) => r.name),
+      timestamp: Date.now(),
+    });
+  }
 
   return {
     effect: decision.effect,

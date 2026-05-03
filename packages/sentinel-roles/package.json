@@ -1,11 +1,16 @@
 {
   "name": "@ghost/sentinel-roles",
+  "private": true,
   "version": "0.1.0",
   "type": "module",
   "main": "src/index.ts",
   "types": "src/index.ts",
+  "peerDependencies": {
+    "@ghost/sentinel": "workspace:*"
+  },
   "devDependencies": {
     "typescript": "^5.8.3",
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@ghost/sentinel": "workspace:*"
   }
 }

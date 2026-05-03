@@ -1,6 +1,6 @@
 import { buildSnapshot, isExpired } from "@ghost/sentinel";
 import type { SentinelPrincipal, PermissionSnapshot } from "@ghost/sentinel";
-import type { SnapshotCache, SnapshotManager, SnapshotManagerConfig } from "./types.js";
+import type { SnapshotCache, SnapshotManager, SnapshotManagerConfig, SnapshotBuildResult } from "./types";
 
 /** Default in-memory cache */
 function createDefaultCache(): SnapshotCache {
@@ -15,7 +15,7 @@ function createDefaultCache(): SnapshotCache {
 
 /** Create a SnapshotManager that wraps buildSnapshot with caching */
 export function createSnapshotManager(config: SnapshotManagerConfig): SnapshotManager {
-  const { store, resourceTypes, serialize: customSerialize } = config;
+  const { store, resourceTypes, serialize: customSerialize, onError } = config;
   const cache = config.cache ?? createDefaultCache();
 
   // Track tenantId → principalIds for tenant-level invalidation
@@ -42,21 +42,26 @@ export function createSnapshotManager(config: SnapshotManagerConfig): SnapshotMa
   }
 
   return {
-    async build(principal: SentinelPrincipal): Promise<PermissionSnapshot> {
-      const snapshot = await buildSnapshot(store, principal, resourceTypes);
-      cache.set(principal.userId, snapshot);
-      indexByTenant(snapshot);
-      return snapshot;
+    async build(principal: SentinelPrincipal): Promise<SnapshotBuildResult> {
+      try {
+        const snapshot = await buildSnapshot(store, principal, resourceTypes);
+        cache.set(principal.userId, snapshot);
+        indexByTenant(snapshot);
+        return { snapshot, stale: false };
+      } catch (error: unknown) {
+        onError?.(error, principal.userId);
+        const staleSnapshot = cache.get(principal.userId);
+        if (staleSnapshot) {
+          return { snapshot: staleSnapshot, stale: true };
+        }
+        throw error;
+      }
     },
 
     get(principalId: string): PermissionSnapshot | undefined {
       const snapshot = cache.get(principalId);
       if (!snapshot) return undefined;
-      if (isExpired(snapshot)) {
-        cache.delete(principalId);
-        removeFromTenantIndex(principalId);
-        return undefined;
-      }
+      if (isExpired(snapshot)) return undefined;
       return snapshot;
     },
 

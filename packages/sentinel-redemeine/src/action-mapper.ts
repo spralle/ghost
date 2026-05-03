@@ -1,4 +1,4 @@
-import type { ActionMap } from './types.js';
+import type { ActionMap } from './types';
 
 /**
  * Resolve a sentinel action from a command type using the action map.

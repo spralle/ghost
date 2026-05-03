@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { filterQuery } from "@ghost/sentinel";
 import type { ResourceSchema } from "@ghost/sentinel";
-import { useSentinel } from "./sentinel-context.js";
+import { useSentinel } from "./sentinel-context";
 
 export function useFilterQuery(
   schema: ResourceSchema<unknown, string>,

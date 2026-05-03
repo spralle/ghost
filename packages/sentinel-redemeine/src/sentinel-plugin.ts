@@ -1,7 +1,7 @@
 import { check, expand } from '@ghost/sentinel';
 import type { CheckContext, SentinelPrincipal } from '@ghost/sentinel';
-import { resolveAction } from './action-mapper.js';
-import { AuthorizationError, type SentinelPluginConfig, type EvaluationMode } from './types.js';
+import { resolveAction } from './action-mapper';
+import { AuthorizationError, type SentinelPluginConfig, type EvaluationMode } from './types';
 
 /** Shape of the redemeine CommandInterceptorContext we consume */
 interface CommandContext {

@@ -1,4 +1,4 @@
-import type { PolicyRule } from "./policy-types.js";
+import type { PolicyRule } from "./policy-types";
 
 export interface PolicyConfig {
   readonly name: string;

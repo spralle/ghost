@@ -1,21 +1,12 @@
 {
+  "extends": "../sentinel/tsconfig.sentinel-base.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "strict": true,
-    "noImplicitAny": true,
-    "exactOptionalPropertyTypes": true,
-    "declaration": true,
+    "composite": true,
     "emitDeclarationOnly": false,
-    "declarationMap": true,
-    "sourceMap": true,
     "outDir": "dist",
-    "rootDir": "src",
-    "skipLibCheck": true,
-    "composite": true
+    "rootDir": "src"
   },
   "include": ["src"],
   "exclude": ["src/**/__tests__", "src/**/*.test.ts"],
-  "references": [{ "path": "../arbiter" }]
+  "references": [{ "path": "../arbiter" }, { "path": "../sentinel" }]
 }

@@ -49,10 +49,16 @@ export interface SnapshotManagerConfig {
   readonly resourceTypes: readonly string[];
   readonly cache?: SnapshotCache;
   readonly serialize?: (snapshot: PermissionSnapshot) => string;
+  readonly onError?: (error: unknown, principalId: string) => void;
+}
+
+export interface SnapshotBuildResult {
+  readonly snapshot: PermissionSnapshot;
+  readonly stale: boolean;
 }
 
 export interface SnapshotManager {
-  build(principal: SentinelPrincipal): Promise<PermissionSnapshot>;
+  build(principal: SentinelPrincipal): Promise<SnapshotBuildResult>;
   get(principalId: string): PermissionSnapshot | undefined;
   invalidate(principalId: string): void;
   invalidateByTenant(tenantId: string): void;
@@ -119,9 +125,13 @@ export interface InvalidationProcessorConfig {
   readonly snapshotManager: SnapshotManager;
   readonly handler: InvalidationHandler;
   readonly debounceMs?: number;
+  /** Max time (ms) before a batch is flushed, even under sustained load. Default: 5000 */
+  readonly maxWaitMs?: number;
 }
 
 export interface InvalidationProcessor {
   process(event: InvalidationEvent): void;
   flush(): void;
+  /** Stop the processor, clear timers, and optionally flush pending events. */
+  destroy(options?: { readonly flush?: boolean }): void;
 }

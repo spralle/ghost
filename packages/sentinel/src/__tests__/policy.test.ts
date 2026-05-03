@@ -6,7 +6,7 @@ import {
   evaluatePolicy,
   type EvalContext,
   type PolicyRule,
-} from "../policy/index.js";
+} from "../policy/index";
 
 function makeContext(overrides: Partial<EvalContext> = {}): EvalContext {
   return {

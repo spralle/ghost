@@ -1,4 +1,4 @@
-import { useSentinel } from "./sentinel-context.js";
+import { useSentinel } from "./sentinel-context";
 
 export interface UseDataBlockResult {
   readonly granted: boolean;

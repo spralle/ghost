@@ -1,6 +1,7 @@
-export { check, type CheckContext, type CheckResult } from "./check.js";
-export { can } from "./can.js";
-export { filterQuery } from "./filter-query.js";
-export { redact, type RedactContext } from "./redact.js";
-export { expand, type DerivationNode } from "./expand.js";
+export { check, type CheckContext, type CheckResult } from "./check";
+export { can } from "./can";
+export { filterQuery } from "./filter-query";
+export { redact, type RedactContext } from "./redact";
+export { expand, type DerivationNode } from "./expand";
+export type { AuditLogger, AuditEntry } from "./audit-logger";
 

@@ -1,5 +1,5 @@
-import type { CompiledPolicy } from "../policy/compile-policy.js";
-import type { GraphSubset } from "../graph/graph-subset.js";
+import type { CompiledPolicy } from "../policy/compile-policy";
+import type { GraphSubset } from "../graph/graph-subset";
 
 /** Pre-compiled offline permission bundle */
 export interface PermissionSnapshot {

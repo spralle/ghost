@@ -1,5 +1,5 @@
-import type { DataBlockConfig } from "./data-block-types.js";
-import type { TypedRelation } from "./relation-types.js";
+import type { DataBlockConfig } from "./data-block-types";
+import type { TypedRelation } from "./relation-types";
 
 export interface ResourceSchemaConfig<T, TActions extends string> {
   readonly name: string;

@@ -1,13 +1,12 @@
 {
+  "extends": "../sentinel/tsconfig.sentinel-base.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "strict": true,
     "noEmit": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
     "resolveJsonModule": true,
+    "exactOptionalPropertyTypes": false,
     "isolatedModules": true,
     "types": ["@types/bun"],
     "paths": {
@@ -15,6 +14,6 @@
       "@ghost-shell/predicate": ["../predicate/src/index.ts"]
     }
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]
 }

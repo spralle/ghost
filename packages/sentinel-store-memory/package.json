@@ -21,7 +21,7 @@
     "build": "tsc -p tsconfig.json",
     "test": "bun test"
   },
-  "dependencies": {
+  "peerDependencies": {
     "@ghost/sentinel": "workspace:*"
   }
 }

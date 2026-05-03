@@ -1,4 +1,4 @@
-import type { ResourceSchema } from "../schema/define-resource.js";
+import type { ResourceSchema } from "../schema/define-resource";
 
 export interface RedactContext {
   readonly grantedBlocks: readonly string[];

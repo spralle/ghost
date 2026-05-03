@@ -6,7 +6,7 @@ import {
   useCan,
   useDataBlock,
   PermissionGate,
-} from "../index.js";
+} from "../index";
 import type { PermissionSnapshot, SentinelPrincipal, CompiledPolicy } from "@ghost/sentinel";
 import { GraphSubset } from "@ghost/sentinel";
 
