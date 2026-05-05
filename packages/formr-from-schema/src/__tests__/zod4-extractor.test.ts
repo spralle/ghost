@@ -3,16 +3,6 @@ import { z } from "zod";
 import { extractFromZodV4, ingestSchema, isZodV4Schema } from "../index.js";
 
 describe("isZodV4Schema", () => {
-  test("detects v3 schema as NOT v4", () => {
-    const schema = z.object({ name: z.string() });
-    expect(isZodV4Schema(schema)).toBe(false);
-  });
-
-  test("detects v3 string schema as NOT v4", () => {
-    const schema = z.string();
-    expect(isZodV4Schema(schema)).toBe(false);
-  });
-
   test("rejects plain objects", () => {
     expect(isZodV4Schema({})).toBe(false);
     expect(isZodV4Schema(null)).toBe(false);

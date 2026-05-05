@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { z } from "zod";
-import { extractFromZod, ingestSchema, isStandardSchema, isZodSchema, SchemaError } from "../index.js";
+import { extractFromZodV4, ingestSchema, isStandardSchema, isZodSchema, SchemaError } from "../index.js";
 
 describe("isStandardSchema", () => {
   test("detects Zod schema as Standard Schema", () => {
@@ -24,7 +24,7 @@ describe("isZodSchema", () => {
   });
 });
 
-describe("extractFromZod", () => {
+describe("extractFromZodV4", () => {
   test("extracts fields from simple object schema", () => {
     const schema = z.object({
       name: z.string(),
@@ -32,7 +32,7 @@ describe("extractFromZod", () => {
       age: z.number(),
     });
 
-    const result = extractFromZod(schema);
+    const result = extractFromZodV4(schema);
     expect(result.fields).toHaveLength(3);
 
     const nameField = result.fields.find((f) => f.path === "name");
@@ -51,7 +51,7 @@ describe("extractFromZod", () => {
       nickname: z.string().optional(),
     });
 
-    const result = extractFromZod(schema);
+    const result = extractFromZodV4(schema);
     const nickField = result.fields.find((f) => f.path === "nickname");
     expect(nickField).toBeDefined();
     expect(nickField?.required).toBe(false);
@@ -65,49 +65,9 @@ describe("extractFromZod", () => {
       }),
     });
 
-    const result = extractFromZod(schema);
+    const result = extractFromZodV4(schema);
     expect(result.fields.some((f) => f.path === "customer.name")).toBe(true);
     expect(result.fields.some((f) => f.path === "customer.email")).toBe(true);
-  });
-
-  test("extracts formr metadata from _def.metadata", () => {
-    // Simulate a Zod object with formr metadata on a field
-    // (Zod .meta() may not be available in all 3.x versions, so we duck-type)
-    const schema = {
-      _def: {
-        typeName: "ZodObject",
-        shape: {
-          name: {
-            _def: {
-              typeName: "ZodString",
-              metadata: { formr: { label: "Full Name", placeholder: "Enter name" } },
-            },
-          },
-        },
-      },
-    };
-
-    const result = extractFromZod(schema);
-    const nameField = result.fields.find((f) => f.path === "name");
-    expect(nameField?.metadata).toBeDefined();
-    expect(nameField?.metadata?.extensions?.label).toBe("Full Name");
-    expect(nameField?.metadata?.extensions?.placeholder).toBe("Enter name");
-  });
-
-  test("rejects x-formr in Zod metadata", () => {
-    const badSchema = {
-      _def: {
-        typeName: "ZodString",
-        metadata: { "x-formr": { label: "Bad" } },
-      },
-    };
-
-    expect(() => extractFromZod(badSchema)).toThrow(SchemaError);
-    try {
-      extractFromZod(badSchema);
-    } catch (e) {
-      expect((e as SchemaError).code).toBe("SCHEMA_ZOD_TRANSFORM_FORBIDDEN");
-    }
   });
 
   test("handles array fields", () => {
@@ -115,7 +75,7 @@ describe("extractFromZod", () => {
       tags: z.array(z.string()),
     });
 
-    const result = extractFromZod(schema);
+    const result = extractFromZodV4(schema);
     const tagsField = result.fields.find((f) => f.path === "tags");
     expect(tagsField).toBeDefined();
     expect(tagsField?.type).toBe("array");
@@ -126,7 +86,7 @@ describe("extractFromZod", () => {
       active: z.boolean(),
     });
 
-    const result = extractFromZod(schema);
+    const result = extractFromZodV4(schema);
     const field = result.fields.find((f) => f.path === "active");
     expect(field).toBeDefined();
     expect(field?.type).toBe("boolean");
