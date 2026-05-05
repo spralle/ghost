@@ -1,7 +1,7 @@
 "use client";
 
-import type { RendererRegistry, UseSchemaFormOptions } from "@ghost-shell/formr-react";
-import { renderLayoutTree, useSchemaForm } from "@ghost-shell/formr-react";
+import type { RendererRegistry, UseSchemaFormOptions } from "@formbar/react";
+import { renderLayoutTree, useSchemaForm } from "@formbar/react";
 import { useCallback, useMemo } from "react";
 import { cn } from "../../../lib/utils";
 import { Button } from "../button";

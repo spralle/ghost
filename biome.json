@@ -100,9 +100,9 @@
     {
       "includes": [
         "packages/arbiter/**",
-        "packages/formr-core/**",
-        "packages/formr-from-schema/**",
-        "apps/formr-demos/**"
+        "packages/formbar-core/**",
+        "packages/formbar-from-schema/**",
+        "apps/formbar-demos/**"
       ],
       "linter": {
         "rules": {

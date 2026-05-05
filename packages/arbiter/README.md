@@ -6,7 +6,7 @@ A Rete-inspired production rule engine using MongoDB query syntax for conditions
 
 Arbiter powers reactive rule evaluation across the Ghost platform:
 
-- **formr**: Form field visibility, validation, and calculated values
+- **formbar**: Form field visibility, validation, and calculated values
 - **Shell**: Plugin contribution visibility (`when` clauses on actions, menus, keybindings)
 - **Future**: Business rule automation
 
@@ -292,9 +292,9 @@ console.log(dumpState(session));
 
 2. **Beta join syntax decision** — Three candidate syntaxes for multi-fact joins exist in `beta-join-stubs.ts`. Decision deferred pending real use cases. Required for full L2 cross-fact pattern matching.
 
-3. **formr-from-schema: Generate ProductionRule[]** — Schema extractors in `@ghost/formr-from-schema` should produce `ProductionRule[]` from Zod hints and JSON Schema `x-formr` extensions, replacing old `RuleDefinition[]` output.
+3. **formbar-from-schema: Generate ProductionRule[]** — Schema extractors in `@ghost/formbar-from-schema` should produce `ProductionRule[]` from Zod hints and JSON Schema `x-formbar` extensions, replacing old `RuleDefinition[]` output.
 
-4. **Old rule engine deprecation** — `RuleDefinition`, `executeRules()`, `expression-deps.ts` still present in `@ghost/formr-core` for backward compatibility. Should be deprecated and removed once all consumers migrate to arbiter.
+4. **Old rule engine deprecation** — `RuleDefinition`, `executeRules()`, `expression-deps.ts` still present in `@ghost/formbar-core` for backward compatibility. Should be deprecated and removed once all consumers migrate to arbiter.
 
 5. **Shell arbiter session** — Full hybrid session model for shell contribution visibility: one global session for static contributions + ephemeral sessions for context-dependent visibility. Currently using `@ghost/predicate` directly, but an arbiter session would enable TMS auto-retract and cross-contribution dependencies.
 

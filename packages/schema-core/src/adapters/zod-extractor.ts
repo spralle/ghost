@@ -27,7 +27,7 @@ export function extractFromZod(schema: unknown): SchemaIngestionResult {
 
   const fields: SchemaFieldInfo[] = [];
 
-  const rootMeta = extractFormrMetadata(zodSchema);
+  const rootMeta = extractFormbarMetadata(zodSchema);
   const metadata: SchemaMetadata = {
     vendor: "zod",
     ...(rootMeta ? { extra: rootMeta as unknown as Readonly<Record<string, unknown>> } : {}),
@@ -264,24 +264,24 @@ const KNOWN_META_KEYS = new Set([
   "placeholder",
 ]);
 
-function extractFormrMetadata(schema: ZodLike): SchemaFieldMetadata | undefined {
+function extractFormbarMetadata(schema: ZodLike): SchemaFieldMetadata | undefined {
   const def = schema._def;
   if (!def) return undefined;
 
   const rawMeta = def["metadata"] as Record<string, unknown> | undefined;
-  if (rawMeta && "x-formr" in rawMeta) {
+  if (rawMeta && "x-formbar" in rawMeta) {
     throw new SchemaError(
       "SCHEMA_ZOD_TRANSFORM_FORBIDDEN",
-      "x-formr is not allowed in Zod metadata. Use .meta({ formr: { ... } }) instead.",
+      "x-formbar is not allowed in Zod metadata. Use .meta({ formbar: { ... } }) instead.",
     );
   }
 
-  if (rawMeta && typeof rawMeta === "object" && "formr" in rawMeta) {
-    const formr = rawMeta["formr"] as Record<string, unknown>;
+  if (rawMeta && typeof rawMeta === "object" && "formbar" in rawMeta) {
+    const formbar = rawMeta["formbar"] as Record<string, unknown>;
     const result: Record<string, unknown> = {};
     const extra: Record<string, unknown> = {};
 
-    for (const [key, value] of Object.entries(formr)) {
+    for (const [key, value] of Object.entries(formbar)) {
       if (KNOWN_META_KEYS.has(key)) {
         result[key] = value;
       } else {
@@ -352,7 +352,7 @@ function extractZodChecks(def: ZodTypeDef & Record<string, unknown>): Record<str
   return result;
 }
 
-/** Merge formr metadata, checks, description, and context into SchemaFieldMetadata */
+/** Merge formbar metadata, checks, description, and context into SchemaFieldMetadata */
 function mergeZodMetadata(
   schema: ZodLike,
   ctx: WalkContext,
@@ -382,11 +382,11 @@ function mergeZodMetadata(
   // Extra type-specific metadata
   if (extra) Object.assign(result, extra);
 
-  // Formr metadata (from .meta({ formr: {...} })) → extensions.formr
-  const formrExtensions = extractFormrMetadata(schema);
-  if (formrExtensions) {
+  // Formbar metadata (from .meta({ formbar: {...} })) → extensions.formbar
+  const formbarExtensions = extractFormbarMetadata(schema);
+  if (formbarExtensions) {
     const existing = result.extensions as Record<string, Readonly<Record<string, unknown>>> | undefined;
-    result.extensions = { ...existing, ...formrExtensions };
+    result.extensions = { ...existing, ...formbarExtensions };
   }
 
   return Object.keys(result).length > 0 ? (result as SchemaFieldMetadata) : undefined;

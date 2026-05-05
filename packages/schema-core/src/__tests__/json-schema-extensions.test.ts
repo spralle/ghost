@@ -3,19 +3,19 @@ import { extractFromJsonSchema } from "../adapters/json-schema-extractor.js";
 import type { JsonSchema } from "../adapters/json-schema-types.js";
 
 describe("extractFromJsonSchema x-* extensions", () => {
-  test("extracts x-formr object to extensions.formr", () => {
+  test("extracts x-formbar object to extensions.formbar", () => {
     const schema: JsonSchema = {
       type: "object",
       properties: {
         volume: {
           type: "number",
-          "x-formr": { widget: "slider", min: 0, max: 100 },
+          "x-formbar": { widget: "slider", min: 0, max: 100 },
         },
       },
     };
     const result = extractFromJsonSchema(schema);
     const field = result.fields.find((f) => f.path === "volume");
-    expect(field?.metadata?.extensions?.formr).toEqual({ widget: "slider", min: 0, max: 100 });
+    expect(field?.metadata?.extensions?.formbar).toEqual({ widget: "slider", min: 0, max: 100 });
   });
 
   test("extracts x-weaver object to extensions.weaver", () => {
@@ -39,14 +39,14 @@ describe("extractFromJsonSchema x-* extensions", () => {
       properties: {
         name: {
           type: "string",
-          "x-formr": { widget: "text" },
+          "x-formbar": { widget: "text" },
           "x-weaver": { visibility: "public" },
         },
       },
     };
     const result = extractFromJsonSchema(schema);
     const field = result.fields.find((f) => f.path === "name");
-    expect(field?.metadata?.extensions?.formr).toEqual({ widget: "text" });
+    expect(field?.metadata?.extensions?.formbar).toEqual({ widget: "text" });
     expect(field?.metadata?.extensions?.weaver).toEqual({ visibility: "public" });
   });
 
@@ -87,7 +87,7 @@ describe("extractFromJsonSchema x-* extensions", () => {
           type: "string",
           title: "Email",
           format: "email",
-          "x-formr": { widget: "email-input" },
+          "x-formbar": { widget: "email-input" },
         },
       },
     };
@@ -95,6 +95,6 @@ describe("extractFromJsonSchema x-* extensions", () => {
     const field = result.fields.find((f) => f.path === "email");
     expect(field?.metadata?.title).toBe("Email");
     expect(field?.metadata?.format).toBe("email");
-    expect(field?.metadata?.extensions?.formr).toEqual({ widget: "email-input" });
+    expect(field?.metadata?.extensions?.formbar).toEqual({ widget: "email-input" });
   });
 });

@@ -24,9 +24,9 @@
     "*.css"
   ],
   "dependencies": {
-    "@ghost-shell/formr-core": "workspace:*",
-    "@ghost-shell/formr-from-schema": "workspace:*",
-    "@ghost-shell/formr-react": "workspace:*",
+    "@formbar/core": "workspace:*",
+    "@formbar/from-schema": "workspace:*",
+    "@formbar/react": "workspace:*",
     "@ghost-shell/schema-core": "workspace:*",
     "@radix-ui/react-accordion": "1.2.12",
     "@radix-ui/react-alert-dialog": "1.1.15",

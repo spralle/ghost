@@ -25,7 +25,7 @@ export function assertComparableTypes(a: unknown, b: unknown, op: string): void 
   const tb = typeof nb;
   if (ta !== tb || (ta !== "number" && ta !== "string")) {
     throw new PredicateError(
-      "FORMR_EXPR_TYPE_MISMATCH",
+      "FORMBAR_EXPR_TYPE_MISMATCH",
       `${op} requires operands of the same type (number or string), got ${ta} and ${tb}`,
     );
   }

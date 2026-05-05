@@ -1,7 +1,7 @@
 ---
 "@ghost-shell/schema-core": patch
-"@ghost-shell/formr-from-schema": patch
+"@formbar/from-schema": patch
 "@ghost-shell/ui": patch
 ---
 
-Migrate all downstream consumers to read formr-specific metadata from `metadata.extensions.formr` instead of top-level metadata fields. Zod extractors now write formr hints to `extensions.formr` matching the JSON Schema extractor pattern.
+Migrate all downstream consumers to read formbar-specific metadata from `metadata.extensions.formbar` instead of top-level metadata fields. Zod extractors now write formbar hints to `extensions.formbar` matching the JSON Schema extractor pattern.

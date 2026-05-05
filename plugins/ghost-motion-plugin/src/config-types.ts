@@ -36,7 +36,7 @@ export interface AnimationEntry {
 export interface GhostMotionConfig {
   /** Global kill switch. False = zero animation CSS injected. */
   readonly enabled: boolean;
-  /** Named bezier curve registry. Array for formr dynamic binding. */
+  /** Named bezier curve registry. Array for formbar dynamic binding. */
   readonly curves: readonly NamedBezierCurve[];
   /** Per-animation overrides. Omitted entries inherit from parent in tree. */
   readonly animations: Partial<Record<AnimationName, AnimationEntry>>;

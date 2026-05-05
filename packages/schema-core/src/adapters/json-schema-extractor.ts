@@ -8,7 +8,7 @@ import type {
 import { dereferenceSchema } from "./json-schema-deref.js";
 import type { JsonSchema } from "./json-schema-types.js";
 
-/** Extract x-* extension keys from a JSON Schema into a grouped record (e.g., x-formr → extensions.formr) */
+/** Extract x-* extension keys from a JSON Schema into a grouped record (e.g., x-formbar → extensions.formbar) */
 function extractExtensions(
   schema: JsonSchema,
 ): Readonly<Record<string, Readonly<Record<string, unknown>>>> | undefined {

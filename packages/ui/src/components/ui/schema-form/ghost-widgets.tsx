@@ -1,7 +1,7 @@
 "use client";
 
-import type { FormApi, ValidationIssue } from "@ghost-shell/formr-core";
-import type { SchemaFieldInfo } from "@ghost-shell/formr-from-schema";
+import type { FormApi, ValidationIssue } from "@formbar/core";
+import type { SchemaFieldInfo } from "@formbar/from-schema";
 import type { ComponentType, ReactNode } from "react";
 import { Input } from "../input";
 import { Label } from "../label";

@@ -100,7 +100,7 @@ export function compileComparison(op: string, args: readonly ExprNode[]): BoolSc
       const na = normalizeComparable(a);
       if (typeof na !== typeof bVal || (typeof na !== "number" && typeof na !== "string")) {
         throw new PredicateError(
-          "FORMR_EXPR_TYPE_MISMATCH",
+          "FORMBAR_EXPR_TYPE_MISMATCH",
           `${op} requires operands of the same type (number or string), got ${typeof na} and ${typeof bVal}`,
         );
       }
@@ -155,7 +155,7 @@ export function compileInclusion(args: readonly ExprNode[], negate: boolean): Bo
   return (scope) => {
     const arr = resolveList(scope);
     if (!Array.isArray(arr)) {
-      throw new PredicateError("FORMR_EXPR_TYPE_MISMATCH", `${opName} requires second argument to be an array`);
+      throw new PredicateError("FORMBAR_EXPR_TYPE_MISMATCH", `${opName} requires second argument to be an array`);
     }
     const v = resolveValue(scope);
     const found = Array.isArray(v) ? v.some((el) => arr.includes(el)) : arr.includes(v);
@@ -191,7 +191,7 @@ export function compileRegex(args: readonly ExprNode[]): BoolScopeFn {
     const target = resolveTarget(scope);
     const pat = resolvePattern(scope);
     if (typeof pat !== "string") {
-      throw new PredicateError("FORMR_EXPR_TYPE_MISMATCH", "$regex requires string operands");
+      throw new PredicateError("FORMBAR_EXPR_TYPE_MISMATCH", "$regex requires string operands");
     }
     const re = getCachedRegex(pat, flags);
     const needsReset = re.global || re.sticky;
@@ -260,7 +260,7 @@ export function compileAll(args: readonly ExprNode[]): BoolScopeFn {
     if (!Array.isArray(v)) return false;
     const required = resolveList(scope);
     if (!Array.isArray(required)) {
-      throw new PredicateError("FORMR_EXPR_TYPE_MISMATCH", "$all requires an array argument");
+      throw new PredicateError("FORMBAR_EXPR_TYPE_MISMATCH", "$all requires an array argument");
     }
     return required.every((item) => v.includes(item));
   };

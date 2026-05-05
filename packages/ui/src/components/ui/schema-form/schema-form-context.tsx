@@ -1,9 +1,9 @@
 "use client";
 
-import type { FormApi } from "@ghost-shell/formr-core";
-import type { SchemaFieldInfo } from "@ghost-shell/formr-from-schema";
-import type { RendererRegistry, ResolvedFieldState } from "@ghost-shell/formr-react";
-import { DEFAULT_FIELD_STATE } from "@ghost-shell/formr-react";
+import type { FormApi } from "@formbar/core";
+import type { SchemaFieldInfo } from "@formbar/from-schema";
+import type { RendererRegistry, ResolvedFieldState } from "@formbar/react";
+import { DEFAULT_FIELD_STATE } from "@formbar/react";
 import { createContext, useContext } from "react";
 import type { WidgetOverrides } from "./widget-overrides";
 

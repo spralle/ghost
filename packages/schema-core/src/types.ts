@@ -50,7 +50,7 @@ export interface SchemaFieldMetadata {
   readonly tuple?: boolean;
   readonly const?: unknown;
   readonly variants?: readonly unknown[];
-  // Extension data from x-* keys (e.g., x-formr → extensions.formr)
+  // Extension data from x-* keys (e.g., x-formbar → extensions.formbar)
   readonly extensions?: Readonly<Record<string, Readonly<Record<string, unknown>>>>;
   // Display label (from x-* extensions or schema extractors)
   readonly label?: string;

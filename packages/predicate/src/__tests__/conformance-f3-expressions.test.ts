@@ -87,24 +87,24 @@ describe("F3: Operator typing enforced — no coercion", () => {
     expect(evaluate(op("$eq", lit(42), lit("42")), scope())).toBe(false);
   });
 
-  it("$gt with mixed types throws FORMR_EXPR_TYPE_MISMATCH", () => {
+  it("$gt with mixed types throws FORMBAR_EXPR_TYPE_MISMATCH", () => {
     expect(() => evaluate(op("$gt", lit(10), lit("5")), scope())).toThrow(PredicateError);
     try {
       evaluate(op("$gt", lit(10), lit("5")), scope());
     } catch (e) {
-      expect((e as PredicateError).code).toBe("FORMR_EXPR_TYPE_MISMATCH");
+      expect((e as PredicateError).code).toBe("FORMBAR_EXPR_TYPE_MISMATCH");
     }
   });
 
-  it("$lt with mixed types throws FORMR_EXPR_TYPE_MISMATCH", () => {
+  it("$lt with mixed types throws FORMBAR_EXPR_TYPE_MISMATCH", () => {
     expect(() => evaluate(op("$lt", lit("a"), lit(1)), scope())).toThrow(PredicateError);
   });
 
-  it("$gte with mixed types throws FORMR_EXPR_TYPE_MISMATCH", () => {
+  it("$gte with mixed types throws FORMBAR_EXPR_TYPE_MISMATCH", () => {
     expect(() => evaluate(op("$gte", lit(true), lit(1)), scope())).toThrow(PredicateError);
   });
 
-  it("$in with non-array second arg throws FORMR_EXPR_TYPE_MISMATCH", () => {
+  it("$in with non-array second arg throws FORMBAR_EXPR_TYPE_MISMATCH", () => {
     expect(() => evaluate(op("$in", lit(1), lit("not-array")), scope())).toThrow(PredicateError);
   });
 
