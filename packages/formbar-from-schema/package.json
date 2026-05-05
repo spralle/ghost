@@ -4,18 +4,21 @@
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
-  "types": "./src/index.ts",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "source": "./src/index.ts",
-      "types": "./src/index.ts",
+      "types": {
+        "import": "./dist/index.d.ts",
+        "require": "./dist/index.d.cts"
+      },
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
     "./*": null
   },
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "sideEffects": false,
   "scripts": {

@@ -26,8 +26,7 @@
   },
   "dependencies": {
     "@formbar/core": "workspace:*",
-    "@formbar/from-schema": "workspace:*",
-    "@ghost-shell/schema-core": "workspace:*"
+    "@formbar/from-schema": "workspace:*"
   },
   "scripts": {
     "test": "bun test",

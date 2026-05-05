@@ -20,7 +20,8 @@ function normalizeFieldErrors(fieldErrors: Readonly<Record<string, string>>): Va
   }));
 }
 
-function generateSubmitId(): string {
+function generateSubmitId(idGenerator?: () => string): string {
+  if (idGenerator) return idGenerator();
   return `submit-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
@@ -46,22 +47,24 @@ export function createSubmitHandler<TData, TUi>(deps: SubmitHandlerDeps<TData, T
   const { store, pipelineStore, pipelineOptions, options, arbiterAdapter } = deps;
 
   function buildSubmitContext(context: Partial<SubmitContext> | undefined, submitId: string): SubmitContext {
+    const clock = deps.options.clock ?? (() => new Date().toISOString());
     return {
       requestId: context?.requestId ?? submitId,
-      at: context?.at ?? new Date().toISOString(),
+      at: context?.at ?? clock(),
       ...(context?.actorId !== undefined ? { actorId: context.actorId } : {}),
       ...(context?.metadata !== undefined ? { metadata: context.metadata } : {}),
     };
   }
 
   function markSubmissionRunning(submitId: string): void {
+    const clock = deps.options.clock ?? (() => new Date().toISOString());
     const tx = store.beginTransaction();
     tx.mutate((draft) => ({
       ...draft,
       meta: {
         ...draft.meta,
         submitted: true,
-        submission: { status: "running" as const, submitId, lastAttemptAt: new Date().toISOString() },
+        submission: { status: "running" as const, submitId, lastAttemptAt: clock() },
       },
     }));
     store.commitTransaction(tx);
@@ -118,7 +121,7 @@ export function createSubmitHandler<TData, TUi>(deps: SubmitHandlerDeps<TData, T
 
       const submitPromise = options.onSubmit?.({ form: deps.getApi(), submitContext, payload });
       if (!submitPromise) {
-        throw new Error("onSubmit handler is not defined");
+        throw new FormbarError("FORMBAR_SUBMIT_NO_HANDLER", "onSubmit handler is not defined");
       }
       const result = await withTimeout(
         submitPromise,
@@ -162,7 +165,7 @@ export function createSubmitHandler<TData, TUi>(deps: SubmitHandlerDeps<TData, T
         new FormbarError("FORMBAR_SUBMIT_CONCURRENT", "Submit rejected: a submission is already in progress"),
       );
     }
-    const submitId = generateSubmitId();
+    const submitId = generateSubmitId(deps.options.idGenerator);
     const submitContext = buildSubmitContext(context, submitId);
     markSubmissionRunning(submitId);
     const pipelineResult = runSubmitPipeline(submitContext);

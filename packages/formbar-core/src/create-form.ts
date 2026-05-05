@@ -261,6 +261,8 @@ export function createForm<TData, TUi>(
   // Late-bound api reference for submit handler
   let api: FormApi<TData, TUi>;
 
+  let submitAbortController: AbortController | undefined;
+
   const submit = createSubmitHandler<TData, TUi>({
     store,
     pipelineStore,
@@ -271,7 +273,8 @@ export function createForm<TData, TUi>(
     beforeOnSubmit: asyncManager
       ? async () => {
           asyncManager.cancelAll();
-          return asyncManager.runAllForSubmit(new AbortController().signal);
+          submitAbortController = new AbortController();
+          return asyncManager.runAllForSubmit(submitAbortController.signal);
         }
       : undefined,
   });
@@ -294,6 +297,7 @@ export function createForm<TData, TUi>(
     isSubmitting: () => computeIsSubmitting(store.getState()),
     isTouched: () => computeIsTouched(store.getState()),
     dispose: () => {
+      submitAbortController?.abort();
       asyncManager?.cancelAll();
       arbiterAdapter?.dispose();
       disposeMiddlewares((options.middleware ?? []) as readonly Middleware[]);

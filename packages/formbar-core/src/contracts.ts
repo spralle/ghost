@@ -12,6 +12,7 @@ export type { EvaluationScope, ExpressionDefinition, ExprNode };
 /**
  * ADR section 10 — Transform is the config-time type alias.
  * TransformDefinition (from transforms.ts) is the full runtime type with transform().
+ * @deprecated Use `TransformDefinition` directly. This alias will be removed in 1.0.
  */
 export type Transform = TransformDefinition;
 

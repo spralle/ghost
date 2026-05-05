@@ -229,7 +229,6 @@
       "dependencies": {
         "@formbar/core": "workspace:*",
         "@formbar/from-schema": "workspace:*",
-        "@ghost-shell/schema-core": "workspace:*",
       },
       "devDependencies": {
         "@types/react": "^19.0.0",

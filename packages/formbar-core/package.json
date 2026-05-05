@@ -14,6 +14,30 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
+    "./path": {
+      "types": {
+        "import": "./dist/path.d.ts",
+        "require": "./dist/path.d.cts"
+      },
+      "import": "./dist/path.js",
+      "require": "./dist/path.cjs"
+    },
+    "./transforms": {
+      "types": {
+        "import": "./dist/transforms.d.ts",
+        "require": "./dist/transforms.d.cts"
+      },
+      "import": "./dist/transforms.js",
+      "require": "./dist/transforms.cjs"
+    },
+    "./validation": {
+      "types": {
+        "import": "./dist/validation.d.ts",
+        "require": "./dist/validation.d.cts"
+      },
+      "import": "./dist/validation.js",
+      "require": "./dist/validation.cjs"
+    },
     "./*": null
   },
   "files": [
