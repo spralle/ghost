@@ -1,5 +1,5 @@
-import { describe, expect, test } from "vitest";
 import type { ValidatorFn } from "@formbar/core";
+import { describe, expect, test } from "vitest";
 import { createSchemaForm } from "../create-schema-form.js";
 import type { LayoutNode } from "../layout/layout-types.js";
 

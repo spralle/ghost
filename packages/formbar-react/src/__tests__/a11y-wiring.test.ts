@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
 import type { ValidationIssue } from "@formbar/core";
 import type { LayoutNode } from "@formbar/from-schema";
+import { describe, expect, it } from "vitest";
 import { renderLayoutTree } from "../render-tree.js";
 import { RendererRegistry } from "../renderer-registry.js";
 

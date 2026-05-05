@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
 import type { LayoutMiddlewareContext, LayoutNode } from "@formbar/from-schema";
 import type { SchemaFieldInfo } from "@ghost-shell/schema-core";
+import { describe, expect, it } from "vitest";
 import { createGovernanceMiddleware } from "../layout-middleware.js";
 
 function makeFieldInfo(extensions?: Record<string, Record<string, unknown>>): SchemaFieldInfo {

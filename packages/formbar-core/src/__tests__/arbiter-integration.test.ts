@@ -1,6 +1,6 @@
-import { describe, expect, test } from "vitest";
 import type { ProductionRule } from "@ghost-shell/arbiter";
 import { createSession } from "@ghost-shell/arbiter";
+import { describe, expect, test } from "vitest";
 import { createArbiterAdapter, createArbiterAdapterFromSession } from "../arbiter-integration.js";
 import { createForm } from "../create-form.js";
 import type { FormState } from "../state.js";

@@ -10,7 +10,10 @@ export default defineConfig({
   resolve: {
     alias: [
       { find: /^@ghost\/formbar-core$/, replacement: resolve("../../packages/formbar-core/src/index.ts") },
-      { find: /^@ghost\/formbar-from-schema$/, replacement: resolve("../../packages/formbar-from-schema/src/index.ts") },
+      {
+        find: /^@ghost\/formbar-from-schema$/,
+        replacement: resolve("../../packages/formbar-from-schema/src/index.ts"),
+      },
       { find: /^@ghost\/formbar-react$/, replacement: resolve("../../packages/formbar-react/src/index.ts") },
       { find: /^@ghost\/ui$/, replacement: resolve("../../packages/ui/src/index.ts") },
       { find: /^@ghost\/plugin-contracts$/, replacement: resolve("../../packages/plugin-contracts/src/index.ts") },

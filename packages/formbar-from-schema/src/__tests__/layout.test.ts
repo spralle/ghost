@@ -1,5 +1,5 @@
-import { describe, expect, test } from "vitest";
 import type { SchemaIngestionResult } from "@ghost-shell/schema-core";
+import { describe, expect, test } from "vitest";
 import { FromSchemaError } from "../errors.js";
 import { compileLayout } from "../layout/layout-compiler.js";
 import { LayoutNodeRegistry } from "../layout/layout-registry.js";

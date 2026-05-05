@@ -12,7 +12,10 @@ export class LayoutNodeRegistry {
   /** Register a custom node type. Built-in types cannot be overridden. */
   register(type: string, definition: LayoutNodeDefinition): void {
     if (isBuiltInNodeType(type)) {
-      throw new FromSchemaError("FORMBAR_LAYOUT_UNKNOWN_NODE_TYPE", `Cannot override built-in layout node type: ${type}`);
+      throw new FromSchemaError(
+        "FORMBAR_LAYOUT_UNKNOWN_NODE_TYPE",
+        `Cannot override built-in layout node type: ${type}`,
+      );
     }
     this.custom.set(type, definition);
   }

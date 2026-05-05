@@ -1,4 +1,3 @@
-import { beforeEach, describe, expect, test } from "vitest";
 import {
   clearExtractorRegistry,
   createValidationOnlyResult,
@@ -9,6 +8,7 @@ import {
   type SchemaFieldInfo,
   type StandardSchemaV1,
 } from "@ghost-shell/schema-core";
+import { beforeEach, describe, expect, test } from "vitest";
 
 function makeStandardSchema(vendor: string): StandardSchemaV1 {
   return {

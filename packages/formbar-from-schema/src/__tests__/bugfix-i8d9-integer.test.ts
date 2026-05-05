@@ -1,6 +1,6 @@
-import { describe, expect, test } from "vitest";
 import type { JsonSchema } from "@ghost-shell/schema-core";
 import { extractFromJsonSchema } from "@ghost-shell/schema-core";
+import { describe, expect, test } from "vitest";
 
 describe("i8d9: integer type mapping", () => {
   test("maps JSON Schema integer to integer field type", () => {

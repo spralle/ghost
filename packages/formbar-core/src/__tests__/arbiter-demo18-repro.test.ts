@@ -1,5 +1,5 @@
-import { describe, expect, test } from "vitest";
 import type { ProductionRule } from "@ghost-shell/arbiter";
+import { describe, expect, test } from "vitest";
 import { createForm } from "../create-form.js";
 
 /**

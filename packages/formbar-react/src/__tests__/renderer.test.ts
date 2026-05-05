@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { FormbarError } from "@formbar/core";
+import { describe, expect, it } from "vitest";
 import { RendererRegistry } from "../renderer-registry.js";
 
 describe("RendererRegistry", () => {

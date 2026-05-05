@@ -1,6 +1,5 @@
-import { describe, expect, test } from "vitest";
-
 import { mergeMetadata, mergeSamePrecedence, SchemaError, structuralEqual } from "@ghost-shell/schema-core";
+import { describe, expect, test } from "vitest";
 
 describe("mergeMetadata (cross-precedence)", () => {
   test("external overrides embedded overrides kernel for scalars", () => {

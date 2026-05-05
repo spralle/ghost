@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { LayoutNode } from "@formbar/from-schema";
+import { describe, expect, it } from "vitest";
 import { DEFAULT_FIELD_STATE, pruneHiddenFields, resolveFieldStates } from "../resolve-field-state.js";
 
 describe("resolveFieldStates", () => {

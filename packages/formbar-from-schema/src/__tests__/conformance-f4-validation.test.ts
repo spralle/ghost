@@ -1,5 +1,5 @@
-import { describe, expect, test } from "vitest";
 import type { ValidationIssue, ValidatorFn } from "@formbar/core";
+import { describe, expect, test } from "vitest";
 import type { JsonSchema } from "../adapters/json-schema-types.js";
 import { createJsonSchemaValidator } from "../adapters/json-schema-validator.js";
 

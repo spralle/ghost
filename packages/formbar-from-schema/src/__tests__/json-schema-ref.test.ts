@@ -1,6 +1,6 @@
-import { describe, expect, test } from "vitest";
 import type { JsonSchema } from "@ghost-shell/schema-core";
 import { dereferenceSchema, extractFromJsonSchema } from "@ghost-shell/schema-core";
+import { describe, expect, test } from "vitest";
 import { createJsonSchemaValidator } from "../adapters/json-schema-validator.js";
 
 describe("dereferenceSchema", () => {
