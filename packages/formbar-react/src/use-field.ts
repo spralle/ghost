@@ -11,7 +11,32 @@ function fieldSnapshotEqual(a: FieldSnapshot, b: FieldSnapshot): boolean {
   return a.value === b.value && a.meta === b.meta;
 }
 
-/** Get a FieldApi for a specific path, with fine-grained re-rendering */
+/**
+ * React hook that subscribes to a specific field with fine-grained re-rendering.
+ * Only re-renders when the field's value or metadata actually changes.
+ *
+ * @param form - The {@link FormApi} instance (from useForm or createForm).
+ * @param path - Dot-path to the field (e.g., `"user.email"`).
+ * @param config - Optional field configuration (label, validators, triggers).
+ * @returns A {@link FieldApi} with reactive get/set, validation, and touch tracking.
+ *
+ * @example
+ * ```typescript
+ * function EmailField({ form }) {
+ *   const field = useField(form, "email");
+ *   return (
+ *     <div>
+ *       <input
+ *         value={field.get() ?? ""}
+ *         onChange={e => field.handleChange(e.target.value)}
+ *         onBlur={() => field.handleBlur()}
+ *       />
+ *       {field.issues().map(i => <span key={i.code}>{i.message}</span>)}
+ *     </div>
+ *   );
+ * }
+ * ```
+ */
 export function useField<TData, TUi, P extends string>(
   form: FormApi<TData, TUi>,
   path: P,

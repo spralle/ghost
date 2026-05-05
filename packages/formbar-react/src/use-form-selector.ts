@@ -1,7 +1,21 @@
 import type { FormApi, FormState } from "@formbar/core";
 import { useCallback, useRef, useSyncExternalStore } from "react";
 
-/** Subscribe to a derived value from form state; only re-render when the selected value changes */
+/**
+ * Subscribe to a derived value from form state with fine-grained reactivity.
+ * Only triggers re-render when the selected value changes (by equality function).
+ *
+ * @param form - The {@link FormApi} instance.
+ * @param selector - Function that extracts a value from the full form state.
+ * @param equalityFn - Optional equality comparator (defaults to `Object.is`).
+ * @returns The current selected value, updated reactively.
+ *
+ * @example
+ * ```typescript
+ * const isValid = useFormSelector(form, (state) => state.issues.length === 0);
+ * const submitCount = useFormSelector(form, (state) => state.meta.submitted);
+ * ```
+ */
 export function useFormSelector<TData, TUi, T>(
   form: FormApi<TData, TUi>,
   selector: (state: FormState<TData, TUi>) => T,

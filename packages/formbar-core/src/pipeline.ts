@@ -88,8 +88,16 @@ function runValidators(
 }
 
 /**
- * ADR §8 — Execute the full 18-step action-to-commit pipeline.
- * All-or-nothing transactional semantics: no partial commits.
+ * Executes the 18-step transactional pipeline for a form action.
+ * All-or-nothing semantics: partial commits never occur.
+ *
+ * Steps: path validation → begin TX → beforeAction veto → ingress transforms →
+ * base mutation → beforeEvaluate → rule evaluation → afterEvaluate → resolve →
+ * beforeValidate → validate → afterValidate → submit veto → write issues →
+ * commit → notify subscribers → afterAction → (error: rollback).
+ *
+ * @param ctx - Pipeline context containing action, store, options, and adapters.
+ * @returns Result indicating success/failure with optional issues or veto reason.
  */
 export function executePipeline(ctx: PipelineContext): PipelineResult {
   const { action, store, options, submitContext, isSubmit } = ctx;

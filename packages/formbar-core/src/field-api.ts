@@ -52,7 +52,21 @@ function stripUndefined(obj: FieldConfig): Partial<FieldConfig> {
   return result as Partial<FieldConfig>;
 }
 
-/** ADR §9.1 — create a FieldApi that delegates to the parent form */
+/**
+ * Creates a {@link FieldApi} bound to a specific path within the form state.
+ * Provides get/set, validation, touch tracking, and array helpers.
+ *
+ * @param params - Field creation parameters including store, path, and config.
+ * @returns A field API with typed access to the value at the given path.
+ *
+ * @example
+ * ```typescript
+ * const field = form.field("email");
+ * field.set("alice@example.com");
+ * field.markTouched();
+ * console.log(field.issues()); // []
+ * ```
+ */
 export function createFieldApi<TData, TUi>(params: CreateFieldApiParams<TData, TUi>): FieldApi<TData, TUi, string> {
   const pathKey = params.path.segments.join(".");
 

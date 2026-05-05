@@ -9,6 +9,28 @@ export interface UseFormOptions<TData, TUi> extends CreateFormOptions<TData, TUi
   readonly autoFocusOnError?: boolean;
 }
 
+/**
+ * React hook that creates and manages a form instance with automatic cleanup.
+ * The form is created once on mount and disposed on unmount (StrictMode-safe).
+ *
+ * @param options - Form configuration (same as {@link createForm} options).
+ * @returns A stable {@link FormApi} reference that persists across re-renders.
+ *
+ * @example
+ * ```typescript
+ * function ContactForm() {
+ *   const form = useForm({
+ *     initialData: { name: "", email: "" },
+ *     onSubmit: async ({ payload }) => {
+ *       await saveContact(payload);
+ *       return { ok: true, submitId: "1" };
+ *     },
+ *   });
+ *
+ *   return <input value={form.field("name").get()} onChange={e => form.field("name").set(e.target.value)} />;
+ * }
+ * ```
+ */
 export function useForm<TData, TUi>(options?: UseFormOptions<TData, TUi>): FormApi<TData, TUi> {
   const autoFocus = options?.autoFocusOnError ?? true;
   const formRef = useRef<FormApi<TData, TUi> | null>(null);

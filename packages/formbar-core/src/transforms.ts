@@ -17,7 +17,16 @@ export interface TransformContext<_TData = unknown> {
   readonly state: unknown;
 }
 
-/** Run transforms for a specific phase, optionally filtered by path. */
+/**
+ * Executes transform definitions for a specific phase, optionally filtered by path.
+ * Transforms are applied sequentially in array order.
+ *
+ * @param transforms - Array of transform definitions to evaluate.
+ * @param phase - Which phase to run: `"ingress"`, `"field"`, or `"egress"`.
+ * @param value - The input value to transform.
+ * @param context - Transform context (current state, optional path).
+ * @returns The transformed value after all matching transforms have been applied.
+ */
 export function runTransforms(
   transforms: readonly TransformDefinition[],
   phase: TransformPhase,
@@ -115,7 +124,24 @@ function isIsoDateString(value: string): boolean {
   return ISO_DATE_RE.test(value);
 }
 
-/** Type-safe field transform builder — narrows value type at compile time */
+/**
+ * Creates a type-safe field transform bound to a specific path.
+ * The value type is narrowed at compile time based on the path.
+ *
+ * @param id - Unique identifier for this transform.
+ * @param path - The field path this transform applies to.
+ * @param phase - Transform phase: `"ingress"`, `"field"`, or `"egress"`.
+ * @param transform - The transform function with narrowed value type.
+ * @returns A {@link TransformDefinition} ready to pass to form options.
+ *
+ * @example
+ * ```typescript
+ * const trimName = createFieldTransform<MyForm, "name">(
+ *   "trim-name", "name", "ingress",
+ *   (value) => value.trim(),
+ * );
+ * ```
+ */
 export function createFieldTransform<TData, P extends string & DeepKeys<TData>>(
   id: string,
   path: P,

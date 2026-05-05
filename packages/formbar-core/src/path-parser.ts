@@ -24,9 +24,23 @@ export interface ParsePathOptions {
 }
 
 /**
- * Parse a supported path notation into a CanonicalPath.
- * Accepts dot paths, namespace dot paths, and JSON Pointers (RFC 6901).
- * Results are cached by input string for repeated lookups.
+ * Parses a path string into a structured {@link CanonicalPath}.
+ * Supports dot notation (`user.name`), JSON Pointer (`/user/name`),
+ * and namespace prefixes (`$ui.theme.mode`).
+ *
+ * @param input - A dot-path, JSON Pointer, or namespaced path string.
+ * @param options - Optional parser configuration (custom namespace prefixes).
+ * @returns A canonical path with namespace, segments, and format metadata.
+ * @throws {@link FormbarError} with code `FORMBAR_PATH_EMPTY` or `FORMBAR_PATH_INVALID_*`.
+ *
+ * @example
+ * ```typescript
+ * parsePath("user.address.city");
+ * // → { namespace: "data", segments: ["user", "address", "city"], ... }
+ *
+ * parsePath("$ui.sidebar.collapsed");
+ * // → { namespace: "ui", segments: ["sidebar", "collapsed"], ... }
+ * ```
  */
 export function parsePath(input: string, options?: ParsePathOptions): CanonicalPath {
   const cached = pathCache.get(input);
@@ -63,7 +77,15 @@ export function parsePath(input: string, options?: ParsePathOptions): CanonicalP
 }
 
 /**
- * Serialize a canonical data-namespace path to JSON Pointer (RFC 6901).
+ * Converts a {@link CanonicalPath} to a JSON Pointer (RFC 6901) string.
+ *
+ * @param path - A canonical path object.
+ * @returns JSON Pointer string (e.g., `"/user/address/city"`).
+ *
+ * @example
+ * ```typescript
+ * toPointer(parsePath("user.name")); // "/user/name"
+ * ```
  */
 export function toPointer(path: CanonicalPath): string {
   if (path.namespace === "ui") {
@@ -78,9 +100,16 @@ function encodePointerSegment(seg: CanonicalSegment): string {
 }
 
 /**
- * Serialize a canonical path to dot notation.
- * Throws FORMBAR_PATH_NOT_DOT_SAFE if a segment contains characters
- * that cannot be represented unambiguously in dot notation.
+ * Converts a {@link CanonicalPath} back to dot notation string.
+ *
+ * @param path - A canonical path object.
+ * @returns Dot-delimited string (e.g., `"user.address.city"`).
+ * @throws {@link FormbarError} with `FORMBAR_PATH_NOT_DOT_SAFE` if a segment cannot be represented in dot notation.
+ *
+ * @example
+ * ```typescript
+ * toDot(parsePath("user.name")); // "user.name"
+ * ```
  */
 export function toDot(path: CanonicalPath): string {
   for (const seg of path.segments) {

@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "composite": false,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "paths": {
+      "@formbar/core": ["./packages/formbar-core/src/index.ts"],
+      "@formbar/from-schema": ["./packages/formbar-from-schema/src/index.ts"],
+      "@formbar/react": ["./packages/formbar-react/src/index.ts"],
+      "@ghost-shell/schema-core": ["./packages/schema-core/src/index.ts"],
+      "@ghost-shell/predicate": ["./packages/predicate/src/index.ts"]
+    }
+  },
+  "include": [
+    "packages/formbar-core/src/**/*.ts",
+    "packages/formbar-react/src/**/*.ts",
+    "packages/formbar-from-schema/src/**/*.ts"
+  ],
+  "exclude": ["**/__tests__/**", "**/node_modules/**"]
+}

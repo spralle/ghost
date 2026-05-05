@@ -38,7 +38,32 @@ function pathStartsWith(path: CanonicalPath, prefix: CanonicalPath): boolean {
   return prefix.segments.every((seg, i) => seg === path.segments[i]);
 }
 
-/** ADR §9 — createForm factory */
+/**
+ * Creates a fully-configured form instance with transactional state management,
+ * validation pipeline, and optional rule engine integration.
+ *
+ * @param options - Configuration for the form instance including initial data,
+ *   validators, middleware, transforms, and arbiter rules.
+ * @returns A {@link FormApi} instance with methods for state access, field manipulation,
+ *   validation, and submission.
+ *
+ * @example
+ * ```typescript
+ * import { createForm } from "@formbar/core";
+ *
+ * const form = createForm({
+ *   initialData: { name: "", email: "" },
+ *   validators: [myValidator],
+ *   onSubmit: async ({ payload }) => {
+ *     await api.save(payload);
+ *     return { ok: true, submitId: "1" };
+ *   },
+ * });
+ *
+ * form.setValue("name", "Alice");
+ * const result = await form.submit();
+ * ```
+ */
 export function createForm<TData, TUi>(
   options: CreateFormOptions<TData, TUi> = {} as CreateFormOptions<TData, TUi>,
 ): FormApi<TData, TUi> {

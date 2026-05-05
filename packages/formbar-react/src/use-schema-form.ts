@@ -37,9 +37,29 @@ function shallowEqualRecord(a: Readonly<Record<string, unknown>>, b: Readonly<Re
 }
 
 /**
- * React lifecycle wrapper over createSchemaForm.
- * Memoizes schema preparation; wires validators into useForm.
- * Resolves arbiter $ui field state and prunes hidden fields from layout.
+ * React hook that creates a schema-driven form from a Zod or JSON Schema definition.
+ * Combines schema ingestion, form creation, and layout compilation in one call.
+ *
+ * @param schema - A Zod schema, JSON Schema object, or any Standard Schema v1 implementation.
+ * @param options - Schema form options including layout middleware, validators, and form config.
+ * @returns An object with `form` (FormApi), `layout` (LayoutNode tree), `fields` (field info), and `fieldStates`.
+ *
+ * @example
+ * ```typescript
+ * import { z } from "zod";
+ *
+ * function ProfileForm() {
+ *   const { form, layout, fields } = useSchemaForm(
+ *     z.object({
+ *       name: z.string().min(1).describe("Full Name"),
+ *       bio: z.string().optional().describe("Short bio"),
+ *     }),
+ *     { onSubmit: async ({ payload }) => { ... } },
+ *   );
+ *
+ *   return <FormRenderer form={form} layout={layout} fields={fields} />;
+ * }
+ * ```
  */
 export function useSchemaForm<TData, TUi>(
   schema: unknown,

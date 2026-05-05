@@ -10,9 +10,23 @@ export interface LayoutMiddlewareContext {
 export type LayoutMiddleware = (node: LayoutNode, context: LayoutMiddlewareContext) => LayoutNode;
 
 /**
- * Apply a pipeline of layout middlewares to a tree.
- * Multi-pass: each middleware walks the entire tree produced by the previous one.
- * Depth-first recursive: children are processed before their parent.
+ * Applies a pipeline of layout middleware to a compiled layout tree.
+ * Each middleware can transform, reorder, wrap, or annotate layout nodes.
+ *
+ * @param tree - The root layout node tree (from schema compilation).
+ * @param middlewares - Ordered array of middleware functions to apply.
+ * @param fieldInfoMap - Map of field paths to their schema-extracted info.
+ * @returns The transformed layout tree after all middleware has been applied.
+ *
+ * @example
+ * ```typescript
+ * const responsiveMiddleware = (node, ctx) => {
+ *   if (ctx.depth === 0) node.props = { ...node.props, columns: 2 };
+ *   return node;
+ * };
+ *
+ * const tree = applyLayoutMiddleware(compiledTree, [responsiveMiddleware], fieldInfo);
+ * ```
  */
 export function applyLayoutMiddleware(
   tree: LayoutNode,

@@ -24,8 +24,26 @@ export interface SchemaFormResult {
 }
 
 /**
- * Pure schema preparation: ingest + compile layout + create validators.
- * Framework-agnostic — use directly or wrap in framework lifecycle (useSchemaForm for React).
+ * Creates a form instance from a schema definition (Zod v4 or JSON Schema).
+ * Automatically extracts fields, compiles a layout tree, generates validators,
+ * and resolves default values from the schema.
+ *
+ * @param schema - A Zod schema, JSON Schema object, or any Standard Schema v1 implementation.
+ * @param options - Additional configuration: extra validators, layout overrides, middleware.
+ * @returns A configured {@link SchemaFormResult} with validators, layout tree, and field info map.
+ *
+ * @example
+ * ```typescript
+ * import { z } from "zod";
+ * import { createSchemaForm } from "@formbar/from-schema";
+ *
+ * const { form, layout, fields } = createSchemaForm(
+ *   z.object({
+ *     email: z.string().email(),
+ *     age: z.number().min(18),
+ *   }),
+ * );
+ * ```
  */
 export function createSchemaForm(schema: unknown, options?: CreateSchemaFormOptions): SchemaFormResult {
   const result = ingestSchema(schema);
