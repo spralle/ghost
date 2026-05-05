@@ -25,9 +25,9 @@
   },
   "dependencies": {
     "@ghost-shell/contracts": "file:../../packages/plugin-contracts",
-    "@ghost-shell/formr-core": "workspace:*",
-    "@ghost-shell/formr-from-schema": "workspace:*",
-    "@ghost-shell/formr-react": "workspace:*",
+    "@formbar/core": "workspace:*",
+    "@formbar/from-schema": "workspace:*",
+    "@formbar/react": "workspace:*",
     "@ghost-shell/schema-core": "workspace:*",
     "@ghost-shell/ui": "workspace:*",
     "react": "^18.3.1",

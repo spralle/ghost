@@ -99,7 +99,7 @@ describe("evaluate", () => {
       expect(evaluate(op("$gt", lit("b"), lit("a")), scope)).toBe(true);
     });
 
-    it('$gt(10, "5") → throws FORMR_EXPR_TYPE_MISMATCH', () => {
+    it('$gt(10, "5") → throws FORMBAR_EXPR_TYPE_MISMATCH', () => {
       expect(() => evaluate(op("$gt", lit(10), lit("5")), scope)).toThrow(PredicateError);
     });
 

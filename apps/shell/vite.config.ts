@@ -29,13 +29,13 @@ const COMMANDS_SRC_ROOT = pkgSrc("commands");
 const CONFIG_PLUGIN_RUNTIME_SRC_ROOT = pkgSrc("config-plugin-runtime");
 const DATA_TABLE_SRC_ROOT = pkgSrc("data-table");
 const ENTITY_TABLE_SRC_ROOT = pkgSrc("entity-table");
-const FORMR_CORE_SRC_ROOT = pkgSrc("formr-core");
-const FORMR_FROM_SCHEMA_SRC_ROOT = pkgSrc("formr-from-schema");
-const FORMR_REACT_SRC_ROOT = pkgSrc("formr-react");
+const FORMBAR_CORE_SRC_ROOT = pkgSrc("formbar-core");
+const FORMBAR_FROM_SCHEMA_SRC_ROOT = pkgSrc("formbar-from-schema");
+const FORMBAR_REACT_SRC_ROOT = pkgSrc("formbar-react");
 const REACT_SRC_ROOT = pkgSrc("react");
 const SCHEMA_CORE_SRC_ROOT = pkgSrc("schema-core");
 const TABLE_FROM_SCHEMA_SRC_ROOT = pkgSrc("table-from-schema");
-const WEAVER_FORMR_BRIDGE_SRC_ROOT = pkgSrc("weaver-formr-bridge");
+const WEAVER_FORMBAR_BRIDGE_SRC_ROOT = pkgSrc("weaver-formbar-bridge");
 
 const WEAVER_CONFIG_ENGINE_SRC = weaverSrc("config-engine");
 const WEAVER_CONFIG_TYPES_SRC = weaverSrc("config-types");
@@ -83,20 +83,20 @@ export default defineConfig({
       "@ghost-shell/data-table": `${DATA_TABLE_SRC_ROOT}/index.ts`,
       "@ghost-shell/entity-table/": `${ENTITY_TABLE_SRC_ROOT}/`,
       "@ghost-shell/entity-table": `${ENTITY_TABLE_SRC_ROOT}/index.ts`,
-      "@ghost-shell/formr-core/": `${FORMR_CORE_SRC_ROOT}/`,
-      "@ghost-shell/formr-core": `${FORMR_CORE_SRC_ROOT}/index.ts`,
-      "@ghost-shell/formr-from-schema/": `${FORMR_FROM_SCHEMA_SRC_ROOT}/`,
-      "@ghost-shell/formr-from-schema": `${FORMR_FROM_SCHEMA_SRC_ROOT}/index.ts`,
-      "@ghost-shell/formr-react/": `${FORMR_REACT_SRC_ROOT}/`,
-      "@ghost-shell/formr-react": `${FORMR_REACT_SRC_ROOT}/index.ts`,
+      "@ghost-shell/formbar-core/": `${FORMBAR_CORE_SRC_ROOT}/`,
+      "@ghost-shell/formbar-core": `${FORMBAR_CORE_SRC_ROOT}/index.ts`,
+      "@ghost-shell/formbar-from-schema/": `${FORMBAR_FROM_SCHEMA_SRC_ROOT}/`,
+      "@ghost-shell/formbar-from-schema": `${FORMBAR_FROM_SCHEMA_SRC_ROOT}/index.ts`,
+      "@ghost-shell/formbar-react/": `${FORMBAR_REACT_SRC_ROOT}/`,
+      "@ghost-shell/formbar-react": `${FORMBAR_REACT_SRC_ROOT}/index.ts`,
       "@ghost-shell/react/": `${REACT_SRC_ROOT}/`,
       "@ghost-shell/react": `${REACT_SRC_ROOT}/index.ts`,
       "@ghost-shell/schema-core/": `${SCHEMA_CORE_SRC_ROOT}/`,
       "@ghost-shell/schema-core": `${SCHEMA_CORE_SRC_ROOT}/index.ts`,
       "@ghost-shell/table-from-schema/": `${TABLE_FROM_SCHEMA_SRC_ROOT}/`,
       "@ghost-shell/table-from-schema": `${TABLE_FROM_SCHEMA_SRC_ROOT}/index.ts`,
-      "@ghost-shell/weaver-formr-bridge/": `${WEAVER_FORMR_BRIDGE_SRC_ROOT}/`,
-      "@ghost-shell/weaver-formr-bridge": `${WEAVER_FORMR_BRIDGE_SRC_ROOT}/index.ts`,
+      "@ghost-shell/weaver-formbar-bridge/": `${WEAVER_FORMBAR_BRIDGE_SRC_ROOT}/`,
+      "@ghost-shell/weaver-formbar-bridge": `${WEAVER_FORMBAR_BRIDGE_SRC_ROOT}/index.ts`,
       // @weaver/* packages — linked from external weaver project
       "@weaver/config-engine": `${WEAVER_CONFIG_ENGINE_SRC}/index.ts`,
       "@weaver/config-types": `${WEAVER_CONFIG_TYPES_SRC}/index.ts`,

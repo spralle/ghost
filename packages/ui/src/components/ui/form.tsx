@@ -1,7 +1,7 @@
 "use client";
 
-import type { FieldApi, FieldConfig, FormApi, ValidationIssue } from "@ghost-shell/formr-core";
-import { useField } from "@ghost-shell/formr-react";
+import type { FieldApi, FieldConfig, FormApi, ValidationIssue } from "@formbar/core";
+import { useField } from "@formbar/react";
 import type * as LabelPrimitive from "@radix-ui/react-label";
 import { Slot } from "@radix-ui/react-slot";
 import * as React from "react";

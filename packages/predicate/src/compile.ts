@@ -42,7 +42,7 @@ function makeLiteral(value: unknown): ExprNode {
   if (Array.isArray(value)) {
     return { kind: "literal", value };
   }
-  throw new PredicateError("FORMR_EXPR_COMPILE_UNSUPPORTED_LITERAL", `Unsupported literal value: ${String(value)}`);
+  throw new PredicateError("FORMBAR_EXPR_COMPILE_UNSUPPORTED_LITERAL", `Unsupported literal value: ${String(value)}`);
 }
 
 function compileFieldOperators(field: string, operators: Record<string, unknown>): ExprNode {
@@ -55,7 +55,7 @@ function compileFieldOperators(field: string, operators: Record<string, unknown>
 
     if (op === "$not") {
       if (value === null || typeof value !== "object" || Array.isArray(value)) {
-        throw new PredicateError("FORMR_EXPR_PARSE_INVALID_ARGUMENTS", "$not requires an object value");
+        throw new PredicateError("FORMBAR_EXPR_PARSE_INVALID_ARGUMENTS", "$not requires an object value");
       }
       const inner = compileFieldOperators(field, value as Record<string, unknown>);
       nodes.push({ kind: "op", op: "$not", args: [inner] });
@@ -64,7 +64,7 @@ function compileFieldOperators(field: string, operators: Record<string, unknown>
 
     if (op === "$elemMatch") {
       if (value === null || typeof value !== "object" || Array.isArray(value)) {
-        throw new PredicateError("FORMR_EXPR_PARSE_INVALID_ARGUMENTS", "$elemMatch requires an object sub-query");
+        throw new PredicateError("FORMBAR_EXPR_PARSE_INVALID_ARGUMENTS", "$elemMatch requires an object sub-query");
       }
       nodes.push({ kind: "op", op: "$elemMatch", args: [makePath(field), compile(value as Query)] });
       continue;
@@ -94,14 +94,14 @@ function compileFieldOperators(field: string, operators: Record<string, unknown>
     }
     if (op === "$in" || op === "$nin") {
       if (!Array.isArray(value)) {
-        throw new PredicateError("FORMR_EXPR_PARSE_INVALID_ARGUMENTS", `${op} requires an array value`);
+        throw new PredicateError("FORMBAR_EXPR_PARSE_INVALID_ARGUMENTS", `${op} requires an array value`);
       }
       nodes.push({ kind: "op", op, args: [makePath(field), makeLiteral(value)] });
       continue;
     }
     if (op === "$all") {
       if (!Array.isArray(value)) {
-        throw new PredicateError("FORMR_EXPR_PARSE_INVALID_ARGUMENTS", "$all requires an array value");
+        throw new PredicateError("FORMBAR_EXPR_PARSE_INVALID_ARGUMENTS", "$all requires an array value");
       }
       nodes.push({ kind: "op", op: "$all", args: [makePath(field), makeLiteral(value)] });
       continue;
@@ -138,16 +138,16 @@ function compileFieldEntry(field: string, value: unknown): ExprNode {
 function compileLogicalOp(op: string, value: unknown): ExprNode {
   if (op === "$not") {
     if (value === null || typeof value !== "object" || Array.isArray(value)) {
-      throw new PredicateError("FORMR_EXPR_PARSE_INVALID_ARGUMENTS", "$not requires an object value");
+      throw new PredicateError("FORMBAR_EXPR_PARSE_INVALID_ARGUMENTS", "$not requires an object value");
     }
     return { kind: "op", op: "$not", args: [compile(value as Query)] };
   }
   if (!Array.isArray(value)) {
-    throw new PredicateError("FORMR_EXPR_PARSE_INVALID_ARGUMENTS", `${op} requires an array of conditions`);
+    throw new PredicateError("FORMBAR_EXPR_PARSE_INVALID_ARGUMENTS", `${op} requires an array of conditions`);
   }
   const args = (value as unknown[]).map((item) => {
     if (item === null || typeof item !== "object" || Array.isArray(item)) {
-      throw new PredicateError("FORMR_EXPR_PARSE_INVALID_ARGUMENTS", `${op} array items must be objects`);
+      throw new PredicateError("FORMBAR_EXPR_PARSE_INVALID_ARGUMENTS", `${op} array items must be objects`);
     }
     return compile(item as Query);
   });

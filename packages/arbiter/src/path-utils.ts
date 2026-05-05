@@ -1,8 +1,9 @@
-import { assertSafeSegment } from "@ghost-shell/predicate/safe-path";
+import { validateAndSplitPath } from "@ghost-shell/predicate";
 import { ArbiterError, ArbiterErrorCode } from "./errors.js";
 
 /**
  * Splits a dot-delimited path into segments.
+ * For simple splitting without validation — use validatePath() when safety checks are needed.
  */
 export function splitPath(path: string): readonly string[] {
   return path.split(".");
@@ -16,17 +17,10 @@ export function validatePath(path: string): void {
   if (typeof path !== "string" || path.length === 0) {
     throw new ArbiterError(ArbiterErrorCode.INVALID_PATH, "Path must be a non-empty string");
   }
-
-  const segments = splitPath(path);
-  for (const segment of segments) {
-    try {
-      assertSafeSegment(segment);
-    } catch {
-      throw new ArbiterError(
-        ArbiterErrorCode.PROTOTYPE_POLLUTION,
-        `Path "${path}" contains dangerous segment "${segment}"`,
-      );
-    }
+  try {
+    validateAndSplitPath(path);
+  } catch {
+    throw new ArbiterError(ArbiterErrorCode.PROTOTYPE_POLLUTION, `Path "${path}" contains dangerous segment`);
   }
 }
 

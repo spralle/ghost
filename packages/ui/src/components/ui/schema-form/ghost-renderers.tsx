@@ -1,8 +1,8 @@
 "use client";
 
-import type { LayoutNode } from "@ghost-shell/formr-from-schema";
-import type { LayoutRendererProps } from "@ghost-shell/formr-react";
-import { descriptionId, errorId, fieldId, RendererRegistry, renderLayoutTree } from "@ghost-shell/formr-react";
+import type { LayoutNode } from "@formbar/from-schema";
+import type { LayoutRendererProps } from "@formbar/react";
+import { descriptionId, errorId, fieldId, RendererRegistry, renderLayoutTree } from "@formbar/react";
 import type { ReactNode } from "react";
 import { Button } from "../button";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "../field";

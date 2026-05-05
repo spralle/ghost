@@ -26,13 +26,13 @@
       "path": "./plugins/plugin-starter"
     },
     {
-      "path": "./packages/formr-core"
+      "path": "./packages/formbar-core"
     },
     {
       "path": "./packages/schema-core"
     },
     {
-      "path": "./packages/formr-from-schema"
+      "path": "./packages/formbar-from-schema"
     },
     {
       "path": "./packages/predicate"
@@ -62,7 +62,7 @@
       "path": "./packages/federation"
     },
     {
-      "path": "./packages/formr-react"
+      "path": "./packages/formbar-react"
     },
     {
       "path": "./apps/typecheck-fixture"
@@ -119,7 +119,7 @@
       "path": "./packages/entity-table"
     },
     {
-      "path": "./packages/weaver-formr-bridge"
+      "path": "./packages/weaver-formbar-bridge"
     }
   ]
 }

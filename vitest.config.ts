@@ -28,9 +28,9 @@ export default defineConfig({
       '@ghost-shell/data-table': path.resolve(__dirname, './packages/data-table/src/index.ts'),
       '@ghost-shell/entity-table': path.resolve(__dirname, './packages/entity-table/src/index.ts'),
       '@ghost-shell/federation': path.resolve(__dirname, './packages/federation/src/index.ts'),
-      '@ghost-shell/formr-core': path.resolve(__dirname, './packages/formr-core/src/index.ts'),
-      '@ghost-shell/formr-from-schema': path.resolve(__dirname, './packages/formr-from-schema/src/index.ts'),
-      '@ghost-shell/formr-react': path.resolve(__dirname, './packages/formr-react/src/index.ts'),
+      '@formbar/core': path.resolve(__dirname, './packages/formbar-core/src/index.ts'),
+      '@formbar/from-schema': path.resolve(__dirname, './packages/formbar-from-schema/src/index.ts'),
+      '@formbar/react': path.resolve(__dirname, './packages/formbar-react/src/index.ts'),
       '@ghost-shell/intents': path.resolve(__dirname, './packages/intents/src/index.ts'),
       '@ghost-shell/layer': path.resolve(__dirname, './packages/layer/src/index.ts'),
       '@ghost-shell/persistence': path.resolve(__dirname, './packages/persistence/src/index.ts'),
@@ -44,7 +44,7 @@ export default defineConfig({
       '@ghost-shell/table-from-schema': path.resolve(__dirname, './packages/table-from-schema/src/index.ts'),
       '@ghost-shell/theme': path.resolve(__dirname, './packages/theme/src/index.ts'),
       '@ghost-shell/ui': path.resolve(__dirname, './packages/ui/src/index.ts'),
-      '@ghost-shell/weaver-formr-bridge': path.resolve(__dirname, './packages/weaver-formr-bridge/src/index.ts'),
+      '@ghost-shell/weaver-formbar-bridge': path.resolve(__dirname, './packages/weaver-formbar-bridge/src/index.ts'),
 
       // @weaver/* packages — linked from external weaver project
       '@weaver/config-engine': path.resolve(__dirname, './node_modules/@weaver/config-engine/src/index.ts'),

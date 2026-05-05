@@ -1,5 +1,5 @@
 ---
-"@ghost-shell/formr-react": minor
+"@formbar/react": minor
 "@ghost/ui": patch
 ---
 

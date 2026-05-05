@@ -1,5 +1,5 @@
-import type { FormApi } from "@ghost-shell/formr-core";
-import type { SchemaFieldInfo } from "@ghost-shell/formr-from-schema";
+import type { FormApi } from "@formbar/core";
+import type { SchemaFieldInfo } from "@formbar/from-schema";
 import {
   Field,
   FieldContent,
@@ -20,7 +20,7 @@ interface FormFieldProps {
 
 /**
  * Uses local React state instead of useSyncExternalStore to drive re-renders.
- * This avoids a reactivity gap where formr's store notifications (bundled in the
+ * This avoids a reactivity gap where formbar's store notifications (bundled in the
  * plugin) fail to trigger React's (shared via Module Federation) re-render cycle.
  */
 export function FormField({ form, field, onChange }: FormFieldProps) {

@@ -8,8 +8,8 @@
     "packages/*"
   ],
   "scripts": {
-    "test:formr": "bun test packages/formr-core/src packages/predicate/src packages/formr-from-schema/src packages/formr-react/src",
-    "test:conformance": "bun test --test-name-pattern F[0-9] packages/formr-core/src packages/predicate/src packages/formr-from-schema/src",
+    "test:formbar": "bun test packages/formbar-core/src packages/predicate/src packages/formbar-from-schema/src packages/formbar-react/src",
+    "test:conformance": "bun test --test-name-pattern F[0-9] packages/formbar-core/src packages/predicate/src packages/formbar-from-schema/src",
     "lint": "biome check --diagnostic-level=error . && npm run check:architecture-guardrails --silent && npm run check:code-principles --silent && npm run check:config-schema --silent && npm run check:change-policies --silent && npm run check:ghost-tokens --silent && tsc --pretty false -p tsconfig.json --noEmit",
     "format": "biome format --write .",
     "format:check": "biome format . --diagnostic-level=error",
@@ -34,7 +34,8 @@
     "build:dist": "bun run --filter './packages/*' build:dist",
     "biome": "biome",
     "knip": "knip",
-    "knip:report": "knip --reporter compact"
+    "knip:report": "knip --reporter compact",
+    "docs:api": "typedoc"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.13",
@@ -42,6 +43,8 @@
     "happy-dom": "20.9.0",
     "knip": "6.8.0",
     "tsup": "8.5.1",
+    "typedoc": "0.28.19",
+    "typedoc-plugin-markdown": "4.11.0",
     "typescript": "^5.8.3",
     "vite": "^5.4.19",
     "vitest": "4.1.5"

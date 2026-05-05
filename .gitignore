@@ -38,3 +38,6 @@ trees\fix-surface-mount/
 
 # Vite hot-reload temp files
 *.timestamp-*.mjs
+
+# Generated API docs
+docs/api/generated/

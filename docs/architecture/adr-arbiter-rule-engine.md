@@ -1,4 +1,4 @@
-﻿# ADR: @ghost/arbiter — Rete-Inspired Production Rule Engine
+# ADR: @ghost/arbiter — Rete-Inspired Production Rule Engine
 
 ## Status
 
@@ -8,7 +8,7 @@
 
 The Ghost platform needs a unified rule engine that powers:
 
-1. **Form field visibility, validation, and calculation** — formr's current rule engine is a brute-force fixed-point loop that re-evaluates all rules every iteration, has no truth maintenance, no conflict resolution beyond "throw on conflict," and no rule phasing.
+1. **Form field visibility, validation, and calculation** — formbar's current rule engine is a brute-force fixed-point loop that re-evaluates all rules every iteration, has no truth maintenance, no conflict resolution beyond "throw on conflict," and no rule phasing.
 2. **Shell contribution visibility** — plugin contributions (actions, menus, keybindings, layer surfaces) carry `when` clauses evaluated via a conjunction-only matcher with no boolean combinators, no priority, and no incremental re-evaluation.
 3. **Business rule automation** — dynamic pricing, compliance, SLA monitoring, cross-entity validation. Currently no infrastructure exists for this.
 
@@ -22,7 +22,7 @@ Arbiter is a Rete-inspired production rule engine implemented as `@ghost/arbiter
 
 ### Supersedes
 
-This ADR supersedes formr ADR sections 5.5 (Rule write constraints and conflict policy) and 5.6 (Convergence/fixed-point semantics). The `RuleDefinition`, `RuleWrite`, and `RuleWriteIntent` types in `@ghost/formr-core/contracts.ts` are replaced by arbiter's `ProductionRule` and `ThenAction` types. The `ExpressionEngine` interface in formr-core is replaced by direct arbiter session integration.
+This ADR supersedes formbar ADR sections 5.5 (Rule write constraints and conflict policy) and 5.6 (Convergence/fixed-point semantics). The `RuleDefinition`, `RuleWrite`, and `RuleWriteIntent` types in `@ghost/formbar-core/contracts.ts` are replaced by arbiter's `ProductionRule` and `ThenAction` types. The `ExpressionEngine` interface in formbar-core is replaced by direct arbiter session integration.
 
 ### Prior Art
 
@@ -40,12 +40,12 @@ This ADR supersedes formr ADR sections 5.5 (Rule write constraints and conflict 
        ^
 @ghost/arbiter            (new — rule session, TMS, dependency network, agenda groups, match-resolve-act)
        ^
-@ghost/formr-core         (exists — creates arbiter session internally, schema-extracted rules)
+@ghost/formbar-core         (exists — creates arbiter session internally, schema-extracted rules)
 ```
 
 `@ghost/arbiter` MUST depend on `@ghost/predicate` for expression evaluation.
-`@ghost/arbiter` MUST NOT depend on `@ghost/formr-core`, `@ghost/formr-react`, or any shell code.
-`@ghost/formr-core` MUST depend on `@ghost/arbiter` and delegate all rule evaluation to it.
+`@ghost/arbiter` MUST NOT depend on `@ghost/formbar-core`, `@ghost/formbar-react`, or any shell code.
+`@ghost/formbar-core` MUST depend on `@ghost/arbiter` and delegate all rule evaluation to it.
 
 ### 1.1 Package Exports
 
@@ -171,7 +171,7 @@ The wildcard `*` (dot-path) and `[*]` (JSONPath) MUST iterate all elements of an
 
 Arbiter sessions operate on a flat scope (`Record<string, unknown>`). The following namespace conventions are defined:
 
-| Namespace | Owner | TMS auto-retract default | Submitted (formr) | Purpose |
+| Namespace | Owner | TMS auto-retract default | Submitted (formbar) | Purpose |
 |---|---|---|---|---|
 | *(root)* | User input + rules | No | Yes | Form data / base facts |
 | `` | Rules | Yes | No | Visibility, disabled, required, hints |
@@ -297,7 +297,7 @@ interface StateChange {
 
 ## 4) Execution Model — Match-Resolve-Act Cycle
 
-Arbiter MUST use a Rete-inspired match-resolve-act cycle. This supersedes formr ADR section 5.6 (convergence/fixed-point).
+Arbiter MUST use a Rete-inspired match-resolve-act cycle. This supersedes formbar ADR section 5.6 (convergence/fixed-point).
 
 ### 4.1 The Cycle
 
@@ -491,19 +491,19 @@ const rules: ProductionRule[] = [
 
 ### 8.2 Zod Hints
 
-Field-level shorthand extracted by `@ghost/formr-from-schema`:
+Field-level shorthand extracted by `@ghost/formbar-from-schema`:
 
 ```ts
 const schema = z.object({
   cargoType: z.enum(['general', 'hazardous', 'reefer']),
   imoClass: z.string().meta({
-    formr: {
+    formbar: {
       visible: { cargoType: 'hazardous' },
       required: { cargoType: 'hazardous' },
     },
   }),
   totalWeight: z.number().meta({
-    formr: {
+    formbar: {
       compute: { $sum: '$lineItems.*.weight' },
       readOnly: true,
     },
@@ -524,7 +524,7 @@ The extractor MUST generate `ProductionRule[]` from hints:
 
 Schema-extracted rules MUST receive salience `0` by default.
 
-### 8.3 JSON Schema x-formr
+### 8.3 JSON Schema x-formbar
 
 Same hint vocabulary, different carrier:
 
@@ -533,7 +533,7 @@ Same hint vocabulary, different carrier:
   "properties": {
     "imoClass": {
       "type": "string",
-      "x-formr": {
+      "x-formbar": {
         "visible": { "cargoType": "hazardous" },
         "required": { "cargoType": "hazardous" }
       }
@@ -580,7 +580,7 @@ The field name MUST be unified to `when` across all contribution types. The curr
 
 ---
 
-## 9) formr-core Integration
+## 9) formbar-core Integration
 
 ### 9.1 Session Lifecycle
 
@@ -596,7 +596,7 @@ interface CreateFormOptions<S extends string = string> {
 
 ### 9.2 Pipeline Integration
 
-Step 7 of the normative runtime algorithm (formr ADR section 8) — "Evaluate expressions and rules" — MUST delegate to `session.update()` instead of the legacy `executeRules()` convergence loop.
+Step 7 of the normative runtime algorithm (formbar ADR section 8) — "Evaluate expressions and rules" — MUST delegate to `session.update()` instead of the legacy `executeRules()` convergence loop.
 
 The integration MUST:
 1. Before step 7: `session.assert(buildExpressionScope(state))` to sync form state into the arbiter session scope.
@@ -904,7 +904,7 @@ A conformance suite MUST verify:
 
 ### 16.3 Integration Tests
 
-- formr-core creates session, registers schema-extracted rules, pipeline step 7 delegates to session
+- formbar-core creates session, registers schema-extracted rules, pipeline step 7 delegates to session
 - Shell global session handles contribution visibility with incremental context updates
 
 ---

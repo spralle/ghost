@@ -7,7 +7,7 @@ import { toColumnDefs } from "./to-column-defs.js";
 /**
  * Creates the full entity table configuration from a schema.
  * Pure function — no React, no side effects.
- * Mirrors the createSchemaForm pattern from formr-from-schema.
+ * Mirrors the createSchemaForm pattern from formbar-from-schema.
  */
 export function createEntityTable<TData>(
   schema: unknown,

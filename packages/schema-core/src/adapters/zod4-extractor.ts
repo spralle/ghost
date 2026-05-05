@@ -286,17 +286,17 @@ function buildV4Metadata(
   // Extra
   if (extra) Object.assign(result, extra);
 
-  // Formr metadata
+  // Formbar metadata
   const rawMeta = def["metadata"] as Record<string, unknown> | undefined;
-  if (rawMeta && "x-formr" in rawMeta) {
+  if (rawMeta && "x-formbar" in rawMeta) {
     throw new SchemaError(
       "SCHEMA_ZOD_TRANSFORM_FORBIDDEN",
-      "x-formr is not allowed in Zod metadata. Use .meta({ formr: { ... } }) instead.",
+      "x-formbar is not allowed in Zod metadata. Use .meta({ formbar: { ... } }) instead.",
     );
   }
-  if (rawMeta && typeof rawMeta === "object" && "formr" in rawMeta) {
-    const formr = rawMeta["formr"] as Record<string, unknown>;
-    Object.assign(result, formr);
+  if (rawMeta && typeof rawMeta === "object" && "formbar" in rawMeta) {
+    const formbar = rawMeta["formbar"] as Record<string, unknown>;
+    Object.assign(result, formbar);
   }
 
   return Object.keys(result).length > 0 ? (result as SchemaFieldMetadata) : undefined;
