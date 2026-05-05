@@ -1,6 +1,6 @@
 import { createContext, useContext, createElement } from "react";
 import type { ReactNode } from "react";
-import type { PermissionSnapshot, SentinelPrincipal } from "@ghost/sentinel";
+import type { PermissionSnapshot, SentinelPrincipal } from "@sentinel-guard/core";
 
 export interface SentinelContextValue {
   readonly snapshot: PermissionSnapshot;

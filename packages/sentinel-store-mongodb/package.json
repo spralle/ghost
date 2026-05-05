@@ -1,11 +1,11 @@
 {
-  "name": "@ghost/sentinel-store-mongodb",
+  "name": "@sentinel-guard/store-mongodb",
   "version": "0.1.0",
   "type": "module",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "peerDependencies": {
-    "@ghost/sentinel": "workspace:*",
+    "@sentinel-guard/core": "workspace:*",
     "mongodb": ">=6.0.0"
   },
   "devDependencies": {

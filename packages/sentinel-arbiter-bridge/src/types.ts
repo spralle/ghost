@@ -1,6 +1,6 @@
 /**
  * Bridge-specific types for sentinel-arbiter integration.
- * Sentinel policy types are defined here until @ghost/sentinel is available as a workspace package.
+ * Sentinel policy types are defined here until @sentinel-guard/core is available as a workspace package.
  */
 
 // ---------------------------------------------------------------------------

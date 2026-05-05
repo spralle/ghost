@@ -1,4 +1,4 @@
-import { ingestSchema } from "@ghost-shell/schema-core";
+import { ingestSchema } from "@scheman/core";
 import { compileTableFields } from "./compile-table-fields.js";
 import type { CreateTableConfigOptions, FilterableFieldInfo, TableConfig } from "./types.js";
 

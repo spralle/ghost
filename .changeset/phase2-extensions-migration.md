@@ -1,5 +1,5 @@
 ---
-"@ghost-shell/schema-core": patch
+"@scheman/core": patch
 "@ghost-shell/formr-from-schema": patch
 "@ghost-shell/ui": patch
 ---

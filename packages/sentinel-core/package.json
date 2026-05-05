@@ -1,5 +1,5 @@
 {
-  "name": "@ghost/sentinel",
+  "name": "@sentinel-guard/core",
   "version": "0.1.0",
   "type": "module",
   "main": "./src/index.ts",

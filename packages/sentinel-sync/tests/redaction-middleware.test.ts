@@ -1,6 +1,6 @@
 import { describe, it, expect } from "bun:test";
 import { createRedactionHook } from "../src/redaction-middleware.js";
-import type { ResourceSchema } from "@ghost/sentinel";
+import type { ResourceSchema } from "@sentinel-guard/core";
 
 function createSchema(): ResourceSchema<unknown, string> {
   return {

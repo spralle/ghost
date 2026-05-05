@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { expand } from "@ghost/sentinel";
-import type { CheckContext, DerivationNode } from "@ghost/sentinel";
+import { expand } from "@sentinel-guard/core";
+import type { CheckContext, DerivationNode } from "@sentinel-guard/core";
 import { useSentinel } from "./sentinel-context.js";
 
 export function useExpand(

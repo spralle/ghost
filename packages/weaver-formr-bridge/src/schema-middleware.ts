@@ -1,4 +1,4 @@
-import type { JsonSchema, SchemaMiddleware } from "@ghost-shell/schema-core";
+import type { JsonSchema, SchemaMiddleware } from "@scheman/core";
 
 export interface WeaverFormrContext {
   readonly layer: string;

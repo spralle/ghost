@@ -1,4 +1,4 @@
-import type { SchemaFieldInfo } from "@ghost-shell/schema-core";
+import type { SchemaFieldInfo } from "@scheman/core";
 import type { LayoutNode } from "./layout/layout-types.js";
 
 export interface LayoutMiddlewareContext {

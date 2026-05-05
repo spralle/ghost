@@ -3,7 +3,7 @@
 import type { PluginMountContext } from "@ghost-shell/contracts";
 import { CONFIG_SERVICE_ID, type ConfigurationService } from "@ghost-shell/contracts";
 import { useService } from "@ghost-shell/react";
-import type { JsonSchema } from "@ghost-shell/schema-core";
+import type { JsonSchema } from "@scheman/core";
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, SchemaForm } from "@ghost-shell/ui";
 import { useCallback, useMemo } from "react";
 

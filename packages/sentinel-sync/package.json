@@ -1,11 +1,11 @@
 {
-  "name": "@ghost/sentinel-sync",
+  "name": "@sentinel-guard/sync",
   "version": "0.1.0",
   "type": "module",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "peerDependencies": {
-    "@ghost/sentinel": "workspace:*"
+    "@sentinel-guard/core": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.8.3",

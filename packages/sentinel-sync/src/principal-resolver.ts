@@ -1,5 +1,5 @@
-import { createPrincipal } from "@ghost/sentinel";
-import type { SentinelPrincipal, SentinelStore } from "@ghost/sentinel";
+import { createPrincipal } from "@sentinel-guard/core";
+import type { SentinelPrincipal, SentinelStore } from "@sentinel-guard/core";
 import type { EnrichedJwtPayload, PrincipalResolverOptions } from "./types.js";
 
 /**

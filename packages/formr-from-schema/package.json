@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@ghost-shell/formr-core": "workspace:*",
-    "@ghost-shell/schema-core": "workspace:*"
+    "@scheman/core": "workspace:*"
   },
   "peerDependencies": {
     "zod": "^4.0.0"

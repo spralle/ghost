@@ -5,7 +5,7 @@ export {
   extractFromZod,
   extractFromZodV4,
   type JsonSchema,
-} from "@ghost-shell/schema-core";
+} from "@scheman/core";
 
 // Local exports
 export {

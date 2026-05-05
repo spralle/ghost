@@ -23,6 +23,6 @@
     "build:dist": "tsup"
   },
   "dependencies": {
-    "@ghost-shell/schema-core": "workspace:*"
+    "@scheman/core": "workspace:*"
   }
 }

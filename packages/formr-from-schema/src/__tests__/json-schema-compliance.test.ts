@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import type { JsonSchema } from "@ghost-shell/schema-core";
-import { extractFromJsonSchema } from "@ghost-shell/schema-core";
+import type { JsonSchema } from "@scheman/core";
+import { extractFromJsonSchema } from "@scheman/core";
 import { createJsonSchemaValidator, isJsonSchema } from "../adapters/json-schema-validator.js";
 import { resolveIfThenElseRequired } from "../conditional-required.js";
 

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { extractFromZod } from "@ghost-shell/schema-core";
+import { extractFromZod } from "@scheman/core";
 
 /** Helper to create a mock Zod-like schema */
 function _mockZod(typeName: string, extra: Record<string, unknown> = {}) {

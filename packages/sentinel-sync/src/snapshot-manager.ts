@@ -1,5 +1,5 @@
-import { buildSnapshot, isExpired } from "@ghost/sentinel";
-import type { SentinelPrincipal, PermissionSnapshot } from "@ghost/sentinel";
+import { buildSnapshot, isExpired } from "@sentinel-guard/core";
+import type { SentinelPrincipal, PermissionSnapshot } from "@sentinel-guard/core";
 import type { SnapshotCache, SnapshotManager, SnapshotManagerConfig } from "./types.js";
 
 /** Default in-memory cache */

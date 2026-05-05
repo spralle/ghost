@@ -27,7 +27,7 @@
     "@ghost-shell/formr-core": "workspace:*",
     "@ghost-shell/formr-from-schema": "workspace:*",
     "@ghost-shell/formr-react": "workspace:*",
-    "@ghost-shell/schema-core": "workspace:*",
+    "@scheman/core": "workspace:*",
     "@radix-ui/react-accordion": "1.2.12",
     "@radix-ui/react-alert-dialog": "1.1.15",
     "@radix-ui/react-avatar": "1.1.11",

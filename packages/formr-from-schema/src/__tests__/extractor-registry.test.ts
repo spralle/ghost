@@ -8,7 +8,7 @@ import {
   type SchemaExtractor,
   type SchemaFieldInfo,
   type StandardSchemaV1,
-} from "@ghost-shell/schema-core";
+} from "@scheman/core";
 
 function makeStandardSchema(vendor: string): StandardSchemaV1 {
   return {

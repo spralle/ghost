@@ -9,7 +9,7 @@
     "skipLibCheck": true,
     "paths": {
       "@ghost-shell/formr-core": ["../../packages/formr-core/src/index.ts"],
-      "@ghost-shell/schema-core": ["../../packages/schema-core/src/index.ts"],
+      "@scheman/core": ["../../packages/scheman-core/src/index.ts"],
       "@ghost-shell/formr-from-schema": ["../../packages/formr-from-schema/src/index.ts"],
       "@ghost-shell/formr-react": ["../../packages/formr-react/src/index.ts"],
       "@ghost-shell/ui": ["../../packages/ui/src/index.ts"],

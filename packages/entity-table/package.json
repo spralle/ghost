@@ -25,7 +25,7 @@
   "dependencies": {
     "@ghost-shell/contracts": "workspace:*",
     "@ghost-shell/data-table": "workspace:*",
-    "@ghost-shell/schema-core": "workspace:*",
+    "@scheman/core": "workspace:*",
     "@ghost-shell/table-from-schema": "workspace:*",
     "@ghost-shell/ui": "workspace:*",
     "lucide-react": "^0.475.0"

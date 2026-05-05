@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { mergeMetadata, mergeSamePrecedence, SchemaError, structuralEqual } from "@ghost-shell/schema-core";
+import { mergeMetadata, mergeSamePrecedence, SchemaError, structuralEqual } from "@scheman/core";
 
 /**
  * F5: Metadata merge conformance fixtures.

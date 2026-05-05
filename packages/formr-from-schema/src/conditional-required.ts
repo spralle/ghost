@@ -1,5 +1,5 @@
 import type { ValidationIssue } from "@ghost-shell/formr-core";
-import type { JsonSchema } from "@ghost-shell/schema-core";
+import type { JsonSchema } from "@scheman/core";
 import { checkType, isObject, makeIssue } from "./utils.js";
 
 /**

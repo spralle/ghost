@@ -3,7 +3,7 @@ import type {
   PermissionSnapshot,
   SentinelStore,
   ResourceSchema,
-} from "@ghost/sentinel";
+} from "@sentinel-guard/core";
 
 /** Current JWT payload from accounts service */
 export interface AccountsJwtPayload {

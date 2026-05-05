@@ -24,7 +24,7 @@
   "dependencies": {
     "@ghost-shell/formr-core": "workspace:*",
     "@ghost-shell/formr-from-schema": "workspace:*",
-    "@ghost-shell/schema-core": "workspace:*"
+    "@scheman/core": "workspace:*"
   },
   "scripts": {
     "test": "bun test",

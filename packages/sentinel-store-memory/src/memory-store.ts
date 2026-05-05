@@ -2,7 +2,7 @@ import type {
   RelationTuple,
   SentinelStore,
   StoredPolicyRule,
-} from "@ghost/sentinel";
+} from "@sentinel-guard/core";
 
 /** Re-export-compatible tuple shape for loadTuplesFrom */
 interface StoreTuple {

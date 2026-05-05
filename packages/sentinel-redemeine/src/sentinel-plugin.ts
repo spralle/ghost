@@ -1,5 +1,5 @@
-import { check, expand } from '@ghost/sentinel';
-import type { CheckContext, SentinelPrincipal } from '@ghost/sentinel';
+import { check, expand } from '@sentinel-guard/core';
+import type { CheckContext, SentinelPrincipal } from '@sentinel-guard/core';
 import { resolveAction } from './action-mapper.js';
 import { AuthorizationError, type SentinelPluginConfig, type EvaluationMode } from './types.js';
 

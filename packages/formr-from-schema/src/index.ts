@@ -26,7 +26,7 @@ export {
   type SchemaMetadata,
   type StandardSchemaV1,
   structuralEqual,
-} from "@ghost-shell/schema-core";
+} from "@scheman/core";
 export { createJsonSchemaValidator, isJsonSchema } from "./adapters/json-schema-validator.js";
 // Local exports that remain in formr-from-schema
 export {

@@ -12,7 +12,7 @@
     "@ghost-shell/formr-core": "workspace:*",
     "@ghost-shell/formr-from-schema": "workspace:*",
     "@ghost-shell/formr-react": "workspace:*",
-    "@ghost-shell/schema-core": "workspace:*",
+    "@scheman/core": "workspace:*",
     "@ghost-shell/ui": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

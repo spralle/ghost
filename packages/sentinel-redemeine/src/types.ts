@@ -4,12 +4,12 @@ import type {
   CheckResult,
   DerivationNode,
   CheckContext,
-} from '@ghost/sentinel';
+} from '@sentinel-guard/core';
 
 /** Store interface needed for store-based evaluation */
 export interface SentinelStoreReader {
-  getCompiledPolicy(tenantId: string): import('@ghost/sentinel').CompiledPolicy | undefined;
-  getGraphSubset(principalId: string): import('@ghost/sentinel').GraphSubset | undefined;
+  getCompiledPolicy(tenantId: string): import('@sentinel-guard/core').CompiledPolicy | undefined;
+  getGraphSubset(principalId: string): import('@sentinel-guard/core').GraphSubset | undefined;
 }
 
 /** How to resolve the principal from command metadata */

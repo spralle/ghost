@@ -1,5 +1,5 @@
-import { redact } from "@ghost/sentinel";
-import type { ResourceSchema } from "@ghost/sentinel";
+import { redact } from "@sentinel-guard/core";
+import type { ResourceSchema } from "@sentinel-guard/core";
 import type { RedactionContext, RedactionHook } from "./types.js";
 
 /**

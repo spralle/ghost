@@ -38,9 +38,9 @@
         "@chenglou/pretext": "0.0.6",
         "@ghost-shell/data-table": "workspace:*",
         "@ghost-shell/entity-table": "workspace:*",
-        "@ghost-shell/schema-core": "workspace:*",
         "@ghost-shell/table-from-schema": "workspace:*",
         "@ghost-shell/ui": "workspace:*",
+        "@scheman/core": "workspace:*",
         "@tanstack/react-table": "^8.21.3",
         "lucide-react": "^0.475.0",
         "react": "^18.3.1",
@@ -63,8 +63,8 @@
         "@ghost-shell/formr-core": "workspace:*",
         "@ghost-shell/formr-from-schema": "workspace:*",
         "@ghost-shell/formr-react": "workspace:*",
-        "@ghost-shell/schema-core": "workspace:*",
         "@ghost-shell/ui": "workspace:*",
+        "@scheman/core": "workspace:*",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
       },
@@ -161,9 +161,9 @@
       "dependencies": {
         "@ghost-shell/contracts": "workspace:*",
         "@ghost-shell/data-table": "workspace:*",
-        "@ghost-shell/schema-core": "workspace:*",
         "@ghost-shell/table-from-schema": "workspace:*",
         "@ghost-shell/ui": "workspace:*",
+        "@scheman/core": "workspace:*",
         "lucide-react": "^0.475.0",
       },
       "devDependencies": {
@@ -214,7 +214,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@ghost-shell/formr-core": "workspace:*",
-        "@ghost-shell/schema-core": "workspace:*",
+        "@scheman/core": "workspace:*",
       },
       "peerDependencies": {
         "zod": "^4.0.0",
@@ -229,7 +229,7 @@
       "dependencies": {
         "@ghost-shell/formr-core": "workspace:*",
         "@ghost-shell/formr-from-schema": "workspace:*",
-        "@ghost-shell/schema-core": "workspace:*",
+        "@scheman/core": "workspace:*",
       },
       "devDependencies": {
         "@types/react": "^19.0.0",
@@ -314,27 +314,30 @@
     },
     "packages/schema-core": {
       "name": "@ghost-shell/schema-core",
+    },
+    "packages/scheman-core": {
+      "name": "@scheman/core",
       "version": "0.0.0",
     },
-    "packages/sentinel": {
-      "name": "@ghost/sentinel",
-      "version": "0.1.0",
-      "dependencies": {
-        "@ghost-shell/predicate": "workspace:*",
-      },
-    },
-    "packages/sentinel-arbiter": {
-      "name": "@ghost-shell/sentinel-arbiter",
+    "packages/sentinel-arbiter-bridge": {
+      "name": "@sentinel-guard/arbiter-bridge",
       "version": "0.0.0",
       "dependencies": {
         "@ghost-shell/arbiter": "workspace:*",
       },
     },
-    "packages/sentinel-react": {
-      "name": "@ghost/sentinel-react",
+    "packages/sentinel-core": {
+      "name": "@sentinel-guard/core",
       "version": "0.1.0",
       "dependencies": {
-        "@ghost/sentinel": "workspace:*",
+        "@ghost-shell/predicate": "workspace:*",
+      },
+    },
+    "packages/sentinel-react": {
+      "name": "@sentinel-guard/react",
+      "version": "0.1.0",
+      "dependencies": {
+        "@sentinel-guard/core": "workspace:*",
       },
       "devDependencies": {
         "@types/react": "^19.0.0",
@@ -347,18 +350,18 @@
       },
     },
     "packages/sentinel-redemeine": {
-      "name": "@ghost/sentinel-redemeine",
+      "name": "@sentinel-guard/redemeine",
       "version": "0.1.0",
       "devDependencies": {
         "@types/bun": "latest",
         "typescript": "^5.8.3",
       },
       "peerDependencies": {
-        "@ghost/sentinel": "workspace:*",
+        "@sentinel-guard/core": "workspace:*",
       },
     },
     "packages/sentinel-roles": {
-      "name": "@ghost/sentinel-roles",
+      "name": "@sentinel-guard/roles",
       "version": "0.1.0",
       "devDependencies": {
         "@types/bun": "latest",
@@ -366,14 +369,14 @@
       },
     },
     "packages/sentinel-store-memory": {
-      "name": "@ghost/sentinel-store-memory",
+      "name": "@sentinel-guard/store-memory",
       "version": "0.1.0",
       "dependencies": {
-        "@ghost/sentinel": "workspace:*",
+        "@sentinel-guard/core": "workspace:*",
       },
     },
     "packages/sentinel-store-mongodb": {
-      "name": "@ghost/sentinel-store-mongodb",
+      "name": "@sentinel-guard/store-mongodb",
       "version": "0.1.0",
       "devDependencies": {
         "@types/node": "^22.0.0",
@@ -381,19 +384,19 @@
         "typescript": "^5.8.3",
       },
       "peerDependencies": {
-        "@ghost/sentinel": "workspace:*",
+        "@sentinel-guard/core": "workspace:*",
         "mongodb": ">=6.0.0",
       },
     },
     "packages/sentinel-sync": {
-      "name": "@ghost/sentinel-sync",
+      "name": "@sentinel-guard/sync",
       "version": "0.1.0",
       "devDependencies": {
         "@types/bun": "latest",
         "typescript": "^5.8.3",
       },
       "peerDependencies": {
-        "@ghost/sentinel": "workspace:*",
+        "@sentinel-guard/core": "workspace:*",
       },
     },
     "packages/shell": {
@@ -435,7 +438,7 @@
       "name": "@ghost-shell/table-from-schema",
       "version": "0.0.0",
       "dependencies": {
-        "@ghost-shell/schema-core": "workspace:*",
+        "@scheman/core": "workspace:*",
       },
     },
     "packages/theme": {
@@ -452,7 +455,6 @@
         "@ghost-shell/formr-core": "workspace:*",
         "@ghost-shell/formr-from-schema": "workspace:*",
         "@ghost-shell/formr-react": "workspace:*",
-        "@ghost-shell/schema-core": "workspace:*",
         "@radix-ui/react-accordion": "1.2.12",
         "@radix-ui/react-alert-dialog": "1.1.15",
         "@radix-ui/react-avatar": "1.1.11",
@@ -477,6 +479,7 @@
         "@radix-ui/react-toggle": "1.1.10",
         "@radix-ui/react-toggle-group": "1.1.11",
         "@radix-ui/react-tooltip": "1.2.8",
+        "@scheman/core": "workspace:*",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "cmdk": "1.1.1",
@@ -506,7 +509,7 @@
       "dependencies": {
         "@ghost-shell/arbiter": "workspace:*",
         "@ghost-shell/formr-from-schema": "workspace:*",
-        "@ghost-shell/schema-core": "workspace:*",
+        "@scheman/core": "workspace:*",
       },
       "devDependencies": {
         "@types/react": "^19.0.0",
@@ -770,9 +773,9 @@
         "@ghost-shell/formr-from-schema": "workspace:*",
         "@ghost-shell/formr-react": "workspace:*",
         "@ghost-shell/react": "file:../../packages/react",
-        "@ghost-shell/schema-core": "workspace:*",
         "@ghost-shell/ui": "file:../../packages/ui",
         "@ghost-shell/weaver-formr-bridge": "workspace:*",
+        "@scheman/core": "workspace:*",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
       },
@@ -805,8 +808,8 @@
         "@ghost-shell/formr-core": "workspace:*",
         "@ghost-shell/formr-from-schema": "workspace:*",
         "@ghost-shell/formr-react": "workspace:*",
-        "@ghost-shell/schema-core": "workspace:*",
         "@ghost-shell/ui": "workspace:*",
+        "@scheman/core": "workspace:*",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
       },
@@ -1027,8 +1030,6 @@
 
     "@ghost-shell/schema-core": ["@ghost-shell/schema-core@workspace:packages/schema-core"],
 
-    "@ghost-shell/sentinel-arbiter": ["@ghost-shell/sentinel-arbiter@workspace:packages/sentinel-arbiter"],
-
     "@ghost-shell/shell": ["@ghost-shell/shell@workspace:packages/shell"],
 
     "@ghost-shell/shell-app": ["@ghost-shell/shell-app@workspace:apps/shell"],
@@ -1044,20 +1045,6 @@
     "@ghost-shell/ui": ["@ghost-shell/ui@workspace:packages/ui"],
 
     "@ghost-shell/weaver-formr-bridge": ["@ghost-shell/weaver-formr-bridge@workspace:packages/weaver-formr-bridge"],
-
-    "@ghost/sentinel": ["@ghost/sentinel@workspace:packages/sentinel"],
-
-    "@ghost/sentinel-react": ["@ghost/sentinel-react@workspace:packages/sentinel-react"],
-
-    "@ghost/sentinel-redemeine": ["@ghost/sentinel-redemeine@workspace:packages/sentinel-redemeine"],
-
-    "@ghost/sentinel-roles": ["@ghost/sentinel-roles@workspace:packages/sentinel-roles"],
-
-    "@ghost/sentinel-store-memory": ["@ghost/sentinel-store-memory@workspace:packages/sentinel-store-memory"],
-
-    "@ghost/sentinel-store-mongodb": ["@ghost/sentinel-store-mongodb@workspace:packages/sentinel-store-mongodb"],
-
-    "@ghost/sentinel-sync": ["@ghost/sentinel-sync@workspace:packages/sentinel-sync"],
 
     "@jridgewell/gen-mapping": ["@jridgewell/gen-mapping@0.3.13", "", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.5.0", "@jridgewell/trace-mapping": "^0.3.24" } }, "sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA=="],
 
@@ -1398,6 +1385,24 @@
     "@rspack/binding-win32-x64-msvc": ["@rspack/binding-win32-x64-msvc@2.0.1", "", { "os": "win32", "cpu": "x64" }, "sha512-oPM2Jtm7HOlmxl/aBfleAVlL6t9VeHx6WvEets7BBJMInemFXAQd4CErRqybf7rXutACzLeUWBOue4Jpd1/ykw=="],
 
     "@rspack/core": ["@rspack/core@2.0.1", "", { "dependencies": { "@rspack/binding": "2.0.1" }, "peerDependencies": { "@module-federation/runtime-tools": "^0.24.1 || ^2.0.0", "@swc/helpers": ">=0.5.1" }, "optionalPeers": ["@module-federation/runtime-tools", "@swc/helpers"] }, "sha512-lgfZiExh8kDR/3obgi3RQKwKG5av1Xf5qDN1aVde777W9pbmx0Pqvrww1qtNvJ+gobEjbrrn5HEZWYGe0VLmcA=="],
+
+    "@scheman/core": ["@scheman/core@workspace:packages/scheman-core"],
+
+    "@sentinel-guard/arbiter-bridge": ["@sentinel-guard/arbiter-bridge@workspace:packages/sentinel-arbiter-bridge"],
+
+    "@sentinel-guard/core": ["@sentinel-guard/core@workspace:packages/sentinel-core"],
+
+    "@sentinel-guard/react": ["@sentinel-guard/react@workspace:packages/sentinel-react"],
+
+    "@sentinel-guard/redemeine": ["@sentinel-guard/redemeine@workspace:packages/sentinel-redemeine"],
+
+    "@sentinel-guard/roles": ["@sentinel-guard/roles@workspace:packages/sentinel-roles"],
+
+    "@sentinel-guard/store-memory": ["@sentinel-guard/store-memory@workspace:packages/sentinel-store-memory"],
+
+    "@sentinel-guard/store-mongodb": ["@sentinel-guard/store-mongodb@workspace:packages/sentinel-store-mongodb"],
+
+    "@sentinel-guard/sync": ["@sentinel-guard/sync@workspace:packages/sentinel-sync"],
 
     "@standard-schema/spec": ["@standard-schema/spec@1.1.0", "", {}, "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="],
 
@@ -1981,8 +1986,6 @@
 
     "@ghost-shell/backend-app/@ghost-shell/contracts": ["@ghost-shell/contracts@file:packages/plugin-contracts", { "dependencies": { "@weaver/config-types": "link:@weaver/config-types", "zod": "^4.0.0" } }],
 
-    "@ghost-shell/entity-table/zod": ["zod@3.25.76", "", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
-
     "@ghost-shell/entity-table-demos/zod": ["zod@3.25.76", "", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
 
     "@ghost-shell/formr-react/@types/react": ["@types/react@19.2.14", "", { "dependencies": { "csstype": "^3.2.2" } }, "sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w=="],
@@ -2002,14 +2005,6 @@
     "@ghost-shell/weaver-formr-bridge/@types/react": ["@types/react@19.2.14", "", { "dependencies": { "csstype": "^3.2.2" } }, "sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w=="],
 
     "@ghost-shell/weaver-formr-bridge/react": ["react@19.2.5", "", {}, "sha512-llUJLzz1zTUBrskt2pwZgLq59AemifIftw4aB7JxOqf1HY2FDaGDxgwpAPVzHU1kdWabH7FauP4i1oEeer2WCA=="],
-
-    "@ghost/sentinel-react/@types/react": ["@types/react@19.2.14", "", { "dependencies": { "csstype": "^3.2.2" } }, "sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w=="],
-
-    "@ghost/sentinel-react/@types/react-dom": ["@types/react-dom@19.2.3", "", { "peerDependencies": { "@types/react": "^19.2.0" } }, "sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ=="],
-
-    "@ghost/sentinel-react/react": ["react@19.2.5", "", {}, "sha512-llUJLzz1zTUBrskt2pwZgLq59AemifIftw4aB7JxOqf1HY2FDaGDxgwpAPVzHU1kdWabH7FauP4i1oEeer2WCA=="],
-
-    "@ghost/sentinel-react/react-dom": ["react-dom@19.2.5", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.5" } }, "sha512-J5bAZz+DXMMwW/wV3xzKke59Af6CHY7G4uYLN1OvBcKEsWOs4pQExj86BBKamxl/Ik5bx9whOrvBlSDfWzgSag=="],
 
     "@module-federation/bridge-react-webpack-plugin/semver": ["semver@7.6.3", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A=="],
 
@@ -2087,6 +2082,14 @@
 
     "@rollup/pluginutils/estree-walker": ["estree-walker@2.0.2", "", {}, "sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w=="],
 
+    "@sentinel-guard/react/@types/react": ["@types/react@19.2.14", "", { "dependencies": { "csstype": "^3.2.2" } }, "sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w=="],
+
+    "@sentinel-guard/react/@types/react-dom": ["@types/react-dom@19.2.3", "", { "peerDependencies": { "@types/react": "^19.2.0" } }, "sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ=="],
+
+    "@sentinel-guard/react/react": ["react@19.2.5", "", {}, "sha512-llUJLzz1zTUBrskt2pwZgLq59AemifIftw4aB7JxOqf1HY2FDaGDxgwpAPVzHU1kdWabH7FauP4i1oEeer2WCA=="],
+
+    "@sentinel-guard/react/react-dom": ["react-dom@19.2.5", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.5" } }, "sha512-J5bAZz+DXMMwW/wV3xzKke59Af6CHY7G4uYLN1OvBcKEsWOs4pQExj86BBKamxl/Ik5bx9whOrvBlSDfWzgSag=="],
+
     "@tailwindcss/oxide-wasm32-wasi/@emnapi/core": ["@emnapi/core@1.10.0", "", { "dependencies": { "@emnapi/wasi-threads": "1.2.1", "tslib": "^2.4.0" }, "bundled": true }, "sha512-yq6OkJ4p82CAfPl0u9mQebQHKPJkY7WrIuk205cTYnYe+k2Z8YBh11FrbRG/H6ihirqcacOgl2BIO8oyMQLeXw=="],
 
     "@tailwindcss/oxide-wasm32-wasi/@emnapi/runtime": ["@emnapi/runtime@1.10.0", "", { "dependencies": { "tslib": "^2.4.0" }, "bundled": true }, "sha512-ewvYlk86xUoGI0zQRNq/mC+16R1QeDlKQy21Ki3oSYXNgLb45GV1P6A0M+/s6nyCuNDqe5VpaY84BzXGwVbwFA=="],
@@ -2149,15 +2152,9 @@
 
     "ghost.sample.contract-consumer/@ghost-shell/contracts": ["@ghost-shell/contracts@file:packages/plugin-contracts", { "dependencies": { "@weaver/config-types": "link:@weaver/config-types", "zod": "^4.0.0" } }],
 
-    "ghost.settings-panel/@ghost-shell/contracts": ["@ghost-shell/contracts@file:packages/plugin-contracts", { "dependencies": { "@weaver/config-types": "link:@weaver/config-types", "zod": "^4.0.0" } }],
-
     "ghost.settings-panel/@ghost-shell/react": ["@ghost-shell/react@file:packages/react", { "dependencies": { "@ghost-shell/contracts": "workspace:*" }, "devDependencies": { "@types/react": "^19.0.0", "@types/react-dom": "^19.0.0", "react": "^19.0.0", "react-dom": "^19.0.0" }, "peerDependencies": { "react": "^18.0.0 || ^19.0.0", "react-dom": "^18.0.0 || ^19.0.0" } }],
 
-    "ghost.settings-panel/@ghost-shell/ui": ["@ghost-shell/ui@file:packages/ui", { "dependencies": { "@ghost-shell/formr-core": "workspace:*", "@ghost-shell/formr-from-schema": "workspace:*", "@ghost-shell/formr-react": "workspace:*", "@ghost-shell/schema-core": "workspace:*", "@radix-ui/react-accordion": "1.2.12", "@radix-ui/react-alert-dialog": "1.1.15", "@radix-ui/react-avatar": "1.1.11", "@radix-ui/react-checkbox": "1.3.3", "@radix-ui/react-collapsible": "1.1.12", "@radix-ui/react-context-menu": "2.2.16", "@radix-ui/react-dialog": "1.1.15", "@radix-ui/react-dropdown-menu": "2.1.16", "@radix-ui/react-hover-card": "1.1.15", "@radix-ui/react-label": "2.1.8", "@radix-ui/react-menubar": "1.1.14", "@radix-ui/react-popover": "1.1.15", "@radix-ui/react-progress": "1.1.8", "@radix-ui/react-radio-group": "1.3.8", "@radix-ui/react-scroll-area": "1.2.10", "@radix-ui/react-select": "2.2.6", "@radix-ui/react-separator": "1.1.8", "@radix-ui/react-slider": "1.3.6", "@radix-ui/react-slot": "1.2.4", "@radix-ui/react-switch": "1.2.6", "@radix-ui/react-tabs": "1.1.13", "@radix-ui/react-toggle": "1.1.10", "@radix-ui/react-toggle-group": "1.1.11", "@radix-ui/react-tooltip": "1.2.8", "class-variance-authority": "^0.7.1", "clsx": "^2.1.1", "cmdk": "1.1.1", "lucide-react": "^0.475.0", "next-themes": "0.4.6", "react-day-picker": "^9.6.0", "react-resizable-panels": "4.10.0", "sonner": "2.0.7", "tailwind-merge": "^3.0.2", "vaul": "1.1.2", "zod": "4.3.6" }, "devDependencies": { "@tailwindcss/vite": "^4.0.0", "@types/react": "^18.3.12", "@types/react-dom": "^18.3.1", "tailwindcss": "^4.0.0" }, "peerDependencies": { "react": "^18.3.1", "react-dom": "^18.3.1" } }],
-
     "ghost.shadcn.theme-bridge/@ghost-shell/contracts": ["@ghost-shell/contracts@file:packages/plugin-contracts", { "dependencies": { "@weaver/config-types": "link:@weaver/config-types", "zod": "^4.0.0" } }],
-
-    "ghost.shared.ui-capabilities/@ghost-shell/contracts": ["@ghost-shell/contracts@file:packages/plugin-contracts", { "dependencies": { "@weaver/config-types": "link:@weaver/config-types", "zod": "^4.0.0" } }],
 
     "ghost.theme.default/@ghost-shell/contracts": ["@ghost-shell/contracts@file:packages/plugin-contracts", { "dependencies": { "@weaver/config-types": "link:@weaver/config-types", "zod": "^4.0.0" } }],
 
@@ -2182,8 +2179,6 @@
     "@ghost-shell/backend-app/@ghost-shell/config-plugin-runtime/@ghost-shell/contracts": ["@ghost-shell/contracts@file:packages/plugin-contracts", { "dependencies": { "@weaver/config-types": "link:@weaver/config-types", "zod": "^4.0.0" } }],
 
     "@ghost-shell/react/react-dom/scheduler": ["scheduler@0.27.0", "", {}, "sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q=="],
-
-    "@ghost/sentinel-react/react-dom/scheduler": ["scheduler@0.27.0", "", {}, "sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q=="],
 
     "@module-federation/runtime-tools/@module-federation/runtime/@module-federation/runtime-core": ["@module-federation/runtime-core@2.4.0", "", { "dependencies": { "@module-federation/error-codes": "2.4.0", "@module-federation/sdk": "2.4.0" } }, "sha512-0S8fDw28DXDW17lTQwq5vfJWe2lG0Lw3+w4vk3DVVImLwXXay+OGxLDxzWUfypWcMznfpnoAnFUMO3PtuXziuA=="],
 
@@ -2219,7 +2214,9 @@
 
     "@radix-ui/react-roving-focus/@radix-ui/react-primitive/@radix-ui/react-slot": ["@radix-ui/react-slot@1.2.2", "", { "dependencies": { "@radix-ui/react-compose-refs": "1.1.2" }, "peerDependencies": { "@types/react": "*", "react": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" }, "optionalPeers": ["@types/react"] }, "sha512-y7TBO4xN4Y94FvcWIOIh18fM4R1A8S4q1jhoz4PNzOoHsFcN8pogcFmZrTYAm4F9VRUrWP/Mw7xSKybIeRI+CQ=="],
 
-    "ghost.keybindings/@ghost-shell/react/@ghost-shell/contracts": ["@ghost-shell/contracts@file:packages/plugin-contracts", { "dependencies": { "@weaver/config-types": "link:@weaver/config-types", "zod": "^4.0.0" } }],
+    "@sentinel-guard/react/react-dom/scheduler": ["scheduler@0.27.0", "", {}, "sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q=="],
+
+    "ghost.keybindings/@ghost-shell/react/@ghost-shell/contracts": ["@ghost-shell/contracts@workspace:packages/plugin-contracts"],
 
     "ghost.keybindings/@ghost-shell/react/@types/react": ["@types/react@19.2.14", "", { "dependencies": { "csstype": "^3.2.2" } }, "sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w=="],
 
@@ -2229,7 +2226,7 @@
 
     "ghost.keybindings/@ghost-shell/react/react-dom": ["react-dom@19.2.5", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.5" } }, "sha512-J5bAZz+DXMMwW/wV3xzKke59Af6CHY7G4uYLN1OvBcKEsWOs4pQExj86BBKamxl/Ik5bx9whOrvBlSDfWzgSag=="],
 
-    "ghost.plugins-panel/@ghost-shell/react/@ghost-shell/contracts": ["@ghost-shell/contracts@file:packages/plugin-contracts", { "dependencies": { "@weaver/config-types": "link:@weaver/config-types", "zod": "^4.0.0" } }],
+    "ghost.plugins-panel/@ghost-shell/react/@ghost-shell/contracts": ["@ghost-shell/contracts@workspace:packages/plugin-contracts"],
 
     "ghost.plugins-panel/@ghost-shell/react/@types/react": ["@types/react@19.2.14", "", { "dependencies": { "csstype": "^3.2.2" } }, "sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w=="],
 
@@ -2238,8 +2235,6 @@
     "ghost.plugins-panel/@ghost-shell/react/react": ["react@19.2.5", "", {}, "sha512-llUJLzz1zTUBrskt2pwZgLq59AemifIftw4aB7JxOqf1HY2FDaGDxgwpAPVzHU1kdWabH7FauP4i1oEeer2WCA=="],
 
     "ghost.plugins-panel/@ghost-shell/react/react-dom": ["react-dom@19.2.5", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.5" } }, "sha512-J5bAZz+DXMMwW/wV3xzKke59Af6CHY7G4uYLN1OvBcKEsWOs4pQExj86BBKamxl/Ik5bx9whOrvBlSDfWzgSag=="],
-
-    "ghost.settings-panel/@ghost-shell/react/@ghost-shell/contracts": ["@ghost-shell/contracts@file:packages/plugin-contracts", { "dependencies": { "@weaver/config-types": "link:@weaver/config-types", "zod": "^4.0.0" } }],
 
     "ghost.settings-panel/@ghost-shell/react/@types/react": ["@types/react@19.2.14", "", { "dependencies": { "csstype": "^3.2.2" } }, "sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w=="],
 

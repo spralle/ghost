@@ -1,5 +1,5 @@
 {
-  "name": "@ghost-shell/schema-core",
+  "name": "@scheman/core",
   "version": "0.0.0",
   "type": "module",
   "main": "./dist/index.cjs",

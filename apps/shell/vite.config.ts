@@ -33,7 +33,7 @@ const FORMR_CORE_SRC_ROOT = pkgSrc("formr-core");
 const FORMR_FROM_SCHEMA_SRC_ROOT = pkgSrc("formr-from-schema");
 const FORMR_REACT_SRC_ROOT = pkgSrc("formr-react");
 const REACT_SRC_ROOT = pkgSrc("react");
-const SCHEMA_CORE_SRC_ROOT = pkgSrc("schema-core");
+const SCHEMA_CORE_SRC_ROOT = pkgSrc("scheman-core");
 const TABLE_FROM_SCHEMA_SRC_ROOT = pkgSrc("table-from-schema");
 const WEAVER_FORMR_BRIDGE_SRC_ROOT = pkgSrc("weaver-formr-bridge");
 
@@ -91,8 +91,8 @@ export default defineConfig({
       "@ghost-shell/formr-react": `${FORMR_REACT_SRC_ROOT}/index.ts`,
       "@ghost-shell/react/": `${REACT_SRC_ROOT}/`,
       "@ghost-shell/react": `${REACT_SRC_ROOT}/index.ts`,
-      "@ghost-shell/schema-core/": `${SCHEMA_CORE_SRC_ROOT}/`,
-      "@ghost-shell/schema-core": `${SCHEMA_CORE_SRC_ROOT}/index.ts`,
+      "@scheman/core/": `${SCHEMA_CORE_SRC_ROOT}/`,
+      "@scheman/core": `${SCHEMA_CORE_SRC_ROOT}/index.ts`,
       "@ghost-shell/table-from-schema/": `${TABLE_FROM_SCHEMA_SRC_ROOT}/`,
       "@ghost-shell/table-from-schema": `${TABLE_FROM_SCHEMA_SRC_ROOT}/index.ts`,
       "@ghost-shell/weaver-formr-bridge/": `${WEAVER_FORMR_BRIDGE_SRC_ROOT}/`,

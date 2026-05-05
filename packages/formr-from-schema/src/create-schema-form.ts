@@ -1,6 +1,6 @@
 import type { ValidatorFn } from "@ghost-shell/formr-core";
 import { createStandardSchemaValidator, isStandardSchemaLike } from "@ghost-shell/formr-core";
-import { ingestSchema, type JsonSchema, type SchemaFieldInfo, type SchemaMetadata } from "@ghost-shell/schema-core";
+import { ingestSchema, type JsonSchema, type SchemaFieldInfo, type SchemaMetadata } from "@scheman/core";
 import { createJsonSchemaValidator, isJsonSchema } from "./adapters/json-schema-validator.js";
 import { compileLayout } from "./layout/layout-compiler.js";
 import type { LayoutNode } from "./layout/layout-types.js";

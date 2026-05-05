@@ -1,5 +1,5 @@
 {
-  "name": "@ghost-shell/sentinel-arbiter",
+  "name": "@sentinel-guard/arbiter-bridge",
   "version": "0.0.0",
   "type": "module",
   "main": "./dist/index.cjs",

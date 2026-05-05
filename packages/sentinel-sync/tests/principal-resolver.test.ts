@@ -1,6 +1,6 @@
 import { describe, it, expect, mock } from "bun:test";
 import { resolvePrincipal } from "../src/principal-resolver.js";
-import type { SentinelStore } from "@ghost/sentinel";
+import type { SentinelStore } from "@sentinel-guard/core";
 import type { EnrichedJwtPayload, PrincipalResolverOptions } from "../src/types.js";
 
 function createMockStore(overrides: Partial<SentinelStore> = {}): SentinelStore {

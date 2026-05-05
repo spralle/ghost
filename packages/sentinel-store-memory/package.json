@@ -1,5 +1,5 @@
 {
-  "name": "@ghost/sentinel-store-memory",
+  "name": "@sentinel-guard/store-memory",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -22,6 +22,6 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@ghost/sentinel": "workspace:*"
+    "@sentinel-guard/core": "workspace:*"
   }
 }

@@ -38,7 +38,7 @@ export default defineConfig({
       '@ghost-shell/predicate': path.resolve(__dirname, './packages/predicate/src/index.ts'),
       '@ghost-shell/react': path.resolve(__dirname, './packages/react/src/index.ts'),
       '@ghost-shell/router': path.resolve(__dirname, './packages/router/src/index.ts'),
-      '@ghost-shell/schema-core': path.resolve(__dirname, './packages/schema-core/src/index.ts'),
+      '@scheman/core': path.resolve(__dirname, './packages/scheman-core/src/index.ts'),
       '@ghost-shell/shell': path.resolve(__dirname, './packages/shell/src/index.ts'),
       '@ghost-shell/state': path.resolve(__dirname, './packages/state/src/index.ts'),
       '@ghost-shell/table-from-schema': path.resolve(__dirname, './packages/table-from-schema/src/index.ts'),

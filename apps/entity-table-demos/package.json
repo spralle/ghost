@@ -12,7 +12,7 @@
     "@chenglou/pretext": "0.0.6",
     "@ghost-shell/data-table": "workspace:*",
     "@ghost-shell/entity-table": "workspace:*",
-    "@ghost-shell/schema-core": "workspace:*",
+    "@scheman/core": "workspace:*",
     "@ghost-shell/table-from-schema": "workspace:*",
     "@ghost-shell/ui": "workspace:*",
     "@tanstack/react-table": "^8.21.3",

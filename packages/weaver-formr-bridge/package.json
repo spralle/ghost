@@ -27,7 +27,7 @@
   "dependencies": {
     "@ghost-shell/arbiter": "workspace:*",
     "@ghost-shell/formr-from-schema": "workspace:*",
-    "@ghost-shell/schema-core": "workspace:*"
+    "@scheman/core": "workspace:*"
   },
   "peerDependencies": {
     "react": ">=18.0.0"

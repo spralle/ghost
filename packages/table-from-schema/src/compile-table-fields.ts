@@ -1,4 +1,4 @@
-import type { SchemaFieldInfo, SchemaFieldMetadata } from "@ghost-shell/schema-core";
+import type { SchemaFieldInfo, SchemaFieldMetadata } from "@scheman/core";
 import { humanize } from "./humanize.js";
 import { inferPriority } from "./priority.js";
 import type { CompileTableFieldsOptions, FilterVariant, TableFieldDescriptor, TableFieldOverride } from "./types.js";

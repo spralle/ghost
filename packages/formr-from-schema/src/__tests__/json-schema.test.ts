@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import type { JsonSchema } from "@ghost-shell/schema-core";
-import { extractFromJsonSchema, ingestSchema } from "@ghost-shell/schema-core";
+import type { JsonSchema } from "@scheman/core";
+import { extractFromJsonSchema, ingestSchema } from "@scheman/core";
 import { createJsonSchemaValidator, isJsonSchema } from "../adapters/json-schema-validator.js";
 
 const simpleSchema: JsonSchema = {

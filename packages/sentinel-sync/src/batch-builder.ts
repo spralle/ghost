@@ -1,5 +1,5 @@
-import { buildSnapshot } from "@ghost/sentinel";
-import type { SentinelPrincipal, PermissionSnapshot, SentinelStore } from "@ghost/sentinel";
+import { buildSnapshot } from "@sentinel-guard/core";
+import type { SentinelPrincipal, PermissionSnapshot, SentinelStore } from "@sentinel-guard/core";
 import type { BatchBuildOptions, BatchBuildResult } from "./types.js";
 
 /** Run async tasks with bounded concurrency using a worker pool */

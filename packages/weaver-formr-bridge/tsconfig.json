@@ -17,5 +17,5 @@
   },
   "include": ["src"],
   "exclude": ["src/**/__tests__", "src/**/*.test.ts", "src/**/*.test.tsx"],
-  "references": [{ "path": "../schema-core" }, { "path": "../formr-from-schema" }, { "path": "../arbiter" }]
+  "references": [{ "path": "../scheman-core" }, { "path": "../formr-from-schema" }, { "path": "../arbiter" }]
 }

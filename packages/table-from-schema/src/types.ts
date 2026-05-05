@@ -1,4 +1,4 @@
-import type { SchemaFieldType, SchemaMetadata } from "@ghost-shell/schema-core";
+import type { SchemaFieldType, SchemaMetadata } from "@scheman/core";
 
 /** Responsive column visibility tier */
 export type ColumnPriority = "essential" | "default" | "optional";

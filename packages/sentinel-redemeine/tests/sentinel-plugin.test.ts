@@ -1,10 +1,10 @@
 import { describe, test, expect, mock, beforeEach } from 'bun:test';
 
-// Mock @ghost/sentinel BEFORE any imports that use it
+// Mock @sentinel-guard/core BEFORE any imports that use it
 const mockCheck = mock((): { effect: 'allow' | 'deny'; matchedRules: { name: string; effect: string; salience: number }[]; reason: string } => ({ effect: 'allow', matchedRules: [], reason: 'allowed' }));
 const mockExpand = mock((): { type: 'decision'; description: string; children?: readonly never[]; metadata: Record<string, unknown> } => ({ type: 'decision', description: 'deny: denied', metadata: {} }));
 
-mock.module('@ghost/sentinel', () => ({
+mock.module('@sentinel-guard/core', () => ({
   check: mockCheck,
   expand: mockExpand,
   // Re-export types as empty to satisfy any type imports
@@ -12,7 +12,7 @@ mock.module('@ghost/sentinel', () => ({
   GraphSubset: class {},
 }));
 
-// Now import our code (which imports @ghost/sentinel)
+// Now import our code (which imports @sentinel-guard/core)
 const { resolveAction } = await import('../src/action-mapper.js');
 const { AuthorizationError } = await import('../src/types.js');
 const { createSentinelPlugin } = await import('../src/sentinel-plugin.js');

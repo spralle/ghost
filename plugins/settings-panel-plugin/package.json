@@ -43,7 +43,7 @@
   "dependencies": {
     "@ghost-shell/contracts": "file:../../packages/plugin-contracts",
     "@ghost-shell/react": "file:../../packages/react",
-    "@ghost-shell/schema-core": "workspace:*",
+    "@scheman/core": "workspace:*",
     "@ghost-shell/formr-react": "workspace:*",
     "@ghost-shell/formr-from-schema": "workspace:*",
     "@ghost-shell/formr-core": "workspace:*",

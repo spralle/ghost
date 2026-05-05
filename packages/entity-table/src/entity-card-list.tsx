@@ -1,4 +1,4 @@
-import { ingestSchema } from "@ghost-shell/schema-core";
+import { ingestSchema } from "@scheman/core";
 import type {
   CompileTableFieldsOptions,
   TableFieldDescriptor,

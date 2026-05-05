@@ -7,8 +7,8 @@ import {
   useDataBlock,
   PermissionGate,
 } from "../index.js";
-import type { PermissionSnapshot, SentinelPrincipal, CompiledPolicy } from "@ghost/sentinel";
-import { GraphSubset } from "@ghost/sentinel";
+import type { PermissionSnapshot, SentinelPrincipal, CompiledPolicy } from "@sentinel-guard/core";
+import { GraphSubset } from "@sentinel-guard/core";
 
 function makePolicy(rules: CompiledPolicy["rules"]): CompiledPolicy {
   return { rules };

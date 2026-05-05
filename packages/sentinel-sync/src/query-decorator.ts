@@ -1,4 +1,4 @@
-import { filterQuery } from "@ghost/sentinel";
+import { filterQuery } from "@sentinel-guard/core";
 import type { QueryDecoratorConfig, QueryDecoratorFactory, ViewDbQueryDecorator } from "./types.js";
 
 /**

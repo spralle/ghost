@@ -21,7 +21,7 @@
   "references": [
     { "path": "../data-table" },
     { "path": "../plugin-contracts" },
-    { "path": "../schema-core" },
+    { "path": "../scheman-core" },
     { "path": "../table-from-schema" }
   ]
 }

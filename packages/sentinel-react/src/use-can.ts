@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { can } from "@ghost/sentinel";
-import type { CheckContext } from "@ghost/sentinel";
+import { can } from "@sentinel-guard/core";
+import type { CheckContext } from "@sentinel-guard/core";
 import { useSentinel } from "./sentinel-context.js";
 
 export interface UseCanResult {
