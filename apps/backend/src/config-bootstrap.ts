@@ -3,10 +3,10 @@
 import { resolve } from "node:path";
 import type { ConfigurationPropertySchema, ConfigurationService, ServiceConfigurationService } from "./config-stubs.js";
 import {
-  armadaWeaver,
   createConfigurationService,
   createServiceConfigurationService,
   FileSystemStorageProvider,
+  ghostWeaver,
 } from "./config-stubs.js";
 
 export interface BackendConfigBootstrapOptions {
@@ -53,12 +53,12 @@ export async function bootstrapBackendConfig(options: BackendConfigBootstrapOpti
 
   const configService = await createConfigurationService({
     providers: [coreProvider, appProvider, tenantProvider],
-    weaverConfig: armadaWeaver,
+    weaverConfig: ghostWeaver,
   });
 
   const serviceConfig = createServiceConfigurationService({
     configService,
-    namespace: "armada.backend",
+    namespace: "ghost.backend",
     schemaMap: backendSchemaMap,
   });
 

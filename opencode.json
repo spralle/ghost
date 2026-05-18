@@ -4,7 +4,7 @@
     "docs/principles/universal.md",
     "docs/principles/typescript.md",
     "docs/principles/frontend.md",
-    "docs/principles/armada.md"
+    "docs/principles/ghost.md"
   ],
   "command": {
     "on_startup": {

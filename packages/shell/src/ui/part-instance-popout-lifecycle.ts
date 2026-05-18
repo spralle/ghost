@@ -39,7 +39,7 @@ export function openPopout(
   url.searchParams.set("hostWindowId", runtime.windowId);
   url.searchParams.set("windowId", popoutWindowId);
 
-  const popout = window.open(url.toString(), `armada-popout-${sanitizeForWindowName(partId)}`);
+  const popout = window.open(url.toString(), `ghost-popout-${sanitizeForWindowName(partId)}`);
   if (!popout) {
     runtime.notice = `Popup blocked. Could not pop out '${partId}'.`;
     deps.renderSyncStatus();

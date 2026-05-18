@@ -2,7 +2,7 @@
 // Consumers import from this file unchanged; real implementations are now used.
 
 // --- @ghost-shell/config-plugin-runtime ---
-export { armadaWeaver } from "@ghost-shell/config-plugin-runtime";
+export { ghostWeaver } from "@ghost-shell/config-plugin-runtime";
 // --- @weaver/config-engine ---
 export { inspectKey, resolveConfiguration } from "@weaver/config-engine";
 // --- @weaver/config-policy ---

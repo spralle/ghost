@@ -15,7 +15,7 @@ function createMinimalRuntime(): ShellRuntime {
 
 describe("god mode", () => {
   it("god-mode: validateGodModeAuth accepts correct secret", () => {
-    expect(validateGodModeAuth("armada")).toBe(true);
+    expect(validateGodModeAuth("ghost")).toBe(true);
   });
 
   it("god-mode: validateGodModeAuth rejects wrong secret", () => {
