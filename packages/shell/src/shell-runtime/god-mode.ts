@@ -1,7 +1,7 @@
 import type { ShellRuntime } from "../app/types.js";
 
 export const GOD_MODE_ACTION_ID = "shell.elevatedSession.activate";
-const GOD_MODE_SECRET = "armada";
+const GOD_MODE_SECRET = "ghost";
 
 export function validateGodModeAuth(secret: string): boolean {
   return secret === GOD_MODE_SECRET;

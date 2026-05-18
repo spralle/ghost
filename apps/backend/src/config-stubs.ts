@@ -262,4 +262,4 @@ export const sessionActivationRequestSchema = {
   },
 };
 
-export const armadaWeaver = undefined;
+export const ghostWeaver = undefined;

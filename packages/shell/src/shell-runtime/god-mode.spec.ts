@@ -17,7 +17,7 @@ export function registerGodModeSpecs(harness: SpecHarness): void {
   const { test, assertEqual, assertTruthy } = harness;
 
   test("god-mode: validateGodModeAuth accepts correct secret", () => {
-    assertEqual(validateGodModeAuth("armada"), true, "correct secret should validate");
+    assertEqual(validateGodModeAuth("ghost"), true, "correct secret should validate");
   });
 
   test("god-mode: validateGodModeAuth rejects wrong secret", () => {

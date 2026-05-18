@@ -1,4 +1,4 @@
-const HMR_WINDOW_REGISTRY_KEY = "__armadaShellHmrRegistry";
+const HMR_WINDOW_REGISTRY_KEY = "__ghostShellHmrRegistry";
 
 interface ShellMountRecord {
   readonly windowId: string;

@@ -1,4 +1,4 @@
-export { armadaWeaver } from "./armada-layers.js";
+export { ghostWeaver } from "./ghost-layers.js";
 export {
   type ConfigurationLifecycleHooks,
   type ConfigurationLifecycleOptions,
