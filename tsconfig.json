@@ -34,9 +34,7 @@
     {
       "path": "./packages/formbar-from-schema"
     },
-    {
-      "path": "./packages/predicate"
-    },
+
     {
       "path": "./packages/intents"
     },

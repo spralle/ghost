@@ -22,7 +22,6 @@
     "build:dist": "tsup"
   },
   "dependencies": {
-    "@ghost-shell/contracts": "workspace:*",
-    "@ghost-shell/predicate": "workspace:*"
+    "@ghost-shell/contracts": "workspace:*"
   }
 }

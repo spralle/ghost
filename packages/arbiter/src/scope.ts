@@ -1,4 +1,4 @@
-import { collectPath } from "@ghost-shell/predicate";
+import { collectPath } from "kuery";
 import type { WriteRecord } from "./contracts.js";
 import { ArbiterError, ArbiterErrorCode } from "./errors.js";
 import { splitPath, validatePath } from "./path-utils.js";

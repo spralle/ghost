@@ -1,4 +1,4 @@
-import { validateAndSplitPath } from "@ghost-shell/predicate";
+import { validateAndSplitPath } from "kuery";
 import { ArbiterError, ArbiterErrorCode } from "./errors.js";
 
 /**

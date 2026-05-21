@@ -8,8 +8,8 @@
     "packages/*"
   ],
   "scripts": {
-    "test:formbar": "bun test packages/formbar-core/src packages/predicate/src packages/formbar-from-schema/src packages/formbar-react/src",
-    "test:conformance": "bun test --test-name-pattern F[0-9] packages/formbar-core/src packages/predicate/src packages/formbar-from-schema/src",
+    "test:formbar": "bun test packages/formbar-core/src packages/formbar-from-schema/src packages/formbar-react/src",
+    "test:conformance": "bun test --test-name-pattern F[0-9] packages/formbar-core/src packages/formbar-from-schema/src",
     "lint": "biome check --diagnostic-level=error . && npm run check:architecture-guardrails --silent && npm run check:code-principles --silent && npm run check:config-schema --silent && npm run check:change-policies --silent && npm run check:ghost-tokens --silent && tsc --pretty false -p tsconfig.json --noEmit",
     "format": "biome format --write .",
     "format:check": "biome format . --diagnostic-level=error",

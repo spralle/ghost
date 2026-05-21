@@ -1,4 +1,4 @@
-import type { DotPaths, PathValue, TypedQuery } from "@ghost-shell/predicate";
+import type { DotPaths, PathValue, TypedQuery } from "kuery";
 
 // ---------------------------------------------------------------------------
 // ThenStage — MongoDB pipeline-style update operations (ADR §2.2)

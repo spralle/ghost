@@ -23,6 +23,6 @@
   },
   "dependencies": {
     "@ghost-shell/contracts": "workspace:*",
-    "@ghost-shell/predicate": "workspace:*"
+    "kuery": "file:../../../../../kuery"
   }
 }

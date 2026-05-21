@@ -1,4 +1,4 @@
-import { compileFilter } from "@ghost-shell/predicate";
+import { compileFilter } from "kuery";
 
 import type { CompiledPolicy, CompiledRule } from "./compile-policy.js";
 import type { EvalContext } from "./policy-types.js";

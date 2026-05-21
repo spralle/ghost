@@ -1,4 +1,4 @@
-import { compile } from "@ghost-shell/predicate/compile";
+import { compile } from "kuery/compile";
 import type { CompiledStage, ThenStage } from "./contracts.js";
 import { ArbiterError, ArbiterErrorCode } from "./errors.js";
 import { validatePath } from "./path-utils.js";

@@ -1,4 +1,4 @@
-import { assertSafeSegment } from "@ghost-shell/predicate";
+import { assertSafeSegment } from "kuery";
 import type { ArbiterFormAdapter } from "./arbiter-integration.js";
 import type { FormAction, Middleware, ValidatorFn } from "./contracts.js";
 import { FormbarError } from "./errors.js";

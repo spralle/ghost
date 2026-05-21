@@ -12,7 +12,6 @@ const pkgSrc = (name: string) => fileURLToPath(new URL(`../../packages/${name}/s
 const weaverSrc = (name: string) => fileURLToPath(new URL(`../../node_modules/@weaver/${name}/src`, import.meta.url));
 
 const PLUGIN_CONTRACTS_SRC = pkgSrc("plugin-contracts");
-const PREDICATE_SRC_ROOT = pkgSrc("predicate");
 const UI_SRC_ROOT = pkgSrc("ui");
 const SHELL_SRC_ROOT = pkgSrc("shell");
 const LAYER_SRC_ROOT = pkgSrc("layer");
@@ -49,8 +48,6 @@ export default defineConfig({
       // Subpath aliases must come before root aliases for correct matching order
       "@ghost-shell/contracts/": `${PLUGIN_CONTRACTS_SRC}/`,
       "@ghost-shell/contracts": `${PLUGIN_CONTRACTS_SRC}/index.ts`,
-      "@ghost-shell/predicate/": `${PREDICATE_SRC_ROOT}/`,
-      "@ghost-shell/predicate": `${PREDICATE_SRC_ROOT}/index.ts`,
       "@ghost-shell/ui/": `${UI_SRC_ROOT}/`,
       "@ghost-shell/ui": `${UI_SRC_ROOT}/index.ts`,
       "@ghost-shell/shell/": `${SHELL_SRC_ROOT}/`,

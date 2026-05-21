@@ -1,5 +1,5 @@
-import type { ExprNode } from "@ghost-shell/predicate";
-import { evaluate } from "@ghost-shell/predicate";
+import type { ExprNode } from "kuery";
+import { evaluate } from "kuery";
 import type { Agenda } from "./agenda.js";
 import type { CompiledStage, StateChange, ThenOperatorRegistry } from "./contracts.js";
 import { ArbiterError, ArbiterErrorCode } from "./errors.js";

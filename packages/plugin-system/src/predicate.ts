@@ -89,7 +89,7 @@ function getFactValue(facts: PredicateFactBag, path: string): unknown {
 
 /**
  * Match a fact value against a condition, delegating comparison operators
- * to @ghost-shell/predicate's evaluator while preserving deep equality semantics
+ * to kuery's evaluator while preserving deep equality semantics
  * for $eq/$ne/$in/$nin.
  */
 function matchesCondition(actual: unknown, condition: unknown): boolean {

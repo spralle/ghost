@@ -1,4 +1,4 @@
-import { compile } from "@ghost-shell/predicate/compile";
+import { compile } from "kuery/compile";
 import type { CompiledRule, ProductionRule } from "./contracts.js";
 import { ArbiterError, ArbiterErrorCode } from "./errors.js";
 import { compileThenActions } from "./then-compiler.js";

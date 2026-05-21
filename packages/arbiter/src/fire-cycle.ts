@@ -1,5 +1,5 @@
-import type { ExprNode } from "@ghost-shell/predicate";
-import { evaluate } from "@ghost-shell/predicate";
+import type { ExprNode } from "kuery";
+import { evaluate } from "kuery";
 import type { Agenda } from "./agenda.js";
 import type { AlphaNetwork } from "./alpha-network.js";
 import type {

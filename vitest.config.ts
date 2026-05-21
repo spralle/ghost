@@ -15,10 +15,6 @@ export default defineConfig({
       '@ghost-shell/contracts/schemas': path.resolve(__dirname, './packages/plugin-contracts/src/schemas.ts'),
       '@ghost-shell/contracts/capabilities': path.resolve(__dirname, './packages/plugin-contracts/src/capabilities.ts'),
 
-      // Predicate sub-path exports
-      '@ghost-shell/predicate/safe-path': path.resolve(__dirname, './packages/predicate/src/safe-path.ts'),
-      '@ghost-shell/predicate/compile': path.resolve(__dirname, './packages/predicate/src/compile.ts'),
-
       // Base package aliases
       '@ghost-shell/arbiter': path.resolve(__dirname, './packages/arbiter/src/index.ts'),
       '@ghost-shell/bridge': path.resolve(__dirname, './packages/bridge/src/index.ts'),
@@ -35,7 +31,7 @@ export default defineConfig({
       '@ghost-shell/layer': path.resolve(__dirname, './packages/layer/src/index.ts'),
       '@ghost-shell/persistence': path.resolve(__dirname, './packages/persistence/src/index.ts'),
       '@ghost-shell/plugin-system': path.resolve(__dirname, './packages/plugin-system/src/index.ts'),
-      '@ghost-shell/predicate': path.resolve(__dirname, './packages/predicate/src/index.ts'),
+
       '@ghost-shell/react': path.resolve(__dirname, './packages/react/src/index.ts'),
       '@ghost-shell/router': path.resolve(__dirname, './packages/router/src/index.ts'),
       '@ghost-shell/schema-core': path.resolve(__dirname, './packages/schema-core/src/index.ts'),

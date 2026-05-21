@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { ingestSchema } from "../../../formbar-from-schema/src/index.js";
-import { compile, evaluate } from "../../../predicate/src/index.js";
+import { compile, evaluate } from "kuery";
 import {
   createDateEgressTransform,
   createDateTransform,

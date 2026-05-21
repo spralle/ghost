@@ -1,4 +1,4 @@
-import { assertSafeSegment } from "@ghost-shell/predicate";
+import { assertSafeSegment } from "kuery";
 import type { RuleWriteIntent } from "./contracts.js";
 import { deleteNestedValue, setNestedValue } from "./nested-utils.js";
 import type { FormState } from "./state.js";

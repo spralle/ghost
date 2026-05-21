@@ -1,4 +1,4 @@
-import type { EvaluationScope, ExpressionDefinition, ExprNode } from "@ghost-shell/predicate";
+import type { EvaluationScope, ExpressionDefinition, ExprNode } from "kuery";
 import type { CanonicalPath } from "./path.js";
 import type { StandardSchemaLike } from "./standard-schema.js";
 import type { FormState, SubmitContext, ValidationIssue } from "./state.js";

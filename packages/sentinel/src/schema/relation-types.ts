@@ -1,4 +1,4 @@
-import type { DotPaths, TypedQuery } from "@ghost-shell/predicate";
+import type { DotPaths, TypedQuery } from "kuery";
 
 /** Extract element type from array (mutable or readonly) */
 type ElementOf<T> = T extends readonly (infer E)[] ? E : never;

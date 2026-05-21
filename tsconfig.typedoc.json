@@ -12,8 +12,7 @@
       "@formbar/core": ["./packages/formbar-core/src/index.ts"],
       "@formbar/from-schema": ["./packages/formbar-from-schema/src/index.ts"],
       "@formbar/react": ["./packages/formbar-react/src/index.ts"],
-      "@ghost-shell/schema-core": ["./packages/schema-core/src/index.ts"],
-      "@ghost-shell/predicate": ["./packages/predicate/src/index.ts"]
+      "@ghost-shell/schema-core": ["./packages/schema-core/src/index.ts"]
     }
   },
   "include": [

@@ -46,7 +46,7 @@
   ],
   "sideEffects": false,
   "dependencies": {
-    "@ghost-shell/predicate": "workspace:*",
+    "kuery": "file:../../../../../kuery",
     "@ghost-shell/arbiter": "workspace:*"
   },
   "scripts": {
