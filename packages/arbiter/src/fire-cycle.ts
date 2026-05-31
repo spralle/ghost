@@ -2,6 +2,7 @@ import type { ExprNode } from "@ghost-shell/predicate";
 import { evaluate } from "@ghost-shell/predicate";
 import type { Agenda } from "./agenda.js";
 import type { AlphaNetwork } from "./alpha-network.js";
+import type { Token } from "./beta-node.js";
 import type {
   ArbiterWarning,
   CompiledRule,
@@ -40,6 +41,8 @@ export interface FireContext {
   readonly limits: FireLimits;
   readonly ruleConditionState: Map<string, boolean>;
   readonly thenOperators?: ThenOperatorRegistry | undefined;
+  /** Token bindings pending injection for pattern-triggered rules */
+  readonly pendingTokens?: Map<string, Token> | undefined;
 }
 
 // ---------------------------------------------------------------------------
@@ -72,6 +75,8 @@ function buildRetractionChanges(rule: CompiledRule, ctx: FireContext): readonly 
 
 export function reevaluateRule(rule: CompiledRule, ctx: FireContext): readonly StateChange[] {
   if (!rule.enabled) return [];
+  // Pattern-based rules are managed by beta evaluation, not scope propagation
+  if (rule.hasPatterns) return [];
   const wasActive = ctx.ruleConditionState.get(rule.name) ?? false;
   const isActive = evaluateCondition(rule, ctx.scope);
   ctx.ruleConditionState.set(rule.name, isActive);
@@ -96,6 +101,8 @@ export function evaluateAllRules(ctx: FireContext): readonly StateChange[] {
   const retractions: StateChange[] = [];
   for (const rule of ctx.compiledRules.values()) {
     if (!rule.enabled) continue;
+    // Pattern-based rules are activated by fact assertions, not scope evaluation
+    if (rule.hasPatterns) continue;
     const isActive = evaluateCondition(rule, ctx.scope);
     const wasActive = ctx.ruleConditionState.get(rule.name) ?? false;
     ctx.ruleConditionState.set(rule.name, isActive);
@@ -147,6 +154,22 @@ function propagateChanges(changes: readonly StateChange[], ctx: FireContext, all
 }
 
 // ---------------------------------------------------------------------------
+// Fact binding injection
+// ---------------------------------------------------------------------------
+
+const BINDING_PROVENANCE = "__binding__";
+
+function injectFactBindings(token: Token, scope: ScopeManager): void {
+  for (const [bindingName, fact] of Object.entries(token.factBindings)) {
+    scope.set(`facts.${bindingName}`, fact.data, BINDING_PROVENANCE);
+  }
+}
+
+function clearFactBindings(scope: ScopeManager): void {
+  scope.unset("facts", BINDING_PROVENANCE);
+}
+
+// ---------------------------------------------------------------------------
 // Main fire cycle
 // ---------------------------------------------------------------------------
 
@@ -180,9 +203,21 @@ export function fireCycle(ctx: FireContext): FiringResult {
     const rule = ctx.agenda.selectNext();
     if (!rule) break;
 
+    // Inject fact bindings for pattern-triggered rules
+    const token = ctx.pendingTokens?.get(rule.name);
+    if (token) {
+      injectFactBindings(token, ctx.scope);
+      ctx.pendingTokens!.delete(rule.name);
+    }
+
     const ruleChanges = executeStages(rule.actions, rule.name, ctx);
     changes.push(...ruleChanges);
     rulesFired++;
+
+    // Clear fact bindings after rule fires
+    if (token) {
+      clearFactBindings(ctx.scope);
+    }
 
     if (rulesFired > ctx.limits.maxRuleFirings) {
       throw new ArbiterError(

@@ -1,7 +1,9 @@
 import { compile } from "@ghost-shell/predicate/compile";
-import type { CompiledRule, ProductionRule } from "./contracts.js";
+import type { CompiledPattern, CompiledRule, ProductionRule } from "./contracts.js";
 import { ArbiterError, ArbiterErrorCode } from "./errors.js";
+import { validatePatterns } from "./validate-patterns.js";
 import { compileThenActions } from "./then-compiler.js";
+import { validateAccumulateConfigs } from "./validate-accumulate.js";
 
 /**
  * Compiles a ProductionRule into a CompiledRule ready for the engine.
@@ -31,6 +33,23 @@ export function compileRule(rule: ProductionRule<unknown>): CompiledRule {
   const actions = compileThenActions(rule.then);
   const elseActions = rule.else ? compileThenActions(rule.else) : undefined;
 
+  let compiledPatterns: readonly CompiledPattern[] | undefined;
+  const hasPatterns = !!(rule.patterns && rule.patterns.length > 0);
+
+  if (hasPatterns) {
+    validatePatterns(rule.patterns!, rule.name);
+    compiledPatterns = rule.patterns!.map((p) => ({
+      $fact: p.$fact,
+      $bind: p.$bind,
+      $where: p.$where,
+      $join: p.$join,
+    }));
+  }
+
+  const accumulates = rule.accumulate?.length
+    ? (validateAccumulateConfigs(rule.accumulate, rule.name), rule.accumulate)
+    : undefined;
+
   return {
     name: rule.name,
     condition,
@@ -41,6 +60,9 @@ export function compileRule(rule: ProductionRule<unknown>): CompiledRule {
     onConflict: rule.onConflict ?? "warn",
     enabled: rule.enabled ?? true,
     hasTms: rule.else === undefined,
+    hasPatterns,
+    patterns: compiledPatterns,
+    accumulates,
     source: rule,
   };
 }

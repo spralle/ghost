@@ -2,7 +2,8 @@
 // Accumulate node — maintains running aggregates over typed facts (L2).
 // ---------------------------------------------------------------------------
 
-import { getAccumulateFn } from "./accumulate-functions.js";
+import type { CustomAccumulateFunction } from "./accumulate-functions.js";
+import { getAccumulateFn, COLLECT_FN_NAME } from "./accumulate-functions.js";
 import type { Fact } from "./fact-memory.js";
 
 export interface AccumulateConfig {
@@ -11,13 +12,21 @@ export interface AccumulateConfig {
   readonly fn: string;
   readonly alias: string;
   readonly filter?: Record<string, unknown> | undefined;
+  /** For cross-type: binding name from a pattern rule to scope accumulation */
+  readonly binding?: string | undefined;
+  /** For cross-type: the rule name whose beta network provides tokens */
+  readonly rule?: string | undefined;
+  /** Time window in ms — only facts asserted within window contribute */
+  readonly window?: number | undefined;
 }
+
+export type AccumulateValue = number | null | readonly Record<string, unknown>[];
 
 export interface AccumulateNode {
   readonly config: AccumulateConfig;
   readonly addFact: (fact: Fact) => void;
   readonly removeFact: (fact: Fact) => void;
-  readonly getValue: () => number | null;
+  readonly getValue: () => AccumulateValue;
   readonly recompute: (facts: readonly Fact[]) => void;
   readonly reset: () => void;
   readonly getTrackedFactIds: () => readonly string[];
@@ -41,8 +50,15 @@ function extractValue(fact: Fact, field: string): number | undefined {
   return typeof raw === "number" ? raw : undefined;
 }
 
-export function createAccumulateNode(config: AccumulateConfig): AccumulateNode {
-  const aggFn = getAccumulateFn(config.fn);
+export function createAccumulateNode(
+  config: AccumulateConfig,
+  customFunctions?: Readonly<Record<string, CustomAccumulateFunction>>,
+): AccumulateNode {
+  if (config.fn === COLLECT_FN_NAME) {
+    return createCollectNode(config);
+  }
+
+  const aggFn = getAccumulateFn(config.fn, customFunctions);
   const tracked = new Map<string, number>();
   const isCount = config.fn === "$count";
 
@@ -78,6 +94,40 @@ export function createAccumulateNode(config: AccumulateConfig): AccumulateNode {
 
   const getTrackedFactIds = (): readonly string[] => {
     return [...tracked.keys()];
+  };
+
+  return { config, addFact, removeFact, getValue, recompute, reset, getTrackedFactIds };
+}
+
+function createCollectNode(config: AccumulateConfig): AccumulateNode {
+  const collected = new Map<string, Record<string, unknown>>();
+
+  const addFact = (fact: Fact): void => {
+    if (!matchesFact(fact, config)) return;
+    collected.set(fact.id, fact.data);
+  };
+
+  const removeFact = (fact: Fact): void => {
+    collected.delete(fact.id);
+  };
+
+  const getValue = (): readonly Record<string, unknown>[] => {
+    return [...collected.values()];
+  };
+
+  const recompute = (facts: readonly Fact[]): void => {
+    collected.clear();
+    for (const fact of facts) {
+      addFact(fact);
+    }
+  };
+
+  const reset = (): void => {
+    collected.clear();
+  };
+
+  const getTrackedFactIds = (): readonly string[] => {
+    return [...collected.keys()];
   };
 
   return { config, addFact, removeFact, getValue, recompute, reset, getTrackedFactIds };

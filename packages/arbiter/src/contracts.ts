@@ -1,4 +1,11 @@
 import type { DotPaths, PathValue, TypedQuery } from "@ghost-shell/predicate";
+import type { CustomAccumulateFunction } from "./accumulate-functions.js";
+import type { AccumulateConfig } from "./accumulate-node.js";
+import type { ArbiterClock } from "./clock.js";
+import type { Fact } from "./fact-memory.js";
+import type { ScheduleOptions } from "./timer-queue.js";
+import type { CompiledPattern, FactPattern } from "./fact-pattern.js";
+import type { FactTypeDefinition } from "./fact-registry.js";
 
 // ---------------------------------------------------------------------------
 // ThenStage — MongoDB pipeline-style update operations (ADR §2.2)
@@ -43,6 +50,9 @@ export interface ProductionRule<TState = Record<string, unknown>> {
   readonly onConflict?: "override" | "warn" | "error" | undefined;
   readonly enabled?: boolean | undefined;
   readonly description?: string | undefined;
+  readonly expires?: number | undefined;
+  readonly patterns?: readonly FactPattern[] | undefined;
+  readonly accumulate?: readonly AccumulateConfig[] | undefined;
 }
 
 // ---------------------------------------------------------------------------
@@ -75,6 +85,11 @@ export interface SessionConfig<TState = Record<string, unknown>> {
   readonly validation?: "strict" | "syntax" | "none" | undefined;
   readonly errorHandling?: "strict" | "lenient" | undefined;
   readonly thenOperators?: ThenOperatorRegistry | undefined;
+  readonly factTypes?: readonly FactTypeDefinition[] | undefined;
+  readonly accumulates?: readonly AccumulateConfig[] | undefined;
+  readonly accumulateFunctions?: Readonly<Record<string, CustomAccumulateFunction>> | undefined;
+  readonly clock?: ArbiterClock | undefined;
+  readonly autoFireOnFactChange?: boolean | undefined;
 }
 
 // ---------------------------------------------------------------------------
@@ -126,6 +141,15 @@ export interface RuleSession<TState = Record<string, unknown>> {
   readonly setFocus: (group: string) => void;
 
   readonly dispose: () => void;
+
+  readonly assertFact: (type: string, data: Readonly<Record<string, unknown>>) => string;
+  readonly retractFact: (id: string) => boolean;
+  readonly getFacts: (type: string) => readonly Fact[];
+
+  readonly tick: (now?: number) => FiringResult;
+
+  readonly scheduleRule: (ruleName: string, options: ScheduleOptions) => void;
+  readonly cancelSchedule: (ruleName: string) => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -153,6 +177,9 @@ export interface CompiledRule {
   readonly onConflict: "override" | "warn" | "error";
   readonly enabled: boolean;
   readonly hasTms: boolean;
+  readonly hasPatterns: boolean;
+  readonly patterns?: readonly CompiledPattern[];
+  readonly accumulates?: readonly AccumulateConfig[] | undefined;
   readonly source: ProductionRule<unknown>;
 }
 

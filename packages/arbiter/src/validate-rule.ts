@@ -1,6 +1,7 @@
 import type { ProductionRule, ThenStage } from "./contracts.js";
 import { ArbiterError, ArbiterErrorCode } from "./errors.js";
 import { validatePath } from "./path-utils.js";
+import { validatePatterns } from "./validate-patterns.js";
 
 export type ValidationLevel = "strict" | "syntax" | "none";
 
@@ -68,6 +69,10 @@ function validateStrict(rule: ProductionRule): void {
 
   if (rule.else) {
     validateStagePaths(rule.else, rule.name, "else");
+  }
+
+  if (rule.patterns && rule.patterns.length > 0) {
+    validatePatterns(rule.patterns, rule.name);
   }
 
   if (rule.salience !== undefined && !Number.isFinite(rule.salience)) {
