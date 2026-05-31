@@ -141,10 +141,7 @@ describe("temporal operators", () => {
           {
             name: "time-check",
             when: { "$meta.$now": { $gt: 0 } },
-            then: [
-              { $set: { afterResult: { $after: [3000] } } },
-              { $set: { beforeResult: { $before: [3000] } } },
-            ],
+            then: [{ $set: { afterResult: { $after: [3000] } } }, { $set: { beforeResult: { $before: [3000] } } }],
           },
         ],
       });

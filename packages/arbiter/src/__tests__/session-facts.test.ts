@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { createSession } from "../session.js";
 import type { FactTypeDefinition } from "../fact-registry.js";
+import { createSession } from "../session.js";
 
 const OrderType: FactTypeDefinition = {
   name: "Order",

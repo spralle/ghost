@@ -1,9 +1,10 @@
 import { compile } from "@ghost-shell/predicate/compile";
 import type { CompiledPattern, CompiledRule, ProductionRule } from "./contracts.js";
 import { ArbiterError, ArbiterErrorCode } from "./errors.js";
-import { validatePatterns } from "./validate-patterns.js";
+import type { FactPattern } from "./fact-pattern.js";
 import { compileThenActions } from "./then-compiler.js";
 import { validateAccumulateConfigs } from "./validate-accumulate.js";
+import { validatePatterns } from "./validate-patterns.js";
 
 /**
  * Compiles a ProductionRule into a CompiledRule ready for the engine.
@@ -37,8 +38,8 @@ export function compileRule(rule: ProductionRule<unknown>): CompiledRule {
   const hasPatterns = !!(rule.patterns && rule.patterns.length > 0);
 
   if (hasPatterns) {
-    validatePatterns(rule.patterns!, rule.name);
-    compiledPatterns = rule.patterns!.map((p) => ({
+    validatePatterns(rule.patterns as FactPattern[], rule.name);
+    compiledPatterns = rule.patterns?.map((p) => ({
       $fact: p.$fact,
       $bind: p.$bind,
       $where: p.$where,
@@ -46,9 +47,11 @@ export function compileRule(rule: ProductionRule<unknown>): CompiledRule {
     }));
   }
 
-  const accumulates = rule.accumulate?.length
-    ? (validateAccumulateConfigs(rule.accumulate, rule.name), rule.accumulate)
-    : undefined;
+  let accumulates: typeof rule.accumulate | undefined;
+  if (rule.accumulate?.length) {
+    validateAccumulateConfigs(rule.accumulate, rule.name);
+    accumulates = rule.accumulate;
+  }
 
   return {
     name: rule.name,

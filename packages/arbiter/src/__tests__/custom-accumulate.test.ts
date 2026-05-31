@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
-import { createSession } from "../session.js";
 import type { AccumulateFn, CustomAccumulateFunction } from "../accumulate-functions.js";
 import { getAccumulateFn } from "../accumulate-functions.js";
+import { createSession } from "../session.js";
 
 const scoreFactType = {
   name: "score",
@@ -27,9 +27,7 @@ describe("Custom Accumulate Functions", () => {
     const session = createSession({
       factTypes: [scoreFactType],
       accumulateFunctions: { $median: customMedian },
-      accumulates: [
-        { factType: "score", field: "value", fn: "$median", alias: "medianScore" },
-      ],
+      accumulates: [{ factType: "score", field: "value", fn: "$median", alias: "medianScore" }],
     });
 
     session.assertFact("score", { value: 10 });
@@ -46,9 +44,7 @@ describe("Custom Accumulate Functions", () => {
     const session = createSession({
       factTypes: [scoreFactType],
       accumulateFunctions: { $median: customMedian },
-      accumulates: [
-        { factType: "score", field: "value", fn: "$median", alias: "medianScore" },
-      ],
+      accumulates: [{ factType: "score", field: "value", fn: "$median", alias: "medianScore" }],
     });
 
     const id1 = session.assertFact("score", { value: 10 });
@@ -94,9 +90,7 @@ describe("Custom Accumulate Functions", () => {
     const session = createSession({
       factTypes: [measurementFactType],
       accumulateFunctions: { $median: customMedian },
-      accumulates: [
-        { factType: "measurement", field: "temperature", fn: "$median", alias: "medianTemp" },
-      ],
+      accumulates: [{ factType: "measurement", field: "temperature", fn: "$median", alias: "medianTemp" }],
     });
 
     session.assertFact("measurement", { temperature: 72 });

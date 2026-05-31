@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { AccumulateConfig } from "../accumulate-node.js";
-import type { FactPattern } from "../fact-pattern.js";
 import type { ProductionRule } from "../contracts.js";
+import type { FactPattern } from "../fact-pattern.js";
 import { createSession } from "../session.js";
 
 const customerFactType = {
@@ -138,7 +138,7 @@ describe("cross-type-accumulate", () => {
     expect(session.getPath("alerts.vipHighSpend")).toBe(true);
 
     // Retract customer removes all tokens, total → 0, threshold no longer met
-    const custId = session.getFacts("customer")[0]!.id;
+    const custId = session.getFacts("customer")[0]?.id;
     session.retractFact(custId);
     session.fire();
     expect(session.getPath("alerts.vipHighSpend")).toBe(false);

@@ -3,20 +3,15 @@
 // Only facts in complete tokens contribute to the aggregate.
 // ---------------------------------------------------------------------------
 
-import type { AccumulateConfig, AccumulateValue } from "./accumulate-node.js";
-import type { CustomAccumulateFunction } from "./accumulate-functions.js";
+import type { AccumulateFn, CustomAccumulateFunction } from "./accumulate-functions.js";
 import { getAccumulateFn } from "./accumulate-functions.js";
+import type { AccumulateConfig, AccumulateValue } from "./accumulate-node.js";
 import type { Token } from "./beta-node.js";
 
 export interface CrossTypeAccumulator {
   readonly onTokenCreated: (ruleName: string, token: Token) => void;
   readonly onTokenRemoved: (ruleName: string, token: Token) => void;
   readonly getValues: () => Readonly<Record<string, AccumulateValue>>;
-}
-
-interface TokenEntry {
-  readonly tokenId: string;
-  readonly value: number;
 }
 
 function isCrossTypeConfig(config: AccumulateConfig): boolean {
@@ -49,9 +44,9 @@ export function createCrossTypeAccumulator(
   function onTokenCreated(ruleName: string, token: Token): void {
     for (const cfg of crossConfigs) {
       if (cfg.rule !== ruleName) continue;
-      const value = extractTokenValue(token, cfg.binding!, cfg.field);
+      const value = extractTokenValue(token, cfg.binding as string, cfg.field);
       if (value === undefined) continue;
-      const map = tokenMaps.get(cfg.alias)!;
+      const map = tokenMaps.get(cfg.alias) as Map<string, number>;
       map.set(token.id, value);
     }
   }
@@ -59,7 +54,7 @@ export function createCrossTypeAccumulator(
   function onTokenRemoved(ruleName: string, token: Token): void {
     for (const cfg of crossConfigs) {
       if (cfg.rule !== ruleName) continue;
-      const map = tokenMaps.get(cfg.alias)!;
+      const map = tokenMaps.get(cfg.alias) as Map<string, number>;
       map.delete(token.id);
     }
   }
@@ -67,8 +62,8 @@ export function createCrossTypeAccumulator(
   function getValues(): Readonly<Record<string, AccumulateValue>> {
     const result: Record<string, AccumulateValue> = {};
     for (const cfg of crossConfigs) {
-      const map = tokenMaps.get(cfg.alias)!;
-      const fn = fnMap.get(cfg.alias)!;
+      const map = tokenMaps.get(cfg.alias) as Map<string, number>;
+      const fn = fnMap.get(cfg.alias) as AccumulateFn;
       result[cfg.alias] = fn([...map.values()]);
     }
     return result;

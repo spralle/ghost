@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { createSession } from "../session.js";
 import { createVirtualClock } from "../clock.js";
 import type { ProductionRule } from "../contracts.js";
+import { createSession } from "../session.js";
 
 describe("rule expiry", () => {
   function makeRule(overrides: Partial<ProductionRule> = {}): ProductionRule {

@@ -1,5 +1,5 @@
-import type { Fact } from "./fact-memory.js";
 import type { Token } from "./beta-node.js";
+import type { Fact } from "./fact-memory.js";
 
 /** A join constraint specifying field equality between two bound facts */
 export interface JoinConstraint {

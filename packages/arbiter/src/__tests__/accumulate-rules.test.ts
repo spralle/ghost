@@ -1,22 +1,20 @@
 import { describe, expect, it } from "vitest";
-import { createSession } from "../session.js";
 import type { ProductionRule } from "../contracts.js";
 import { compileRule } from "../rule-compiler.js";
+import { createSession } from "../session.js";
 
 describe("accumulate-rules", () => {
   it("compiles a rule with inline accumulate config", () => {
     const rule: ProductionRule = {
       name: "count-alert",
-      accumulate: [
-        { factType: "order", fn: "$count", field: "", alias: "orderCount" },
-      ],
+      accumulate: [{ factType: "order", fn: "$count", field: "", alias: "orderCount" }],
       when: { "$aggregates.orderCount": { $gt: 5 } },
       then: [{ $set: { "$state.alert": true } }],
     };
 
     const compiled = compileRule(rule);
     expect(compiled.accumulates).toHaveLength(1);
-    expect(compiled.accumulates![0].alias).toBe("orderCount");
+    expect(compiled.accumulates?.[0].alias).toBe("orderCount");
   });
 
   it("compiles a rule without accumulate unchanged", () => {
@@ -33,9 +31,7 @@ describe("accumulate-rules", () => {
   it("throws for invalid fn in accumulate config", () => {
     const rule: ProductionRule = {
       name: "bad-fn",
-      accumulate: [
-        { factType: "order", fn: "invalid", field: "x", alias: "a" },
-      ],
+      accumulate: [{ factType: "order", fn: "invalid", field: "x", alias: "a" }],
       when: { "$state.x": { $gt: 0 } },
       then: [{ $set: { "$state.y": 1 } }],
     };
@@ -46,9 +42,7 @@ describe("accumulate-rules", () => {
   it("throws for missing field when fn requires it", () => {
     const rule: ProductionRule = {
       name: "no-field",
-      accumulate: [
-        { factType: "order", fn: "$sum", field: "", alias: "total" },
-      ],
+      accumulate: [{ factType: "order", fn: "$sum", field: "", alias: "total" }],
       when: { "$state.x": { $gt: 0 } },
       then: [{ $set: { "$state.y": 1 } }],
     };
@@ -73,9 +67,7 @@ describe("accumulate-rules", () => {
   it("registers rule accumulates in session and exposes aggregates", () => {
     const rule: ProductionRule = {
       name: "sum-alert",
-      accumulate: [
-        { factType: "order", fn: "$sum", field: "amount", alias: "orderTotal" },
-      ],
+      accumulate: [{ factType: "order", fn: "$sum", field: "amount", alias: "orderTotal" }],
       when: { "$aggregates.orderTotal": { $gt: 100 } },
       then: [{ $set: { "$state.alert": true } }],
     };
@@ -98,18 +90,14 @@ describe("accumulate-rules", () => {
   it("multiple rules can share accumulate alias (merged)", () => {
     const rule1: ProductionRule = {
       name: "rule1",
-      accumulate: [
-        { factType: "order", fn: "$count", field: "", alias: "orderCount" },
-      ],
+      accumulate: [{ factType: "order", fn: "$count", field: "", alias: "orderCount" }],
       when: { "$aggregates.orderCount": { $gt: 0 } },
       then: [{ $set: { "$state.r1": true } }],
     };
 
     const rule2: ProductionRule = {
       name: "rule2",
-      accumulate: [
-        { factType: "order", fn: "$count", field: "", alias: "orderCount" },
-      ],
+      accumulate: [{ factType: "order", fn: "$count", field: "", alias: "orderCount" }],
       when: { "$aggregates.orderCount": { $gt: 1 } },
       then: [{ $set: { "$state.r2": true } }],
     };

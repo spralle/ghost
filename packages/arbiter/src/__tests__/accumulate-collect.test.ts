@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { createAccumulateNode } from "../accumulate-node.js";
 import { createAccumulateManager } from "../accumulate-manager.js";
+import { createAccumulateNode } from "../accumulate-node.js";
 import type { Fact } from "../fact-memory.js";
 
 function makeFact(id: string, type: string, data: Record<string, unknown>): Fact {
@@ -86,9 +86,7 @@ describe("$collect accumulate function", () => {
   });
 
   it("works reactively via manager", () => {
-    const manager = createAccumulateManager([
-      { factType: "order", field: "", fn: "$collect", alias: "orders" },
-    ]);
+    const manager = createAccumulateManager([{ factType: "order", field: "", fn: "$collect", alias: "orders" }]);
 
     manager.onFactAsserted(makeFact("o1", "order", { total: 100 }));
     manager.onFactAsserted(makeFact("o2", "order", { total: 200 }));
@@ -110,10 +108,7 @@ describe("$collect accumulate function", () => {
     });
 
     node.addFact(makeFact("f1", "item", { x: 1 }));
-    node.recompute([
-      makeFact("f2", "item", { x: 2 }),
-      makeFact("f3", "item", { x: 3 }),
-    ]);
+    node.recompute([makeFact("f2", "item", { x: 2 }), makeFact("f3", "item", { x: 3 })]);
 
     const result = node.getValue() as Record<string, unknown>[];
     expect(result).toHaveLength(2);

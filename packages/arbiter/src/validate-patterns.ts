@@ -1,5 +1,5 @@
-import type { FactPattern } from "./fact-pattern.js";
 import { ArbiterError, ArbiterErrorCode } from "./errors.js";
+import type { FactPattern } from "./fact-pattern.js";
 
 /**
  * Validates an array of fact patterns for a rule.
@@ -7,11 +7,9 @@ import { ArbiterError, ArbiterErrorCode } from "./errors.js";
  */
 export function validatePatterns(patterns: readonly FactPattern[], ruleName: string): void {
   if (!Array.isArray(patterns)) {
-    throw new ArbiterError(
-      ArbiterErrorCode.RULE_COMPILATION_FAILED,
-      `Rule "${ruleName}" patterns must be an array`,
-      { ruleName },
-    );
+    throw new ArbiterError(ArbiterErrorCode.RULE_COMPILATION_FAILED, `Rule "${ruleName}" patterns must be an array`, {
+      ruleName,
+    });
   }
 
   const bindings = new Set<string>();

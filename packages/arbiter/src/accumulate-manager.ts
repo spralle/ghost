@@ -3,13 +3,13 @@
 // Supports both regular and time-windowed accumulate nodes.
 // ---------------------------------------------------------------------------
 
+import type { CustomAccumulateFunction } from "./accumulate-functions.js";
 import type { AccumulateConfig, AccumulateNode, AccumulateValue } from "./accumulate-node.js";
 import { createAccumulateNode } from "./accumulate-node.js";
-import type { CustomAccumulateFunction } from "./accumulate-functions.js";
+import type { ArbiterClock } from "./clock.js";
 import type { Fact } from "./fact-memory.js";
 import type { WindowedAccumulateConfig, WindowedAccumulateNode } from "./windowed-accumulate.js";
 import { createWindowedAccumulateNode } from "./windowed-accumulate.js";
-import type { ArbiterClock } from "./clock.js";
 
 export interface AccumulateManager {
   readonly onFactAsserted: (fact: Fact) => void;
@@ -37,9 +37,7 @@ export function createAccumulateManager(
     if (aliasSet.has(config.alias)) return;
     aliasSet.add(config.alias);
     if (config.window !== undefined && config.window > 0) {
-      windowedNodes.push(
-        createWindowedAccumulateNode(config as WindowedAccumulateConfig, customFunctions),
-      );
+      windowedNodes.push(createWindowedAccumulateNode(config as WindowedAccumulateConfig, customFunctions));
     } else {
       nodes.push(createAccumulateNode(config, customFunctions));
     }

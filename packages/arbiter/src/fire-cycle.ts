@@ -179,9 +179,9 @@ export function fireCycle(ctx: FireContext): FiringResult {
   let rulesFired = 0;
   let cycles = 0;
 
-  evaluateAllRules(ctx).forEach((c) => {
+  for (const c of evaluateAllRules(ctx)) {
     changes.push(c);
-  });
+  }
   executeElseBranches(ctx, changes);
 
   while (!ctx.agenda.isEmpty()) {
@@ -207,7 +207,7 @@ export function fireCycle(ctx: FireContext): FiringResult {
     const token = ctx.pendingTokens?.get(rule.name);
     if (token) {
       injectFactBindings(token, ctx.scope);
-      ctx.pendingTokens!.delete(rule.name);
+      ctx.pendingTokens?.delete(rule.name);
     }
 
     const ruleChanges = executeStages(rule.actions, rule.name, ctx);

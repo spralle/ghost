@@ -5,13 +5,13 @@
 
 export interface ExpiryTracker {
   /** Record that a rule was activated at a given time */
-  readonly onRuleActivated: (ruleName: string, activatedAt: number) => void
+  readonly onRuleActivated: (ruleName: string, activatedAt: number) => void;
   /** Check which rules have expired given current time */
-  readonly getExpiredRules: (now: number) => readonly string[]
+  readonly getExpiredRules: (now: number) => readonly string[];
   /** Remove tracking for a rule (on manual deactivation or re-activation reset) */
-  readonly reset: (ruleName: string) => void
+  readonly reset: (ruleName: string) => void;
   /** Clear all tracking */
-  readonly clear: () => void
+  readonly clear: () => void;
 }
 
 export function createExpiryTracker(ruleExpiries: ReadonlyMap<string, number>): ExpiryTracker {

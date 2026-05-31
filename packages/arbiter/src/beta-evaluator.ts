@@ -73,7 +73,7 @@ export function createBetaEvaluator(): BetaEvaluator {
     rules.delete(ruleName);
   };
 
-  const onFactAsserted = (bindingName: string, factType: string, fact: Fact): readonly FactActivation[] => {
+  const onFactAsserted = (_bindingName: string, factType: string, fact: Fact): readonly FactActivation[] => {
     const ruleNames = typeIndex.get(factType);
     if (!ruleNames) return [];
 

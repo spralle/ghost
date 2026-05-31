@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import type { CustomAccumulateFunction } from "./accumulate-functions.js";
-import { getAccumulateFn, COLLECT_FN_NAME } from "./accumulate-functions.js";
+import { COLLECT_FN_NAME, getAccumulateFn } from "./accumulate-functions.js";
 import type { AccumulateConfig, AccumulateValue } from "./accumulate-node.js";
 import type { Fact } from "./fact-memory.js";
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import type { Fact } from "../fact-memory.js";
-import { createBetaNode } from "../beta-node.js";
 import type { Token } from "../beta-node.js";
+import { createBetaNode } from "../beta-node.js";
+import type { Fact } from "../fact-memory.js";
 import { createJoinNode } from "../join-node.js";
 
 function makeFact(id: string, type: string, data: Record<string, unknown>): Fact {

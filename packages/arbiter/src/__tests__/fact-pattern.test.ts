@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
+import type { ProductionRule } from "../contracts.js";
+import type { FactPattern } from "../fact-pattern.js";
 import { compileRule } from "../rule-compiler.js";
 import { validatePatterns } from "../validate-patterns.js";
-import type { FactPattern } from "../fact-pattern.js";
-import type { ProductionRule } from "../contracts.js";
 
 function makeRule(patterns?: readonly FactPattern[]): ProductionRule {
   return {
@@ -15,26 +15,20 @@ function makeRule(patterns?: readonly FactPattern[]): ProductionRule {
 
 describe("FactPattern validation", () => {
   it("valid pattern compiles without error", () => {
-    const rule = makeRule([
-      { $fact: "Order", $bind: "order", $where: { status: "pending" } },
-    ]);
+    const rule = makeRule([{ $fact: "Order", $bind: "order", $where: { status: "pending" } }]);
     const compiled = compileRule(rule as ProductionRule<unknown>);
     expect(compiled.hasPatterns).toBe(true);
     expect(compiled.patterns).toHaveLength(1);
-    expect(compiled.patterns![0].$fact).toBe("Order");
-    expect(compiled.patterns![0].$bind).toBe("order");
+    expect(compiled.patterns?.[0].$fact).toBe("Order");
+    expect(compiled.patterns?.[0].$bind).toBe("order");
   });
 
   it("missing $fact throws validation error", () => {
-    expect(() =>
-      validatePatterns([{ $fact: "", $bind: "x" }], "test"),
-    ).toThrow("$fact");
+    expect(() => validatePatterns([{ $fact: "", $bind: "x" }], "test")).toThrow("$fact");
   });
 
   it("missing $bind throws validation error", () => {
-    expect(() =>
-      validatePatterns([{ $fact: "Order", $bind: "" }], "test"),
-    ).toThrow("$bind");
+    expect(() => validatePatterns([{ $fact: "Order", $bind: "" }], "test")).toThrow("$bind");
   });
 
   it("duplicate $bind names throw", () => {
@@ -51,12 +45,7 @@ describe("FactPattern validation", () => {
 
   it("invalid $join reference throws", () => {
     expect(() =>
-      validatePatterns(
-        [
-          { $fact: "Order", $bind: "order", $join: { customerId: "$unknown.id" } },
-        ],
-        "test",
-      ),
+      validatePatterns([{ $fact: "Order", $bind: "order", $join: { customerId: "$unknown.id" } }], "test"),
     ).toThrow("unknown binding");
   });
 
@@ -74,10 +63,7 @@ describe("FactPattern validation", () => {
 
   it("$where must be a non-null object", () => {
     expect(() =>
-      validatePatterns(
-        [{ $fact: "Order", $bind: "o", $where: null as unknown as Record<string, unknown> }],
-        "test",
-      ),
+      validatePatterns([{ $fact: "Order", $bind: "o", $where: null as unknown as Record<string, unknown> }], "test"),
     ).toThrow("$where");
   });
 

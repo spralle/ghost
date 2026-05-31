@@ -1,6 +1,6 @@
+import type { Token } from "./beta-node.js";
 import type { Fact } from "./fact-memory.js";
 import type { FactPattern } from "./fact-pattern.js";
-import type { Token } from "./beta-node.js";
 import type { JoinConstraint, JoinNode } from "./join-node.js";
 import { createJoinNode } from "./join-node.js";
 
@@ -8,7 +8,7 @@ import { createJoinNode } from "./join-node.js";
 export interface AlphaFilterNode {
   readonly factType: string;
   readonly bindingName: string;
-  readonly whereClause?: Record<string, unknown>;
+  readonly whereClause?: Record<string, unknown> | undefined;
 }
 
 /** A compiled beta network for a single rule's patterns */

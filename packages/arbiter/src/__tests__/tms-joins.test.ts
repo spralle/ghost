@@ -83,9 +83,9 @@ describe("TMS Join Derivations", () => {
 
     const provenance = tms.getProvenance("test-rule");
     expect(provenance).toHaveLength(1);
-    expect(provenance[0]!.ruleName).toBe("test-rule");
-    expect(provenance[0]!.factIds).toContain("fact-1");
-    expect(provenance[0]!.factIds).toContain("fact-2");
+    expect(provenance[0]?.ruleName).toBe("test-rule");
+    expect(provenance[0]?.factIds).toContain("fact-1");
+    expect(provenance[0]?.factIds).toContain("fact-2");
   });
 
   it("existing scope-only TMS behavior unchanged", () => {

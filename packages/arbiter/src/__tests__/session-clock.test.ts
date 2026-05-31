@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { createSession } from "../session.js";
 import { createVirtualClock } from "../clock.js";
+import { createSession } from "../session.js";
 
 describe("session clock integration", () => {
   it("injects $meta.$now with virtual clock at initial time", () => {

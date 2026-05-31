@@ -3,9 +3,12 @@ import type { CustomAccumulateFunction } from "./accumulate-functions.js";
 import type { AccumulateConfig } from "./accumulate-node.js";
 import type { ArbiterClock } from "./clock.js";
 import type { Fact } from "./fact-memory.js";
-import type { ScheduleOptions } from "./timer-queue.js";
 import type { CompiledPattern, FactPattern } from "./fact-pattern.js";
+
+export type { CompiledPattern } from "./fact-pattern.js";
+
 import type { FactTypeDefinition } from "./fact-registry.js";
+import type { ScheduleOptions } from "./timer-queue.js";
 
 // ---------------------------------------------------------------------------
 // ThenStage — MongoDB pipeline-style update operations (ADR §2.2)
@@ -178,7 +181,7 @@ export interface CompiledRule {
   readonly enabled: boolean;
   readonly hasTms: boolean;
   readonly hasPatterns: boolean;
-  readonly patterns?: readonly CompiledPattern[];
+  readonly patterns?: readonly CompiledPattern[] | undefined;
   readonly accumulates?: readonly AccumulateConfig[] | undefined;
   readonly source: ProductionRule<unknown>;
 }

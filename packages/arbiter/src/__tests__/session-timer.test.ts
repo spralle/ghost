@@ -1,7 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { createSession, createVirtualClock } from "../index.js";
 import type { ProductionRule } from "../contracts.js";
-import { ArbiterErrorCode } from "../errors.js";
+import { createSession, createVirtualClock } from "../index.js";
 
 describe("session timer scheduling", () => {
   function makeRule(name: string): ProductionRule {

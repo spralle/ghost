@@ -25,10 +25,7 @@ export function createVirtualClock(startTime = 0): VirtualClock {
     now: () => current,
     advance(ms: number) {
       if (ms < 0) {
-        throw new ArbiterError(
-          ArbiterErrorCode.INVALID_CLOCK_OPERATION,
-          "Cannot advance clock by a negative amount",
-        );
+        throw new ArbiterError(ArbiterErrorCode.INVALID_CLOCK_OPERATION, "Cannot advance clock by a negative amount");
       }
       current += ms;
     },

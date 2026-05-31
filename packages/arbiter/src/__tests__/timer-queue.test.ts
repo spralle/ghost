@@ -7,10 +7,10 @@ describe("createTimerQueue", () => {
     queue.schedule("ruleA", { delay: 5000 }, 1000);
     const all = queue.getAll();
     expect(all).toHaveLength(1);
-    expect(all[0]!.ruleName).toBe("ruleA");
-    expect(all[0]!.fireAt).toBe(6000);
-    expect(all[0]!.repeat).toBe(false);
-    expect(all[0]!.interval).toBe(5000);
+    expect(all[0]?.ruleName).toBe("ruleA");
+    expect(all[0]?.fireAt).toBe(6000);
+    expect(all[0]?.repeat).toBe(false);
+    expect(all[0]?.interval).toBe(5000);
   });
 
   it("getDueTimers returns timers where fireAt <= now", () => {
@@ -19,7 +19,7 @@ describe("createTimerQueue", () => {
     queue.schedule("late", { delay: 5000 }, 0);
     const due = queue.getDueTimers(2000);
     expect(due).toHaveLength(1);
-    expect(due[0]!.ruleName).toBe("early");
+    expect(due[0]?.ruleName).toBe("early");
   });
 
   it("advanceDueTimers removes one-shot timers", () => {
@@ -37,7 +37,7 @@ describe("createTimerQueue", () => {
     expect(fired).toEqual(["repeater"]);
     const all = queue.getAll();
     expect(all).toHaveLength(1);
-    expect(all[0]!.fireAt).toBe(2000);
+    expect(all[0]?.fireAt).toBe(2000);
   });
 
   it("cancel removes a timer", () => {
@@ -53,6 +53,6 @@ describe("createTimerQueue", () => {
     queue.schedule("ruleA", { delay: 3000 }, 0);
     const all = queue.getAll();
     expect(all).toHaveLength(1);
-    expect(all[0]!.fireAt).toBe(3000);
+    expect(all[0]?.fireAt).toBe(3000);
   });
 });

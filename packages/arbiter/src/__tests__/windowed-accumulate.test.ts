@@ -1,8 +1,8 @@
-import { describe, it, expect } from "bun:test";
-import { createWindowedAccumulateNode } from "../windowed-accumulate.js";
-import { createSession } from "../session.js";
+import { describe, expect, it } from "bun:test";
 import { createVirtualClock } from "../clock.js";
 import type { Fact } from "../fact-memory.js";
+import { createSession } from "../session.js";
+import { createWindowedAccumulateNode } from "../windowed-accumulate.js";
 
 describe("createWindowedAccumulateNode", () => {
   const makeFact = (id: string, type: string, data: Record<string, unknown>): Fact => ({
@@ -128,9 +128,7 @@ describe("windowed accumulate integration with session", () => {
     const session = createSession({
       clock,
       factTypes: [{ name: "event", fields: { value: "number" } }],
-      accumulates: [
-        { factType: "event", field: "value", fn: "$count", alias: "eventCount", window: 5000 },
-      ],
+      accumulates: [{ factType: "event", field: "value", fn: "$count", alias: "eventCount", window: 5000 }],
       rules: [
         {
           name: "count-check",

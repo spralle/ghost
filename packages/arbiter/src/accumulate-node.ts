@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 
 import type { CustomAccumulateFunction } from "./accumulate-functions.js";
-import { getAccumulateFn, COLLECT_FN_NAME } from "./accumulate-functions.js";
+import { COLLECT_FN_NAME, getAccumulateFn } from "./accumulate-functions.js";
 import type { Fact } from "./fact-memory.js";
 
 export interface AccumulateConfig {

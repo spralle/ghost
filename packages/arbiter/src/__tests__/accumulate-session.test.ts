@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { createSession } from "../session.js";
 import type { AccumulateConfig } from "../accumulate-node.js";
+import { createSession } from "../session.js";
 
 const orderFactType = {
   name: "order",
@@ -18,9 +18,7 @@ describe("accumulate-session", () => {
   });
 
   it("session with accumulates config creates working accumulate support", () => {
-    const accumulates: AccumulateConfig[] = [
-      { factType: "order", fn: "$count", field: "", alias: "orderCount" },
-    ];
+    const accumulates: AccumulateConfig[] = [{ factType: "order", fn: "$count", field: "", alias: "orderCount" }];
     const session = createSession({
       factTypes: [orderFactType],
       accumulates,
@@ -32,9 +30,7 @@ describe("accumulate-session", () => {
   });
 
   it("assertFact updates aggregate values", () => {
-    const accumulates: AccumulateConfig[] = [
-      { factType: "order", fn: "$sum", field: "amount", alias: "totalAmount" },
-    ];
+    const accumulates: AccumulateConfig[] = [{ factType: "order", fn: "$sum", field: "amount", alias: "totalAmount" }];
     const session = createSession({
       factTypes: [orderFactType],
       accumulates,
@@ -46,9 +42,7 @@ describe("accumulate-session", () => {
   });
 
   it("retractFact updates aggregate values", () => {
-    const accumulates: AccumulateConfig[] = [
-      { factType: "order", fn: "$sum", field: "amount", alias: "totalAmount" },
-    ];
+    const accumulates: AccumulateConfig[] = [{ factType: "order", fn: "$sum", field: "amount", alias: "totalAmount" }];
     const session = createSession({
       factTypes: [orderFactType],
       accumulates,
@@ -79,9 +73,7 @@ describe("accumulate-session", () => {
   });
 
   it("aggregate values accessible at $aggregates.alias path", () => {
-    const accumulates: AccumulateConfig[] = [
-      { factType: "order", fn: "$count", field: "", alias: "orderCount" },
-    ];
+    const accumulates: AccumulateConfig[] = [{ factType: "order", fn: "$count", field: "", alias: "orderCount" }];
     const session = createSession({
       factTypes: [orderFactType],
       accumulates,
@@ -91,9 +83,7 @@ describe("accumulate-session", () => {
   });
 
   it("count function works (no field needed)", () => {
-    const accumulates: AccumulateConfig[] = [
-      { factType: "order", fn: "$count", field: "", alias: "cnt" },
-    ];
+    const accumulates: AccumulateConfig[] = [{ factType: "order", fn: "$count", field: "", alias: "cnt" }];
     const session = createSession({
       factTypes: [orderFactType],
       accumulates,
@@ -104,9 +94,7 @@ describe("accumulate-session", () => {
   });
 
   it("sum function works (field required)", () => {
-    const accumulates: AccumulateConfig[] = [
-      { factType: "order", fn: "$sum", field: "amount", alias: "total" },
-    ];
+    const accumulates: AccumulateConfig[] = [{ factType: "order", fn: "$sum", field: "amount", alias: "total" }];
     const session = createSession({
       factTypes: [orderFactType],
       accumulates,
