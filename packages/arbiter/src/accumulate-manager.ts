@@ -11,6 +11,10 @@ import type { Fact } from "./fact-memory.js";
 import type { WindowedAccumulateConfig, WindowedAccumulateNode } from "./windowed-accumulate.js";
 import { createWindowedAccumulateNode } from "./windowed-accumulate.js";
 
+function isWindowed(config: AccumulateConfig): config is WindowedAccumulateConfig {
+  return config.window !== undefined && config.window > 0;
+}
+
 export interface AccumulateManager {
   readonly onFactAsserted: (fact: Fact) => void;
   readonly onFactRetracted: (fact: Fact) => void;
@@ -36,8 +40,8 @@ export function createAccumulateManager(
   function addConfigInternal(config: AccumulateConfig): void {
     if (aliasSet.has(config.alias)) return;
     aliasSet.add(config.alias);
-    if (config.window !== undefined && config.window > 0) {
-      windowedNodes.push(createWindowedAccumulateNode(config as WindowedAccumulateConfig, customFunctions));
+    if (isWindowed(config)) {
+      windowedNodes.push(createWindowedAccumulateNode(config, customFunctions));
     } else {
       nodes.push(createAccumulateNode(config, customFunctions));
     }

@@ -3,6 +3,7 @@ import type { Fact } from "./fact-memory.js";
 import type { FactPattern } from "./fact-pattern.js";
 import type { JoinConstraint, JoinNode } from "./join-node.js";
 import { createJoinNode } from "./join-node.js";
+import { generateTokenId } from "./token-id.js";
 
 /** An alpha filter node that matches facts of a specific type */
 export interface AlphaFilterNode {
@@ -19,12 +20,6 @@ export interface BetaNetwork {
   readonly activate: (bindingName: string, fact: Fact) => readonly Token[];
   readonly retract: (factId: string) => readonly Token[];
   readonly getCompleteTokens: () => readonly Token[];
-}
-
-let tokenCounter = 0;
-
-function generateTokenId(): string {
-  return `beta-token-${tokenCounter++}`;
 }
 
 /** Extract join constraints from a pattern's $join field */
@@ -58,7 +53,7 @@ function buildDegenerateNetwork(pattern: FactPattern): BetaNetwork {
   const activate = (bindingName: string, fact: Fact): readonly Token[] => {
     if (bindingName !== pattern.$bind) return [];
     const token: Token = {
-      id: generateTokenId(),
+      id: generateTokenId("beta-token"),
       factBindings: { [bindingName]: fact },
     };
     tokens.push(token);
@@ -116,7 +111,7 @@ function buildMultiPatternNetwork(patterns: readonly FactPattern[]): BetaNetwork
 
     if (pos === 0) {
       // Left-activate the first join node with a single-fact token
-      const token: Token = { id: generateTokenId(), factBindings: { [bindingName]: fact } };
+      const token: Token = { id: generateTokenId("beta-token"), factBindings: { [bindingName]: fact } };
       let produced = joinNodes[0].leftActivate(token);
       // Propagate through downstream join nodes
       for (let i = 1; i < joinNodes.length; i++) {

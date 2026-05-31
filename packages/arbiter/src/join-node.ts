@@ -1,5 +1,6 @@
 import type { Token } from "./beta-node.js";
 import type { Fact } from "./fact-memory.js";
+import { generateTokenId } from "./token-id.js";
 
 /** A join constraint specifying field equality between two bound facts */
 export interface JoinConstraint {
@@ -59,12 +60,6 @@ function constraintsSatisfied(
     if (leftVal !== rightVal) return false;
   }
   return true;
-}
-
-let tokenCounter = 0;
-
-function generateTokenId(): string {
-  return `token-${tokenCounter++}`;
 }
 
 export function createJoinNode(config: JoinNodeConfig): JoinNode {

@@ -1,4 +1,4 @@
-import type { DotPaths, PathValue, TypedQuery } from "@ghost-shell/predicate";
+import type { DotPaths, ExprNode, PathValue, TypedQuery } from "@ghost-shell/predicate";
 import type { CustomAccumulateFunction } from "./accumulate-functions.js";
 import type { AccumulateConfig } from "./accumulate-node.js";
 import type { ArbiterClock } from "./clock.js";
@@ -172,7 +172,7 @@ export interface WriteRecord {
 
 export interface CompiledRule {
   readonly name: string;
-  readonly condition: unknown;
+  readonly condition: ExprNode;
   readonly actions: readonly CompiledStage[];
   readonly elseActions?: readonly CompiledStage[] | undefined;
   readonly salience: number;

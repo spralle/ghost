@@ -1,5 +1,5 @@
+import type { ArbiterClock, VirtualClock } from "./clock.js";
 import type { CompiledRule, FiringResult } from "./contracts.js";
-import type { VirtualClock, ArbiterClock } from "./clock.js";
 import { ArbiterError, ArbiterErrorCode } from "./errors.js";
 import type { ExpiryTracker } from "./expiry-tracker.js";
 import type { ScheduleOptions } from "./timer-queue.js";
@@ -11,7 +11,13 @@ import type { ScheduleOptions } from "./timer-queue.js";
 export interface TemporalSessionDeps {
   readonly assertNotDisposed: () => void;
   readonly clock: ArbiterClock | undefined;
-  readonly timerQueue: { advanceDueTimers(now: number): readonly string[]; schedule(ruleName: string, options: ScheduleOptions, now: number): void; cancel(ruleName: string): void } | undefined;
+  readonly timerQueue:
+    | {
+        advanceDueTimers(now: number): readonly string[];
+        schedule(ruleName: string, options: ScheduleOptions, now: number): void;
+        cancel(ruleName: string): void;
+      }
+    | undefined;
   readonly expiryTracker: ExpiryTracker | undefined;
   readonly accumulateManager: { evict(now: number): boolean } | undefined;
   readonly scope: { revertRule(name: string): void; clearWriteRecords(name: string): void };

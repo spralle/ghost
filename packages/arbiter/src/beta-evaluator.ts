@@ -40,13 +40,15 @@ interface RuleEntry {
 // Factory
 // ---------------------------------------------------------------------------
 
-export function createBetaEvaluator(): BetaEvaluator {
+export function createBetaEvaluator(
+  compile: (patterns: readonly FactPattern[]) => BetaNetwork = compileBetaNetwork,
+): BetaEvaluator {
   const rules = new Map<string, RuleEntry>();
   // Index: factType → rule entries that care about that type
   const typeIndex = new Map<string, Set<string>>();
 
   const registerRule = (ruleName: string, patterns: readonly FactPattern[]): void => {
-    const network = compileBetaNetwork(patterns);
+    const network = compile(patterns);
     const entry: RuleEntry = { ruleName, patterns, network };
     rules.set(ruleName, entry);
 

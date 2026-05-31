@@ -1,4 +1,3 @@
-import type { ExprNode } from "@ghost-shell/predicate";
 import { evaluate } from "@ghost-shell/predicate";
 import type { Agenda } from "./agenda.js";
 import type { AlphaNetwork } from "./alpha-network.js";
@@ -51,7 +50,7 @@ export interface FireContext {
 
 export function evaluateCondition(rule: CompiledRule, scope: ScopeManager): boolean {
   const state = scope.getReadView();
-  const result = evaluate(rule.condition as ExprNode, state);
+  const result = evaluate(rule.condition, state);
   return Boolean(result);
 }
 

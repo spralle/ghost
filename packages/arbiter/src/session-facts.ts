@@ -1,8 +1,7 @@
+import type { Token } from "./beta-node.js";
 import type { CompiledRule } from "./contracts.js";
 import type { Fact } from "./fact-memory.js";
-import type { Token } from "./beta-node.js";
 import type { ScopeManager } from "./scope.js";
-import { evaluateCondition } from "./fire-cycle.js";
 
 // ---------------------------------------------------------------------------
 // Types for dependency injection from the session
@@ -10,7 +9,9 @@ import { evaluateCondition } from "./fire-cycle.js";
 
 export interface FactSessionDeps {
   readonly assertNotDisposed: () => void;
-  readonly factRegistry: { validate(type: string, data: Readonly<Record<string, unknown>>): readonly string[] } | undefined;
+  readonly factRegistry:
+    | { validate(type: string, data: Readonly<Record<string, unknown>>): readonly string[] }
+    | undefined;
   readonly factMemory:
     | {
         assertFact(type: string, data: Readonly<Record<string, unknown>>): string;
@@ -19,23 +20,30 @@ export interface FactSessionDeps {
         getFactsByType(type: string): readonly Fact[];
       }
     | undefined;
-  readonly accumulateManager:
-    | { onFactAsserted(fact: Fact): void; onFactRetracted(fact: Fact): void }
-    | undefined;
+  readonly accumulateManager: { onFactAsserted(fact: Fact): void; onFactRetracted(fact: Fact): void } | undefined;
   readonly crossTypeAccumulator:
     | { onTokenCreated(ruleName: string, token: Token): void; onTokenRemoved(ruleName: string, token: Token): void }
     | undefined;
   readonly betaEvaluator: {
-    onFactAsserted(factType: string, bindingType: string, fact: Fact): readonly { ruleName: string; tokens: readonly Token[] }[];
+    onFactAsserted(
+      factType: string,
+      bindingType: string,
+      fact: Fact,
+    ): readonly { ruleName: string; tokens: readonly Token[] }[];
     onFactRetracted(factId: string): readonly { ruleName: string; removedTokens: readonly Token[] }[];
     getTokensForRule(ruleName: string): readonly Token[];
   };
   readonly scope: ScopeManager;
   readonly compiledRules: Map<string, CompiledRule>;
   readonly agenda: { addActivation(rule: CompiledRule): void; removeActivation(name: string): void };
-  readonly tms: { ruleActivated(rule: CompiledRule): void; recordFactDependency(ruleName: string, factIds: string[]): void; retractByFact(id: string, scope: unknown): void };
+  readonly tms: {
+    ruleActivated(rule: CompiledRule): void;
+    recordFactDependency(ruleName: string, factIds: string[]): void;
+    retractByFact(id: string, scope: unknown): void;
+  };
   readonly pendingTokens: Map<string, Token>;
   readonly syncAggregates: () => void;
+  readonly evaluateCondition: (rule: CompiledRule, scope: ScopeManager) => boolean;
   readonly autoFire: boolean;
   readonly fire: () => unknown;
 }
@@ -46,7 +54,9 @@ export function hasScopeConditions(rule: CompiledRule): boolean {
   return typeof when === "object" && Object.keys(when as Record<string, unknown>).length > 0;
 }
 
-export function createAssertFact(deps: FactSessionDeps): (type: string, data: Readonly<Record<string, unknown>>) => string {
+export function createAssertFact(
+  deps: FactSessionDeps,
+): (type: string, data: Readonly<Record<string, unknown>>) => string {
   return (type, data) => {
     deps.assertNotDisposed();
     if (!deps.factRegistry || !deps.factMemory) {
@@ -90,7 +100,7 @@ function processFactActivations(deps: FactSessionDeps, fact: Fact, type: string)
       }
     }
     if (hasScopeConditions(compiled)) {
-      const conditionMet = evaluateCondition(compiled, deps.scope);
+      const conditionMet = deps.evaluateCondition(compiled, deps.scope);
       if (!conditionMet) continue;
     }
     deps.agenda.addActivation(compiled);

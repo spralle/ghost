@@ -15,7 +15,6 @@ export type { AlphaFilterNode, BetaNetwork } from "./beta-network.js";
 export { compileBetaNetwork } from "./beta-network.js";
 // Beta/Join network
 export type { BetaNode, Token } from "./beta-node.js";
-export { createBetaNode } from "./beta-node.js";
 // Clock abstraction
 export type { ArbiterClock, VirtualClock } from "./clock.js";
 export { createRealClock, createVirtualClock } from "./clock.js";
@@ -45,7 +44,6 @@ export { createCrossTypeAccumulator } from "./cross-type-accumulate.js";
 export { ArbiterError, ArbiterErrorCode } from "./errors.js";
 // Expiry tracker
 export type { ExpiryTracker } from "./expiry-tracker.js";
-export { createExpiryTracker } from "./expiry-tracker.js";
 // Fact support
 export type { Fact, FactMemory } from "./fact-memory.js";
 export type { CompiledPattern, FactPattern } from "./fact-pattern.js";
@@ -55,7 +53,7 @@ export { createJoinNode } from "./join-node.js";
 // Session factory
 export { createSession } from "./session.js";
 // Temporal operators
-export { createTemporalOperators, TEMPORAL_OPERATORS } from "./temporal-operators.js";
+export { TEMPORAL_OPERATORS } from "./temporal-operators.js";
 // Timer queue
 export type { ScheduleOptions, TimerEntry, TimerQueue } from "./timer-queue.js";
 export { createTimerQueue } from "./timer-queue.js";

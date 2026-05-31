@@ -4,6 +4,7 @@
 
 import type { CustomAccumulateFunction } from "./accumulate-functions.js";
 import { COLLECT_FN_NAME, getAccumulateFn } from "./accumulate-functions.js";
+import { matchesFact } from "./fact-match.js";
 import type { Fact } from "./fact-memory.js";
 
 export interface AccumulateConfig {
@@ -32,19 +33,6 @@ export interface AccumulateNode {
   readonly getTrackedFactIds: () => readonly string[];
 }
 
-function matchesFilter(data: Readonly<Record<string, unknown>>, filter: Record<string, unknown>): boolean {
-  for (const key of Object.keys(filter)) {
-    if (data[key] !== filter[key]) return false;
-  }
-  return true;
-}
-
-function matchesFact(fact: Fact, config: AccumulateConfig): boolean {
-  if (fact.type !== config.factType) return false;
-  if (config.filter && !matchesFilter(fact.data, config.filter)) return false;
-  return true;
-}
-
 function extractValue(fact: Fact, field: string): number | undefined {
   const raw = fact.data[field];
   return typeof raw === "number" ? raw : undefined;
@@ -63,7 +51,7 @@ export function createAccumulateNode(
   const isCount = config.fn === "$count";
 
   const addFact = (fact: Fact): void => {
-    if (!matchesFact(fact, config)) return;
+    if (!matchesFact(fact, config.factType, config.filter)) return;
     if (isCount) {
       tracked.set(fact.id, 0);
       return;
@@ -103,7 +91,7 @@ function createCollectNode(config: AccumulateConfig): AccumulateNode {
   const collected = new Map<string, Record<string, unknown>>();
 
   const addFact = (fact: Fact): void => {
-    if (!matchesFact(fact, config)) return;
+    if (!matchesFact(fact, config.factType, config.filter)) return;
     collected.set(fact.id, fact.data);
   };
 

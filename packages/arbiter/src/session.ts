@@ -21,7 +21,7 @@ import { createOperatorRegistry } from "./expression-operators.js";
 import { createFactMemory } from "./fact-memory.js";
 import { createFactRegistry } from "./fact-registry.js";
 import type { FireContext, FireLimits } from "./fire-cycle.js";
-import { fireCycle } from "./fire-cycle.js";
+import { evaluateCondition, fireCycle } from "./fire-cycle.js";
 import { validatePath } from "./path-utils.js";
 import { compileRule } from "./rule-compiler.js";
 import { createScopeManager } from "./scope.js";
@@ -303,6 +303,7 @@ export function createSession<TState = Record<string, unknown>>(config?: Session
     tms,
     pendingTokens,
     syncAggregates,
+    evaluateCondition,
     autoFire,
     fire,
   };

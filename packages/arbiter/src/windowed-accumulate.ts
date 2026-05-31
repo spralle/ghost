@@ -6,6 +6,7 @@
 import type { CustomAccumulateFunction } from "./accumulate-functions.js";
 import { COLLECT_FN_NAME, getAccumulateFn } from "./accumulate-functions.js";
 import type { AccumulateConfig, AccumulateValue } from "./accumulate-node.js";
+import { matchesFact } from "./fact-match.js";
 import type { Fact } from "./fact-memory.js";
 
 export interface WindowedAccumulateConfig extends AccumulateConfig {
@@ -27,17 +28,15 @@ interface TimestampedEntry {
   readonly timestamp: number;
 }
 
-function matchesFilter(data: Readonly<Record<string, unknown>>, filter: Record<string, unknown>): boolean {
-  for (const key of Object.keys(filter)) {
-    if (data[key] !== filter[key]) return false;
+function evictExpired(entries: Map<string, { timestamp: number }>, cutoff: number): boolean {
+  let evicted = false;
+  for (const [id, entry] of entries) {
+    if (entry.timestamp < cutoff) {
+      entries.delete(id);
+      evicted = true;
+    }
   }
-  return true;
-}
-
-function matchesFact(fact: Fact, config: AccumulateConfig): boolean {
-  if (fact.type !== config.factType) return false;
-  if (config.filter && !matchesFilter(fact.data, config.filter)) return false;
-  return true;
+  return evicted;
 }
 
 export function createWindowedAccumulateNode(
@@ -54,7 +53,7 @@ export function createWindowedAccumulateNode(
   const isCount = config.fn === "$count";
 
   const addFact = (fact: Fact, timestamp: number): void => {
-    if (!matchesFact(fact, config)) return;
+    if (!matchesFact(fact, config.factType, config.filter)) return;
     entries.set(fact.id, { fact, timestamp });
   };
 
@@ -63,15 +62,7 @@ export function createWindowedAccumulateNode(
   };
 
   const evict = (now: number): boolean => {
-    const cutoff = now - config.window;
-    let evicted = false;
-    for (const [id, entry] of entries) {
-      if (entry.timestamp < cutoff) {
-        entries.delete(id);
-        evicted = true;
-      }
-    }
-    return evicted;
+    return evictExpired(entries, now - config.window);
   };
 
   const getValue = (): number | null => {
@@ -96,7 +87,7 @@ function createWindowedCollectNode(
   entries: Map<string, TimestampedEntry>,
 ): WindowedAccumulateNode {
   const addFact = (fact: Fact, timestamp: number): void => {
-    if (!matchesFact(fact, config)) return;
+    if (!matchesFact(fact, config.factType, config.filter)) return;
     entries.set(fact.id, { fact, timestamp });
   };
 
@@ -105,15 +96,7 @@ function createWindowedCollectNode(
   };
 
   const evict = (now: number): boolean => {
-    const cutoff = now - config.window;
-    let evicted = false;
-    for (const [id, entry] of entries) {
-      if (entry.timestamp < cutoff) {
-        entries.delete(id);
-        evicted = true;
-      }
-    }
-    return evicted;
+    return evictExpired(entries, now - config.window);
   };
 
   const getValue = (): readonly Record<string, unknown>[] => {
