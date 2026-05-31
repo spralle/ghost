@@ -8,6 +8,11 @@ export interface Token {
   readonly factBindings: Readonly<Record<string, Fact>>;
 }
 
+/** Check if a token contains a fact with the given ID */
+export function tokenContainsFact(token: { factBindings: Record<string, { id: string }> }, factId: string): boolean {
+  return Object.values(token.factBindings).some((f) => f.id === factId);
+}
+
 /** Beta node holds left memory (tokens from upstream) */
 export interface BetaNode {
   /** Get all tokens in left memory */
@@ -33,8 +38,7 @@ export function createBetaNode(): BetaNode {
     const removed: Token[] = [];
     for (let i = tokens.length - 1; i >= 0; i--) {
       const token = tokens[i];
-      const hasFact = Object.values(token.factBindings).some((f) => f.id === factId);
-      if (hasFact) {
+      if (tokenContainsFact(token, factId)) {
         removed.push(token);
         tokens.splice(i, 1);
       }

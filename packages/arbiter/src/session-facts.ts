@@ -2,6 +2,7 @@ import type { Token } from "./beta-node.js";
 import type { CompiledRule } from "./contracts.js";
 import type { Fact } from "./fact-memory.js";
 import type { ScopeManager } from "./scope.js";
+import { isRecord } from "./type-guards.js";
 
 // ---------------------------------------------------------------------------
 // Types for dependency injection from the session
@@ -50,8 +51,8 @@ export interface FactSessionDeps {
 
 export function hasScopeConditions(rule: CompiledRule): boolean {
   const when = rule.source.when;
-  if (!when || (typeof when === "object" && "$always" in (when as Record<string, unknown>))) return false;
-  return typeof when === "object" && Object.keys(when as Record<string, unknown>).length > 0;
+  if (!when || (isRecord(when) && "$always" in when)) return false;
+  return isRecord(when) && Object.keys(when).length > 0;
 }
 
 export function createAssertFact(

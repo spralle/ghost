@@ -1,4 +1,5 @@
 import type { CompiledStage } from "./contracts.js";
+import { isRecord } from "./type-guards.js";
 
 interface PathNode {
   readonly kind: "path";
@@ -19,12 +20,8 @@ interface LiteralNode {
 type ExprLike = PathNode | OpNode | LiteralNode;
 
 function isExprLike(node: unknown): node is ExprLike {
-  return (
-    node !== null &&
-    typeof node === "object" &&
-    "kind" in (node as Record<string, unknown>) &&
-    typeof (node as Record<string, unknown>).kind === "string"
-  );
+  if (!isRecord(node)) return false;
+  return typeof node.kind === "string";
 }
 
 /**

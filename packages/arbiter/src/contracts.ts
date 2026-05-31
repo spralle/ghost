@@ -85,7 +85,6 @@ export interface SessionConfig<TState = Record<string, unknown>> {
   readonly operators?: OperatorRegistryConfig | undefined;
   readonly limits?: SessionLimits | undefined;
   readonly tms?: TmsConfig | undefined;
-  readonly validation?: "strict" | "syntax" | "none" | undefined;
   readonly errorHandling?: "strict" | "lenient" | undefined;
   readonly thenOperators?: ThenOperatorRegistry | undefined;
   readonly factTypes?: readonly FactTypeDefinition[] | undefined;

@@ -1,4 +1,6 @@
+import { collectPath } from "@ghost-shell/predicate";
 import type { Token } from "./beta-node.js";
+import { tokenContainsFact } from "./beta-node.js";
 import type { Fact } from "./fact-memory.js";
 import { generateTokenId } from "./token-id.js";
 
@@ -33,15 +35,7 @@ export interface JoinNodeConfig {
 
 /** Resolve a dot-path field value from a fact's data */
 function resolveField(fact: Fact, fieldPath: string): unknown {
-  const parts = fieldPath.split(".");
-  let current: unknown = fact.data;
-  for (const part of parts) {
-    if (current === null || current === undefined || typeof current !== "object") {
-      return undefined;
-    }
-    current = (current as Record<string, unknown>)[part];
-  }
-  return current;
+  return collectPath(fact.data, fieldPath.split("."));
 }
 
 /** Check if all join constraints are satisfied for a token + right fact combination */
@@ -109,14 +103,12 @@ export function createJoinNode(config: JoinNodeConfig): JoinNode {
     }
     // Remove from left memory
     for (let i = leftMemory.length - 1; i >= 0; i--) {
-      const hasFact = Object.values(leftMemory[i].factBindings).some((f) => f.id === factId);
-      if (hasFact) leftMemory.splice(i, 1);
+      if (tokenContainsFact(leftMemory[i], factId)) leftMemory.splice(i, 1);
     }
     // Remove from output tokens
     const removed: Token[] = [];
     for (let i = outputTokens.length - 1; i >= 0; i--) {
-      const hasFact = Object.values(outputTokens[i].factBindings).some((f) => f.id === factId);
-      if (hasFact) {
+      if (tokenContainsFact(outputTokens[i], factId)) {
         removed.push(outputTokens[i]);
         outputTokens.splice(i, 1);
       }

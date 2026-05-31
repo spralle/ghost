@@ -5,16 +5,16 @@ import type { CompiledStage, OperatorFunction, StateChange, ThenOperatorRegistry
 import { ArbiterError, ArbiterErrorCode } from "./errors.js";
 import { isExpression } from "./path-utils.js";
 import type { ScopeManager } from "./scope.js";
+import { NAMESPACE_PREFIXES } from "./scope.js";
+import { isRecord } from "./type-guards.js";
 
 // ---------------------------------------------------------------------------
 // Expression value resolution
 // ---------------------------------------------------------------------------
 
-const NAMESPACE_PREFIXES = ["$ui", "$state", "$meta", "$contributions"];
-
 function isNamespacedRef(ref: string): boolean {
-  for (const ns of NAMESPACE_PREFIXES) {
-    if (ref === ns || ref.startsWith(`${ns}.`)) return true;
+  for (const { prefix, namespace } of NAMESPACE_PREFIXES) {
+    if (ref === namespace || ref.startsWith(prefix)) return true;
   }
   return false;
 }
@@ -29,8 +29,8 @@ export function resolveValue(
     const path = isNamespacedRef(`$${ref}`) ? `$${ref}` : ref;
     return scope.get(path);
   }
-  if (isExpression(value)) {
-    return evaluateExpression(value as Record<string, unknown>, scope, operators);
+  if (isExpression(value) && isRecord(value)) {
+    return evaluateExpression(value, scope, operators);
   }
   return value;
 }
@@ -46,40 +46,14 @@ function evaluateExpression(
 
   const rawArgs = expr[opKey];
   const args = Array.isArray(rawArgs)
-    ? (rawArgs as unknown[]).map((a) => resolveValue(a, scope, operators))
+    ? rawArgs.map((a) => resolveValue(a, scope, operators))
     : [resolveValue(rawArgs, scope, operators)];
-
-  // Try inline operators first, then registry
-  const inlineResult = evaluateOperatorInline(opKey, args);
-  if (inlineResult !== null) return inlineResult;
 
   if (operators && opKey in operators) {
     return operators[opKey](args, scope.getReadView());
   }
 
   return null;
-}
-
-function evaluateOperatorInline(op: string, args: unknown[]): unknown {
-  switch (op) {
-    case "$sum": {
-      let total = 0;
-      for (const v of args) {
-        if (typeof v === "number") total += v;
-      }
-      return total;
-    }
-    case "$multiply": {
-      let result = 1;
-      for (const v of args) {
-        if (typeof v !== "number") return null;
-        result *= v;
-      }
-      return result;
-    }
-    default:
-      return null;
-  }
 }
 
 // ---------------------------------------------------------------------------
@@ -201,7 +175,7 @@ function executeMerge(entries: ReadonlyMap<string, unknown>, ruleName: string, c
 }
 
 function executeFocus(entries: ReadonlyMap<string, unknown>, ctx: StageExecContext): StateChange[] {
-  const group = entries.get("group") as string;
+  const group = String(entries.get("group") ?? "");
   ctx.agenda.setFocus(group);
   return [];
 }

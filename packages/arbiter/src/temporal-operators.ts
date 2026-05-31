@@ -5,11 +5,12 @@
  */
 
 import type { OperatorFunction } from "./contracts.js";
+import { isRecord } from "./type-guards.js";
 
 function getNow(scope: Readonly<Record<string, unknown>>): number | undefined {
   const meta = scope["$meta"];
-  if (meta != null && typeof meta === "object") {
-    const now = (meta as Readonly<Record<string, unknown>>)["$now"];
+  if (meta != null && isRecord(meta)) {
+    const now = meta["$now"];
     if (typeof now === "number") return now;
   }
   // Also check flat path form "$meta.$now"
@@ -75,11 +76,3 @@ export const TEMPORAL_OPERATORS: Readonly<Record<string, OperatorFunction>> = {
   $after,
   $before,
 };
-
-/**
- * Creates a temporal operator registry map for merging into session operators.
- * Provided as a factory for consistency with the extension point pattern.
- */
-export function createTemporalOperators(): Readonly<Record<string, OperatorFunction>> {
-  return TEMPORAL_OPERATORS;
-}

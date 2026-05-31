@@ -3,6 +3,7 @@ import type { CompiledPattern, CompiledRule, ProductionRule } from "./contracts.
 import { ArbiterError, ArbiterErrorCode } from "./errors.js";
 import type { FactPattern } from "./fact-pattern.js";
 import { compileThenActions } from "./then-compiler.js";
+import { isRecord } from "./type-guards.js";
 import { validateAccumulateConfigs } from "./validate-accumulate.js";
 import { validatePatterns } from "./validate-patterns.js";
 
@@ -14,7 +15,7 @@ export function compileRule(rule: ProductionRule<unknown>): CompiledRule {
     throw new ArbiterError(ArbiterErrorCode.RULE_COMPILATION_FAILED, "Rule must have a name");
   }
 
-  if (!rule.when || typeof rule.when !== "object") {
+  if (!rule.when || !isRecord(rule.when)) {
     throw new ArbiterError(
       ArbiterErrorCode.RULE_COMPILATION_FAILED,
       `Rule "${rule.name}" must have a "when" condition`,
@@ -30,7 +31,7 @@ export function compileRule(rule: ProductionRule<unknown>): CompiledRule {
     );
   }
 
-  const condition = compile(rule.when as Record<string, unknown>);
+  const condition = compile(rule.when);
   const actions = compileThenActions(rule.then);
   const elseActions = rule.else ? compileThenActions(rule.else) : undefined;
 

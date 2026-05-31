@@ -4,7 +4,6 @@
 // Public types — results & diagnostics
 
 export type { AccumulateFn, CustomAccumulateFunction } from "./accumulate-functions.js";
-export type { AccumulateManager } from "./accumulate-manager.js";
 // Accumulate support
 export type { AccumulateConfig, AccumulateNode } from "./accumulate-node.js";
 // Beta evaluator
@@ -15,6 +14,7 @@ export type { AlphaFilterNode, BetaNetwork } from "./beta-network.js";
 export { compileBetaNetwork } from "./beta-network.js";
 // Beta/Join network
 export type { BetaNode, Token } from "./beta-node.js";
+export { tokenContainsFact } from "./beta-node.js";
 // Clock abstraction
 export type { ArbiterClock, VirtualClock } from "./clock.js";
 export { createRealClock, createVirtualClock } from "./clock.js";
@@ -42,8 +42,6 @@ export type { CrossTypeAccumulator } from "./cross-type-accumulate.js";
 export { createCrossTypeAccumulator } from "./cross-type-accumulate.js";
 // Error types
 export { ArbiterError, ArbiterErrorCode } from "./errors.js";
-// Expiry tracker
-export type { ExpiryTracker } from "./expiry-tracker.js";
 // Fact support
 export type { Fact, FactMemory } from "./fact-memory.js";
 export type { CompiledPattern, FactPattern } from "./fact-pattern.js";

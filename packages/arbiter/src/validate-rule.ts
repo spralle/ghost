@@ -1,6 +1,7 @@
 import type { ProductionRule, ThenStage } from "./contracts.js";
 import { ArbiterError, ArbiterErrorCode } from "./errors.js";
 import { validatePath } from "./path-utils.js";
+import { isRecord } from "./type-guards.js";
 import { validatePatterns } from "./validate-patterns.js";
 
 export type ValidationLevel = "strict" | "syntax" | "none";
@@ -137,10 +138,9 @@ function validateStagePaths(stages: readonly ThenStage[], ruleName: string, clau
     if (operator === "$focus") continue;
 
     const body = stage[operator];
-    if (!body || typeof body !== "object" || Array.isArray(body)) continue;
+    if (!isRecord(body)) continue;
 
-    const fieldMap = body as Record<string, unknown>;
-    for (const path of Object.keys(fieldMap)) {
+    for (const path of Object.keys(body)) {
       try {
         validatePath(path);
       } catch (err) {
@@ -160,8 +160,8 @@ function walkWhenClause(obj: Record<string, unknown>, ruleName: string): void {
       const arr = obj[key];
       if (Array.isArray(arr)) {
         for (const item of arr) {
-          if (item && typeof item === "object" && !Array.isArray(item)) {
-            walkWhenClause(item as Record<string, unknown>, ruleName);
+          if (isRecord(item)) {
+            walkWhenClause(item, ruleName);
           }
         }
       }
@@ -185,8 +185,8 @@ function walkWhenClause(obj: Record<string, unknown>, ruleName: string): void {
     }
 
     const val = obj[key];
-    if (val && typeof val === "object" && !Array.isArray(val)) {
-      walkWhenClause(val as Record<string, unknown>, ruleName);
+    if (isRecord(val)) {
+      walkWhenClause(val, ruleName);
     }
   }
 }
@@ -201,12 +201,11 @@ function validateStageValues(stages: readonly ThenStage[], ruleName: string, cla
     if (!opKey) continue;
 
     const body = stage[opKey];
-    if (!body || typeof body !== "object" || Array.isArray(body)) continue;
+    if (!isRecord(body)) continue;
 
     if (opKey === "$focus") continue;
 
-    const fieldMap = body as Record<string, unknown>;
-    for (const value of Object.values(fieldMap)) {
+    for (const value of Object.values(body)) {
       if (value !== undefined) {
         checkValueForDangerousRefs(value, ruleName, clause);
       }
@@ -215,17 +214,16 @@ function validateStageValues(stages: readonly ThenStage[], ruleName: string, cla
 }
 
 function checkValueForDangerousRefs(value: unknown, ruleName: string, clause: string): void {
-  if (value === null || typeof value !== "object") return;
-
-  if (Array.isArray(value)) {
-    for (const item of value) {
-      checkValueForDangerousRefs(item, ruleName, clause);
+  if (!isRecord(value)) {
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        checkValueForDangerousRefs(item, ruleName, clause);
+      }
     }
     return;
   }
 
-  const obj = value as Record<string, unknown>;
-  for (const key of Object.keys(obj)) {
+  for (const key of Object.keys(value)) {
     if (DANGEROUS_EXPR_PATTERNS.includes(key)) {
       throw new ArbiterError(
         ArbiterErrorCode.PROTOTYPE_POLLUTION,
@@ -233,6 +231,6 @@ function checkValueForDangerousRefs(value: unknown, ruleName: string, clause: st
         { ruleName },
       );
     }
-    checkValueForDangerousRefs(obj[key], ruleName, clause);
+    checkValueForDangerousRefs(value[key], ruleName, clause);
   }
 }

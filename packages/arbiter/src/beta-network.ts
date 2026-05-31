@@ -1,4 +1,5 @@
 import type { Token } from "./beta-node.js";
+import { tokenContainsFact } from "./beta-node.js";
 import type { Fact } from "./fact-memory.js";
 import type { FactPattern } from "./fact-pattern.js";
 import type { JoinConstraint, JoinNode } from "./join-node.js";
@@ -63,8 +64,7 @@ function buildDegenerateNetwork(pattern: FactPattern): BetaNetwork {
   const retract = (factId: string): readonly Token[] => {
     const removed: Token[] = [];
     for (let i = tokens.length - 1; i >= 0; i--) {
-      const hasFact = Object.values(tokens[i].factBindings).some((f) => f.id === factId);
-      if (hasFact) {
+      if (tokenContainsFact(tokens[i], factId)) {
         removed.push(tokens[i]);
         tokens.splice(i, 1);
       }
