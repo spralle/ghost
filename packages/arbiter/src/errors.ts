@@ -11,6 +11,7 @@ export const ArbiterErrorCode = {
   PROTOTYPE_POLLUTION: "ARBITER_PROTOTYPE_POLLUTION",
   EXPRESSION_EVAL_FAILED: "ARBITER_EXPRESSION_EVAL_FAILED",
   RULE_NOT_FOUND: "ARBITER_RULE_NOT_FOUND",
+  INVALID_CLOCK_OPERATION: "ARBITER_INVALID_CLOCK_OPERATION",
 } as const;
 
 export type ArbiterErrorCode = (typeof ArbiterErrorCode)[keyof typeof ArbiterErrorCode];

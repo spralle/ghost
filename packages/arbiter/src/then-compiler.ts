@@ -2,6 +2,7 @@ import { compile } from "@ghost-shell/predicate/compile";
 import type { CompiledStage, ThenStage } from "./contracts.js";
 import { ArbiterError, ArbiterErrorCode } from "./errors.js";
 import { validatePath } from "./path-utils.js";
+import { isRecord } from "./type-guards.js";
 
 /**
  * Extracts the single $-prefixed operator key and body from a pipeline stage.
@@ -25,19 +26,26 @@ function compileStage(stage: ThenStage<unknown>): CompiledStage {
   const { operator, body } = extractOperator(stage);
 
   if (operator === "$focus") {
-    const focusBody = body as Record<string, unknown>;
+    if (!isRecord(body)) {
+      throw new ArbiterError(ArbiterErrorCode.RULE_COMPILATION_FAILED, "$focus stage body must be an object");
+    }
     const entries = new Map<string, unknown>();
-    entries.set("group", focusBody["group"]);
+    entries.set("group", body["group"]);
     return { operator, entries };
   }
 
-  const fieldMap = body as Record<string, unknown>;
+  if (!isRecord(body)) {
+    throw new ArbiterError(ArbiterErrorCode.RULE_COMPILATION_FAILED, `Stage body for "${operator}" must be an object`);
+  }
   const entries = new Map<string, unknown>();
 
-  for (const [path, value] of Object.entries(fieldMap)) {
+  for (const [path, value] of Object.entries(body)) {
     validatePath(path);
     if (operator === "$pull") {
-      entries.set(path, compile(value as Record<string, unknown>));
+      if (!isRecord(value)) {
+        throw new ArbiterError(ArbiterErrorCode.RULE_COMPILATION_FAILED, "$pull value must be an object");
+      }
+      entries.set(path, compile(value));
     } else {
       entries.set(path, value);
     }

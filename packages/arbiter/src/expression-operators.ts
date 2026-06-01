@@ -1,11 +1,15 @@
 import type { OperatorFunction } from "./contracts.js";
 
+function flatArgs(args: readonly unknown[]): readonly unknown[] {
+  return Array.isArray(args[0]) ? args[0] as readonly unknown[] : args;
+}
+
 // ---------------------------------------------------------------------------
 // Arithmetic operators
 // ---------------------------------------------------------------------------
 
 const $sum: OperatorFunction = (args) => {
-  const items = Array.isArray(args[0]) ? (args[0] as readonly unknown[]) : args;
+  const items = flatArgs(args);
   let total = 0;
   for (const v of items) {
     if (v == null) continue;
@@ -16,7 +20,7 @@ const $sum: OperatorFunction = (args) => {
 };
 
 const $multiply: OperatorFunction = (args) => {
-  const items = Array.isArray(args[0]) ? (args[0] as readonly unknown[]) : args;
+  const items = flatArgs(args);
   let result = 1;
   for (const v of items) {
     if (v == null) return null;
@@ -62,7 +66,7 @@ const $floor: OperatorFunction = (args) => {
 // ---------------------------------------------------------------------------
 
 const $min: OperatorFunction = (args) => {
-  const items = Array.isArray(args[0]) ? (args[0] as readonly unknown[]) : args;
+  const items = flatArgs(args);
   let result: number | null = null;
   for (const v of items) {
     if (v == null) continue;
@@ -73,7 +77,7 @@ const $min: OperatorFunction = (args) => {
 };
 
 const $max: OperatorFunction = (args) => {
-  const items = Array.isArray(args[0]) ? (args[0] as readonly unknown[]) : args;
+  const items = flatArgs(args);
   let result: number | null = null;
   for (const v of items) {
     if (v == null) continue;
@@ -124,7 +128,7 @@ const $ifNull: OperatorFunction = (args) => {
 // ---------------------------------------------------------------------------
 
 const $concat: OperatorFunction = (args) => {
-  const items = Array.isArray(args[0]) && args.length === 1 ? (args[0] as readonly unknown[]) : args;
+  const items = args.length === 1 && Array.isArray(args[0]) ? args[0] as readonly unknown[] : args;
   let result = "";
   for (const v of items) {
     if (v == null) return null;
@@ -170,7 +174,7 @@ const $toBool: OperatorFunction = (args) => {
 const $literal: OperatorFunction = (args) => args[0];
 
 const $avg: OperatorFunction = (args) => {
-  const items = Array.isArray(args[0]) ? (args[0] as readonly unknown[]) : args;
+  const items = flatArgs(args);
   if (items.length === 0) return null;
   let sum = 0;
   let count = 0;

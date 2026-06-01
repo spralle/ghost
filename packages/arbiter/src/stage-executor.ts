@@ -1,69 +1,59 @@
 import type { ExprNode } from "@ghost-shell/predicate";
 import { evaluate } from "@ghost-shell/predicate";
 import type { Agenda } from "./agenda.js";
-import type { CompiledStage, StateChange, ThenOperatorRegistry } from "./contracts.js";
+import type { CompiledStage, OperatorFunction, StateChange, ThenOperatorRegistry } from "./contracts.js";
 import { ArbiterError, ArbiterErrorCode } from "./errors.js";
 import { isExpression } from "./path-utils.js";
 import type { ScopeManager } from "./scope.js";
+import { NAMESPACE_PREFIXES } from "./scope.js";
+import { isRecord } from "./type-guards.js";
 
 // ---------------------------------------------------------------------------
 // Expression value resolution
 // ---------------------------------------------------------------------------
 
-const NAMESPACE_PREFIXES = ["$ui", "$state", "$meta", "$contributions"];
-
 function isNamespacedRef(ref: string): boolean {
-  for (const ns of NAMESPACE_PREFIXES) {
-    if (ref === ns || ref.startsWith(`${ns}.`)) return true;
+  for (const { prefix, namespace } of NAMESPACE_PREFIXES) {
+    if (ref === namespace || ref.startsWith(prefix)) return true;
   }
   return false;
 }
 
-export function resolveValue(value: unknown, scope: ScopeManager): unknown {
+export function resolveValue(
+  value: unknown,
+  scope: ScopeManager,
+  operators?: Readonly<Record<string, OperatorFunction>>,
+): unknown {
   if (typeof value === "string" && value.startsWith("$")) {
     const ref = value.slice(1);
     const path = isNamespacedRef(`$${ref}`) ? `$${ref}` : ref;
     return scope.get(path);
   }
-  if (isExpression(value)) {
-    return evaluateExpression(value as Record<string, unknown>, scope);
+  if (isExpression(value) && isRecord(value)) {
+    return evaluateExpression(value, scope, operators);
   }
   return value;
 }
 
-function evaluateExpression(expr: Record<string, unknown>, scope: ScopeManager): unknown {
+function evaluateExpression(
+  expr: Record<string, unknown>,
+  scope: ScopeManager,
+  operators?: Readonly<Record<string, OperatorFunction>>,
+): unknown {
   const keys = Object.keys(expr);
   const opKey = keys.find((k) => k.startsWith("$"));
   if (!opKey) return expr;
 
   const rawArgs = expr[opKey];
   const args = Array.isArray(rawArgs)
-    ? (rawArgs as unknown[]).map((a) => resolveValue(a, scope))
-    : [resolveValue(rawArgs, scope)];
+    ? rawArgs.map((a) => resolveValue(a, scope, operators))
+    : [resolveValue(rawArgs, scope, operators)];
 
-  return evaluateOperatorInline(opKey, args);
-}
-
-function evaluateOperatorInline(op: string, args: unknown[]): unknown {
-  switch (op) {
-    case "$sum": {
-      let total = 0;
-      for (const v of args) {
-        if (typeof v === "number") total += v;
-      }
-      return total;
-    }
-    case "$multiply": {
-      let result = 1;
-      for (const v of args) {
-        if (typeof v !== "number") return null;
-        result *= v;
-      }
-      return result;
-    }
-    default:
-      return null;
+  if (operators && opKey in operators) {
+    return operators[opKey](args, scope.getReadView());
   }
+
+  return null;
 }
 
 // ---------------------------------------------------------------------------
@@ -74,6 +64,7 @@ export interface StageExecContext {
   readonly scope: ScopeManager;
   readonly agenda: Agenda;
   readonly thenOperators?: ThenOperatorRegistry | undefined;
+  readonly operators?: Readonly<Record<string, OperatorFunction>> | undefined;
 }
 
 // ---------------------------------------------------------------------------
@@ -117,7 +108,7 @@ function executeSingleStage(stage: CompiledStage, ruleName: string, ctx: StageEx
 function executeSet(entries: ReadonlyMap<string, unknown>, ruleName: string, ctx: StageExecContext): StateChange[] {
   const changes: StateChange[] = [];
   for (const [path, compiledValue] of entries) {
-    const value = resolveValue(compiledValue, ctx.scope);
+    const value = resolveValue(compiledValue, ctx.scope, ctx.operators);
     const prev = ctx.scope.get(path);
     ctx.scope.set(path, value, ruleName);
     changes.push({ path, previousValue: prev, newValue: value, ruleName });
@@ -138,7 +129,7 @@ function executeUnset(entries: ReadonlyMap<string, unknown>, ruleName: string, c
 function executeInc(entries: ReadonlyMap<string, unknown>, ruleName: string, ctx: StageExecContext): StateChange[] {
   const changes: StateChange[] = [];
   for (const [path, compiledValue] of entries) {
-    const value = resolveValue(compiledValue, ctx.scope);
+    const value = resolveValue(compiledValue, ctx.scope, ctx.operators);
     const prev = ctx.scope.get(path);
     ctx.scope.inc(path, value, ruleName);
     const newVal = ctx.scope.get(path);
@@ -150,7 +141,7 @@ function executeInc(entries: ReadonlyMap<string, unknown>, ruleName: string, ctx
 function executePush(entries: ReadonlyMap<string, unknown>, ruleName: string, ctx: StageExecContext): StateChange[] {
   const changes: StateChange[] = [];
   for (const [path, compiledValue] of entries) {
-    const value = resolveValue(compiledValue, ctx.scope);
+    const value = resolveValue(compiledValue, ctx.scope, ctx.operators);
     const prev = ctx.scope.get(path);
     ctx.scope.push(path, value, ruleName);
     const newVal = ctx.scope.get(path);
@@ -174,7 +165,7 @@ function executePull(entries: ReadonlyMap<string, unknown>, ruleName: string, ct
 function executeMerge(entries: ReadonlyMap<string, unknown>, ruleName: string, ctx: StageExecContext): StateChange[] {
   const changes: StateChange[] = [];
   for (const [path, compiledValue] of entries) {
-    const value = resolveValue(compiledValue, ctx.scope);
+    const value = resolveValue(compiledValue, ctx.scope, ctx.operators);
     const prev = ctx.scope.get(path);
     ctx.scope.merge(path, value, ruleName);
     const newVal = ctx.scope.get(path);
@@ -184,7 +175,7 @@ function executeMerge(entries: ReadonlyMap<string, unknown>, ruleName: string, c
 }
 
 function executeFocus(entries: ReadonlyMap<string, unknown>, ctx: StageExecContext): StateChange[] {
-  const group = entries.get("group") as string;
+  const group = String(entries.get("group") ?? "");
   ctx.agenda.setFocus(group);
   return [];
 }

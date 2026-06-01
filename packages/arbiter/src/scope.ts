@@ -2,6 +2,7 @@ import { collectPath } from "@ghost-shell/predicate";
 import type { WriteRecord } from "./contracts.js";
 import { ArbiterError, ArbiterErrorCode } from "./errors.js";
 import { splitPath, validatePath } from "./path-utils.js";
+import { isRecord } from "./type-guards.js";
 
 // ---------------------------------------------------------------------------
 // Namespace types and routing
@@ -9,7 +10,7 @@ import { splitPath, validatePath } from "./path-utils.js";
 
 export type Namespace = "root" | "$ui" | "$state" | "$meta" | "$contributions";
 
-const NAMESPACE_PREFIXES: readonly { readonly prefix: string; readonly namespace: Namespace }[] = [
+export const NAMESPACE_PREFIXES: readonly { readonly prefix: string; readonly namespace: Namespace }[] = [
   { prefix: "$contributions.", namespace: "$contributions" },
   { prefix: "$state.", namespace: "$state" },
   { prefix: "$meta.", namespace: "$meta" },
@@ -59,12 +60,12 @@ function deepSet(obj: Record<string, unknown>, segments: readonly string[], valu
   for (let i = 0; i < segments.length - 1; i++) {
     const seg = segments[i]!;
     const next = current[seg];
-    if (next === null || next === undefined || typeof next !== "object" || Array.isArray(next)) {
+    if (!isRecord(next)) {
       const created: Record<string, unknown> = {};
       current[seg] = created;
       current = created;
     } else {
-      current = next as Record<string, unknown>;
+      current = next;
     }
   }
   current[segments[segments.length - 1]!] = value;
@@ -75,10 +76,10 @@ function deepDelete(obj: Record<string, unknown>, segments: readonly string[]): 
   for (let i = 0; i < segments.length - 1; i++) {
     const seg = segments[i]!;
     const next = current[seg];
-    if (next === null || next === undefined || typeof next !== "object") {
+    if (!isRecord(next)) {
       return;
     }
-    current = next as Record<string, unknown>;
+    current = next;
   }
   delete current[segments[segments.length - 1]!];
 }
@@ -107,6 +108,14 @@ export function createScopeManager(initialState?: Readonly<Record<string, unknow
 
   const provenanceMap = new Map<string, WriteRecord[]>();
   const snapshots = new Map<string, unknown>();
+
+  function clearSnapshotsForRule(ruleName: string): void {
+    for (const key of [...snapshots.keys()]) {
+      if (key.startsWith(`${ruleName}:`)) {
+        snapshots.delete(key);
+      }
+    }
+  }
 
   function getStore(ns: Namespace): Record<string, unknown> {
     return stores[ns];
@@ -196,7 +205,7 @@ export function createScopeManager(initialState?: Readonly<Record<string, unknow
 
   function mergePath(path: string, value: unknown, ruleName: string): WriteRecord | undefined {
     validatePath(path);
-    if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    if (!isRecord(value)) {
       throw new ArbiterError(ArbiterErrorCode.EXPRESSION_EVAL_FAILED, "merge requires a plain object value");
     }
     const { namespace, localPath } = resolveNamespace(path);
@@ -205,11 +214,8 @@ export function createScopeManager(initialState?: Readonly<Record<string, unknow
     const store = getStore(namespace);
     const current = deepGet(store, segments);
     const prev = safeClone(current);
-    const base =
-      current !== null && typeof current === "object" && !Array.isArray(current)
-        ? (current as Record<string, unknown>)
-        : {};
-    const merged = { ...base, ...(value as Record<string, unknown>) };
+    const base = isRecord(current) ? current : {};
+    const merged = { ...base, ...value };
     deepSet(store, segments, merged);
     return recordWrite(path, merged, prev, ruleName);
   }
@@ -234,22 +240,13 @@ export function createScopeManager(initialState?: Readonly<Record<string, unknow
       paths.push(record.path);
     }
     provenanceMap.delete(ruleName);
-    // Clean up snapshots for this rule
-    for (const key of [...snapshots.keys()]) {
-      if (key.startsWith(`${ruleName}:`)) {
-        snapshots.delete(key);
-      }
-    }
+    clearSnapshotsForRule(ruleName);
     return paths;
   }
 
   function clearWriteRecords(ruleName: string): void {
     provenanceMap.delete(ruleName);
-    for (const key of [...snapshots.keys()]) {
-      if (key.startsWith(`${ruleName}:`)) {
-        snapshots.delete(key);
-      }
-    }
+    clearSnapshotsForRule(ruleName);
   }
 
   function getState(): Readonly<Record<string, unknown>> {
