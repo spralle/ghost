@@ -1,4 +1,4 @@
-import type { ProductionRule } from "@ghost-shell/arbiter";
+import type { ProductionRule } from "@arbitre/core";
 import { describe, expect, test } from "vitest";
 import { createForm } from "../create-form.js";
 

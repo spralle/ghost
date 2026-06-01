@@ -2,8 +2,8 @@
  * Creates a pre-loaded arbiter RuleSession configured for sentinel policy evaluation.
  */
 
-import type { RuleSession } from "@ghost-shell/arbiter";
-import { createSession } from "@ghost-shell/arbiter";
+import type { RuleSession } from "@arbitre/core";
+import { createSession } from "@arbitre/core";
 import { toProductionRules } from "./to-production-rules.js";
 import type { CompiledPolicy, SentinelSessionOptions } from "./types.js";
 

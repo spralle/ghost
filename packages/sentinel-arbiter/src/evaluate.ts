@@ -2,7 +2,7 @@
  * High-level evaluation: asserts context into session, fires, and returns PolicyDecision.
  */
 
-import type { RuleSession } from "@ghost-shell/arbiter";
+import type { RuleSession } from "@arbitre/core";
 import { createSentinelSession } from "./create-sentinel-session.js";
 import type { CompiledPolicy, EvalContext, PolicyDecision } from "./types.js";
 

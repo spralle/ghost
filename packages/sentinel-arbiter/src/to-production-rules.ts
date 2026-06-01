@@ -7,7 +7,7 @@
  * - activationGroup: ensures mutual exclusion (only highest-salience fires)
  */
 
-import type { ProductionRule } from "@ghost-shell/arbiter";
+import type { ProductionRule } from "@arbitre/core";
 import type { CompiledRule } from "./types.js";
 
 const DEFAULT_ACTIVATION_GROUP = "sentinel-decision";

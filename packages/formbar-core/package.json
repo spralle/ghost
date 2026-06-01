@@ -47,7 +47,7 @@
   "sideEffects": false,
   "dependencies": {
     "@ghost-shell/predicate": "workspace:*",
-    "@ghost-shell/arbiter": "workspace:*"
+    "@arbitre/core": "^0.1.0"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
