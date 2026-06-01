@@ -92,7 +92,7 @@ export interface CreateFormOptions<TData, TUi> {
   readonly asyncValidators?: readonly AsyncValidatorConfig[];
 }
 
-import type { ProductionRule, RuleSession } from "@ghost-shell/arbiter";
+import type { ProductionRule, RuleSession } from "@arbitre/core";
 // Imports for CreateFormOptions references
 import type {
   AsyncValidatorConfig,

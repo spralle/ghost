@@ -18,7 +18,7 @@
   ],
   "sideEffects": false,
   "dependencies": {
-    "@ghost-shell/arbiter": "workspace:*"
+    "@arbitre/core": "^0.1.0"
   },
   "scripts": {
     "build:dist": "tsup"

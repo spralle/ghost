@@ -1,5 +1,5 @@
-import type { ProductionRule } from "@ghost-shell/arbiter";
-import { createSession } from "@ghost-shell/arbiter";
+import type { ProductionRule } from "@arbitre/core";
+import { createSession } from "@arbitre/core";
 import { describe, expect, test } from "vitest";
 import { createArbiterAdapter, createArbiterAdapterFromSession } from "../arbiter-integration.js";
 import { createForm } from "../create-form.js";
