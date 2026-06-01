@@ -101,9 +101,6 @@
       "path": "./plugins/topbar-widgets-plugin"
     },
     {
-      "path": "./packages/arbiter"
-    },
-    {
       "path": "./packages/router"
     },
     {
