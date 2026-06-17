@@ -113,6 +113,8 @@ export interface ShellPluginRegistry {
   resolveServiceCapability(requesterPluginId: string, capabilityId: string): Promise<unknown | null>;
   getService<T = unknown>(serviceId: string): T | null;
   getServiceOptions(serviceId: string): ServiceRegistrationOptions | null;
+  getServiceState(serviceId: string): object | null;
+  getRegisteredServiceIds(): string[];
   hasService(serviceId: string): boolean;
   /** Retrieve a builtin plugin's module reference, or null if not registered. */
   getBuiltinModule(pluginId: string): unknown | null;

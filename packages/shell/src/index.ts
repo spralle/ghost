@@ -87,6 +87,7 @@ export {
   type ServiceGatewayHostOptions,
   type ServiceRegistry,
 } from "./service-gateway-host.js";
+export { wireGatewayHost, type GatewayHostWiringOptions, type GatewayHostWiringResult } from "./gateway-host-wiring.js";
 // Legacy — kept for ReactShellHost backward compatibility
 export { startShell } from "./start-shell.js";
 // Stateful service registration utilities
