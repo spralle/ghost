@@ -92,4 +92,5 @@ export interface PopoutHost {
   isPopout: boolean;
   popoutHandles: Map<string, Window>;
   poppedOutTabIds: Set<string>;
+  popoutManifestRegistry?: import("../../popout-manifest-registry.js").PopoutManifestRegistry | undefined;
 }
