@@ -11,8 +11,7 @@
     "isolatedModules": true,
     "types": ["@types/bun"],
     "paths": {
-      "@ghost/sentinel": ["../sentinel/src/index.ts"],
-      "@ghost-shell/predicate": ["../predicate/src/index.ts"]
+      "@ghost/sentinel": ["../sentinel/src/index.ts"]
     }
   },
   "include": ["src/**/*.ts", "tests/**/*.ts"],

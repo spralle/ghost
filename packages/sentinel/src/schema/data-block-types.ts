@@ -1,4 +1,4 @@
-import type { DotPaths } from "@ghost-shell/predicate";
+import type { DotPaths } from "kuery";
 
 export type SensitivityTier = "public" | "standard" | "restricted" | "controlled";
 

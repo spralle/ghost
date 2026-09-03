@@ -1,8 +1,9 @@
 "use client";
 
 import type { LayoutNode } from "@formbar/from-schema";
-import type { LayoutRendererProps } from "@formbar/react";
-import { descriptionId, errorId, fieldId, RendererRegistry, renderLayoutTree } from "@formbar/react";
+import { descriptionId, errorId, fieldId } from "@formbar/react";
+import type { LayoutRendererProps } from "@formbar/react-schema";
+import { RendererRegistry, renderLayoutTree } from "@formbar/react-schema";
 import type { ReactNode } from "react";
 import { Button } from "../button";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "../field";

@@ -1,5 +1,7 @@
+import { createArbiterPlugin } from "@formbar/arbiter";
 import { useForm } from "@formbar/react";
 import { Card, CardContent, CardHeader, CardTitle, cn } from "@ghost-shell/ui";
+import { useMemo } from "react";
 import { DemoShell } from "../renderers/DemoShell";
 
 // NOTE: $ui entries are synced shallowly (top-level keys only).
@@ -49,10 +51,12 @@ const US_STATES = ["California", "New York", "Texas", "Florida"];
 const CA_PROVINCES = ["Ontario", "Quebec", "British Columbia", "Alberta"];
 
 export function ArbiterVisibilityDemo() {
+  const plugins = useMemo(() => [createArbiterPlugin({ rules: arbiterRules })], []);
+
   const form = useForm<FormData, UiState>({
     initialData: { country: "", state: "", province: "", region: "" },
     initialUiState: { showState: false, showProvince: false },
-    arbiterRules,
+    plugins,
   });
 
   const { data, uiState } = form.getState();

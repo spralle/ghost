@@ -2,8 +2,8 @@
 
 import type { FormApi } from "@formbar/core";
 import type { SchemaFieldInfo } from "@formbar/from-schema";
-import type { RendererRegistry, ResolvedFieldState } from "@formbar/react";
-import { DEFAULT_FIELD_STATE } from "@formbar/react";
+import type { RendererRegistry, ResolvedFieldState } from "@formbar/react-schema";
+import { DEFAULT_FIELD_STATE } from "@formbar/react-schema";
 import { createContext, useContext } from "react";
 import type { WidgetOverrides } from "./widget-overrides";
 

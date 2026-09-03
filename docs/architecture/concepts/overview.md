@@ -25,8 +25,8 @@ The system is designed around four key principles:
 @ghost-shell/react          React renderer, GhostProvider, context hooks
 @ghost-shell/persistence    Layout/keybinding/context serialization and sanitization
 @ghost-shell/federation     Module Federation runtime mount utilities
-@ghost-shell/predicate      Query predicate compiler and evaluator
-@ghost-shell/arbiter        Rete-based rule engine for complex state derivation
+kuery                       Query predicate compiler and evaluator
+@arbitre/core               Rete-based rule engine for complex state derivation
 ```
 
 ## Architecture Layers

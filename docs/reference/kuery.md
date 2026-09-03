@@ -1,33 +1,33 @@
-# @ghost-shell/predicate
+# kuery
 
 ## Purpose
 
-A standalone MongoDB-style production rule engine for evaluating queries against documents. Used throughout Ghost Shell for when-clause evaluation, contribution filtering, and intent matching — but has no Ghost Shell dependencies and can be used independently.
+A standalone MongoDB-style query engine for evaluating queries against documents. Used throughout Ghost Shell for when-clause evaluation and intent matching — but has no Ghost Shell dependencies and can be used independently.
 
 ## Installation
 
 ```bash
-bun add @ghost-shell/predicate
+bun add kuery
 ```
 
 ## Key Exports
 
-### `Predicate<T>` Class
+### `Kuery<T>` Class
 
 Compiled query with fluent API for filtering collections:
 
 ```ts
-class Predicate<T = Record<string, unknown>> {
-  constructor(query: TypedQuery<T> | Query, options?: PredicateOptions);
+class Kuery<T = Record<string, unknown>> {
+  constructor(query: TypedQuery<T> | Query, options?: KueryOptions);
   test(doc: T): boolean;
   find(collection: readonly T[]): readonly T[];
-  findOne(collection: readonly T[]): T | undefined;
+  findOne(collection: readonly T[]): T;
   skip(count: number): this;
   limit(count: number): this;
   sort(spec: Record<string, 1 | -1>): this;
 }
 
-interface PredicateOptions {
+interface KueryOptions {
   readonly registry?: OperatorRegistry;
 }
 ```
@@ -63,7 +63,7 @@ function evaluateWithTrace(
   scope: EvaluationScope,
 ): EvaluateWithTraceResult;
 
-interface PredicateFailureTrace {
+interface KueryFailureTrace {
   path: string;
   operator: string;
   expected: unknown;
@@ -75,18 +75,26 @@ interface PredicateFailureTrace {
 
 ```ts
 function find<T>(collection: readonly T[], query: Query, options?: FindOptions): readonly T[];
-function findOne<T>(collection: readonly T[], query: Query): T | undefined;
+function findOne<T>(collection: readonly T[], query: Query, options?: CompileFilterOptions): T | undefined;
 ```
 
 ### Custom Operators
 
 ```ts
-class OperatorRegistry {
-  register(name: string, definition: OperatorDefinition): void;
-  get(name: string): CustomOperatorEntry | undefined;
+interface OperatorDefinition {
+  readonly name: string;
+  readonly arity: number | "variadic";
+  readonly minArgs?: number;
 }
 
-type CustomOperatorFn = (fieldValue: unknown, operatorValue: unknown) => boolean;
+class OperatorRegistry {
+  get(name: string): OperatorDefinition | undefined;
+  has(name: string): boolean;
+  register(definition: OperatorDefinition, execute?: CustomOperatorFn): void;
+  getHandler(name: string): CustomOperatorFn | undefined;
+}
+
+type CustomOperatorFn = (args: readonly unknown[], scope: Record<string, unknown>) => unknown;
 ```
 
 ### Typed Queries
@@ -100,9 +108,8 @@ Provides full dot-path autocomplete and type-safe field conditions for known doc
 ### Path Utilities
 
 ```ts
-function resolvePath(path: string, doc: Record<string, unknown>): unknown;
-function validateAndSplitPath(path: string): string[];
-const PATH_MISSING: unique symbol;
+function resolvePath(path: string, scope: Record<string, unknown>): unknown;
+function validateAndSplitPath(path: string): readonly string[];
 ```
 
 ### Safety
@@ -111,8 +118,8 @@ const PATH_MISSING: unique symbol;
 function assertSafeSegment(segment: string): void;
 const DANGEROUS_KEYS: ReadonlySet<string>;
 
-class PredicateError extends Error {
-  readonly code: PredicateErrorCode;
+class KueryError extends Error {
+  readonly code: KueryErrorCode;
 }
 ```
 
@@ -123,10 +130,10 @@ class PredicateError extends Error {
 ## Examples
 
 ```ts
-import { Predicate, find, compile, evaluateWithTrace } from "@ghost-shell/predicate";
+import { Kuery, find, compile, evaluateWithTrace } from "kuery";
 
 // Fluent API
-const pred = new Predicate<User>({ age: { $gte: 18 }, role: "admin" });
+const pred = new Kuery<User>({ age: { $gte: 18 }, role: "admin" });
 const admins = pred.sort({ name: 1 }).limit(10).find(users);
 
 // One-shot find
@@ -135,15 +142,20 @@ const results = find(documents, { status: "active", "metadata.priority": { $gte:
 // Diagnostics
 const ast = compile({ score: { $gt: 90 } });
 const trace = evaluateWithTrace(ast, { score: 50 });
-if (!trace.matched) {
-  console.log("Failed:", trace.failures);
+if (!trace.result) {
+  console.log("Trace entries:", trace.traces);
 }
 
 // Custom operator
-import { OperatorRegistry } from "@ghost-shell/predicate";
+import { OperatorRegistry } from "kuery";
 const registry = new OperatorRegistry();
-registry.register("$startsWith", {
-  evaluate: (field, value) => typeof field === "string" && field.startsWith(String(value)),
-});
-const pred2 = new Predicate({ name: { $startsWith: "A" } }, { registry });
+registry.register(
+  { name: "$startsWith", arity: 2 },
+  ([fieldValue, prefix]) =>
+    typeof fieldValue === "string" &&
+    typeof prefix === "string" &&
+    fieldValue.startsWith(prefix),
+);
+const pred2 = new Kuery({ name: { $startsWith: "A" } }, { registry });
+const startsWithA = pred2.test({ name: "Ada" });
 ```

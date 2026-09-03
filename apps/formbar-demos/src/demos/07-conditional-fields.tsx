@@ -1,6 +1,6 @@
 import type { FormApi } from "@formbar/core";
 import type { SchemaFieldInfo } from "@formbar/from-schema";
-import { useSchemaForm } from "@formbar/react";
+import { useSchemaForm } from "@formbar/react-schema";
 import { Card, CardContent, CardHeader, CardTitle, cn } from "@ghost-shell/ui";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { DemoFormField } from "../renderers/DemoFormField";

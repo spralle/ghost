@@ -1,6 +1,5 @@
 ---
 "@ghost-shell/schema-core": patch
-"@formbar/from-schema": patch
 "@ghost-shell/ui": patch
 ---
 

@@ -1,20 +1,16 @@
-import type { DotPaths, TypedQuery } from "@ghost-shell/predicate";
+import type { DotPaths, TypedQuery } from "kuery";
 
 /** Extract element type from array (mutable or readonly) */
 type ElementOf<T> = T extends readonly (infer E)[] ? E : never;
 
 /** Keys of T whose value is an array of objects (not primitives) */
 type ArrayObjectKeys<T> = {
-  [K in keyof T & string]: NonNullable<T[K]> extends readonly (infer E)[]
-    ? E extends object ? K : never
-    : never;
+  [K in keyof T & string]: NonNullable<T[K]> extends readonly (infer E)[] ? (E extends object ? K : never) : never;
 }[keyof T & string];
 
 /** Keys of T whose value is a self-referencing array (element has same key) */
 type SelfRefKeys<T> = {
-  [K in ArrayObjectKeys<T>]: K extends keyof ElementOf<NonNullable<T[K]>>
-    ? K
-    : never;
+  [K in ArrayObjectKeys<T>]: K extends keyof ElementOf<NonNullable<T[K]>> ? K : never;
 }[ArrayObjectKeys<T>];
 
 /**
@@ -43,9 +39,6 @@ type RecursiveRelation<T> = {
 /**
  * Any valid relation for document type T.
  */
-export type TypedRelation<T> =
-  | DotPaths<T>
-  | FilteredRelation<T>
-  | RecursiveRelation<T>;
+export type TypedRelation<T> = DotPaths<T> | FilteredRelation<T> | RecursiveRelation<T>;
 
 export type { ArrayObjectKeys, ElementOf, FilteredRelation, RecursiveRelation, SelfRefKeys };

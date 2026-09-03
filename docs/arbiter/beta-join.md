@@ -1,6 +1,6 @@
 # Beta Join Guide
 
-Multi-fact pattern matching and join semantics for `@ghost-shell/arbiter`.
+Multi-fact pattern matching and join semantics for `@arbitre/core`.
 
 ## Overview
 
@@ -14,7 +14,7 @@ This unlocks:
 ## Quick Start
 
 ```typescript
-import { createSession } from "@ghost-shell/arbiter";
+import { createSession } from "@arbitre/core";
 
 const session = createSession({
   factTypes: [
@@ -232,7 +232,7 @@ Fact-based TMS works alongside existing scope-based TMS. Rules without `patterns
 Correlate orders with their customers and extract joined data.
 
 ```typescript
-import { createSession } from "@ghost-shell/arbiter";
+import { createSession } from "@arbitre/core";
 
 const session = createSession({
   factTypes: [
@@ -275,7 +275,7 @@ console.log(session.getPath("result.customerTier"));  // "gold"
 Chain joins across three fact types.
 
 ```typescript
-import { createSession } from "@ghost-shell/arbiter";
+import { createSession } from "@arbitre/core";
 
 const session = createSession({
   factTypes: [
@@ -316,7 +316,7 @@ console.log(session.getPath("result.shippingCity")); // "Portland"
 Demonstrates automatic write reversal when a contributing fact is removed.
 
 ```typescript
-import { createSession } from "@ghost-shell/arbiter";
+import { createSession } from "@arbitre/core";
 
 const session = createSession({
   factTypes: [

@@ -25,8 +25,8 @@
     "build:dist": "tsup"
   },
   "dependencies": {
-    "@ghost-shell/arbiter": "workspace:*",
-    "@formbar/from-schema": "workspace:*",
+    "@arbitre/core": "^0.2.0",
+    "@formbar/from-schema": "^0.2.0",
     "@ghost-shell/schema-core": "workspace:*"
   },
   "peerDependencies": {
