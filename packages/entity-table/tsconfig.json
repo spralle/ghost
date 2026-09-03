@@ -18,10 +18,5 @@
   },
   "include": ["src"],
   "exclude": ["src/**/__tests__", "src/**/*.test.ts", "src/**/*.spec.ts"],
-  "references": [
-    { "path": "../data-table" },
-    { "path": "../plugin-contracts" },
-    { "path": "../schema-core" },
-    { "path": "../table-from-schema" }
-  ]
+  "references": [{ "path": "../data-table" }, { "path": "../plugin-contracts" }, { "path": "../table-from-schema" }]
 }

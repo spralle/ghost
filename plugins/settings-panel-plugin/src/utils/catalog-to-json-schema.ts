@@ -1,7 +1,7 @@
 // catalog-to-json-schema.ts — Converts PluginConfigCatalog entries to JSON Schema for the editor.
 
 import type { ComposedSchemaEntry } from "@ghost-shell/config-plugin-runtime";
-import type { JsonSchema } from "@ghost-shell/schema-core";
+import type { JsonSchema } from "@scheman/core";
 
 /**
  * Convert a map of composed schema entries (from the catalog) into a
@@ -10,9 +10,7 @@ import type { JsonSchema } from "@ghost-shell/schema-core";
  * Each entry's fullyQualifiedKey becomes a property key, and its
  * ConfigurationPropertySchema becomes the property schema.
  */
-export function catalogEntriesToJsonSchema(
-  entries: ReadonlyMap<string, ComposedSchemaEntry>,
-): JsonSchema {
+export function catalogEntriesToJsonSchema(entries: ReadonlyMap<string, ComposedSchemaEntry>): JsonSchema {
   const properties: Record<string, JsonSchema> = {};
 
   for (const [key, entry] of entries) {

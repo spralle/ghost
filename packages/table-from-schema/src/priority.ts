@@ -1,4 +1,4 @@
-import type { SchemaFieldInfo } from "@ghost-shell/schema-core";
+import type { SchemaFieldInfo } from "@scheman/core";
 import type { ColumnPriority } from "./types.js";
 
 const ID_SUFFIX_RE = /(?:^id$|Id$|_id$|^uuid$|Uuid$)/;

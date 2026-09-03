@@ -24,11 +24,10 @@
     "*.css"
   ],
   "dependencies": {
-    "@formbar/core": "^0.2.0",
-    "@formbar/from-schema": "^0.2.0",
-    "@formbar/react": "^0.2.0",
-    "@formbar/react-schema": "^0.2.0",
-    "@ghost-shell/schema-core": "workspace:*",
+    "@formbar/core": "^0.2.1",
+    "@formbar/from-schema": "^0.2.1",
+    "@formbar/react": "^0.2.1",
+    "@formbar/react-schema": "^0.2.1",
     "@radix-ui/react-accordion": "1.2.12",
     "@radix-ui/react-alert-dialog": "1.1.15",
     "@radix-ui/react-avatar": "1.1.11",

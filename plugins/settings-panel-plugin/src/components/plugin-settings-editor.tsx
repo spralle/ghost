@@ -3,8 +3,8 @@
 import type { PluginMountContext } from "@ghost-shell/contracts";
 import { CONFIG_SERVICE_ID, type ConfigurationService } from "@ghost-shell/contracts";
 import { useService } from "@ghost-shell/react";
-import type { JsonSchema } from "@ghost-shell/schema-core";
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, SchemaForm } from "@ghost-shell/ui";
+import type { JsonSchema } from "@scheman/core";
 import { useCallback, useMemo } from "react";
 
 // ---------------------------------------------------------------------------
@@ -42,36 +42,34 @@ const EMPTY_SCHEMA_PLACEHOLDER = (
   </Card>
 );
 
+const NO_CONFIG_SERVICE_PLACEHOLDER = (
+  <Card>
+    <CardContent className="p-6" role="status">
+      <p className="text-sm text-muted-foreground">No configuration service available.</p>
+      <p className="text-sm text-muted-foreground">
+        The settings editor requires the ConfigurationService to be registered.
+      </p>
+    </CardContent>
+  </Card>
+);
+
 export function PluginSettingsEditor({ context }: { readonly context: PluginMountContext }) {
   const configService = useService<ConfigurationService>(CONFIG_SERVICE_ID);
   const pluginId = context.args.pluginId ?? context.part.id;
   const editingLayer = context.args.layer ?? "user";
   const schema = context.args.schema as unknown as JsonSchema | undefined;
 
-  if (!configService) {
-    return (
-      <Card>
-        <CardContent className="p-6" role="status">
-          <p className="text-sm text-muted-foreground">No configuration service available.</p>
-          <p className="text-sm text-muted-foreground">
-            The settings editor requires the ConfigurationService to be registered.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (!schema) {
-    return EMPTY_SCHEMA_PLACEHOLDER;
-  }
-
   const initialData = useMemo(
-    () => buildInitialData(schema, configService, pluginId),
+    () => (schema && configService ? buildInitialData(schema, configService, pluginId) : {}),
     [schema, configService, pluginId],
   );
 
   const handleSubmit = useCallback(
     async (data: unknown) => {
+      if (!configService) {
+        return;
+      }
+
       const record = data as Record<string, unknown>;
       for (const [key, value] of Object.entries(record)) {
         configService.set(`${pluginId}.${key}`, value, editingLayer);
@@ -79,6 +77,9 @@ export function PluginSettingsEditor({ context }: { readonly context: PluginMoun
     },
     [configService, pluginId, editingLayer],
   );
+
+  if (!configService) return NO_CONFIG_SERVICE_PLACEHOLDER;
+  if (!schema) return EMPTY_SCHEMA_PLACEHOLDER;
 
   return (
     <Card>

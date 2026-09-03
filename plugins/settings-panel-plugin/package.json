@@ -43,9 +43,9 @@
   "dependencies": {
     "@ghost-shell/contracts": "file:../../packages/plugin-contracts",
     "@ghost-shell/react": "file:../../packages/react",
-    "@ghost-shell/schema-core": "workspace:*",
     "@ghost-shell/weaver-formbar-bridge": "workspace:*",
     "@ghost-shell/ui": "file:../../packages/ui",
+    "@scheman/core": "^0.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
