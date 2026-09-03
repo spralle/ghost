@@ -9,7 +9,6 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: [
-      { find: /^@ghost-shell\/schema-core$/, replacement: resolve("../../packages/schema-core/src/index.ts") },
       {
         find: /^@ghost-shell\/table-from-schema$/,
         replacement: resolve("../../packages/table-from-schema/src/index.ts"),

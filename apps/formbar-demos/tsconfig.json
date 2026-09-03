@@ -8,7 +8,6 @@
     "noEmit": true,
     "skipLibCheck": true,
     "paths": {
-      "@ghost-shell/schema-core": ["../../packages/schema-core/src/index.ts"],
       "@ghost-shell/ui": ["../../packages/ui/src/index.ts"],
       "@ghost-shell/contracts": ["../../packages/plugin-contracts/src/index.ts"],
       "@/*": ["../../packages/ui/src/*"]

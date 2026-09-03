@@ -45,3 +45,17 @@ The predicate query compiler and evaluator has been extracted to the standalone 
 Consumers should update their dependencies:
 - Replace `@ghost-shell/predicate` with `kuery`.
 - Replace subpath imports such as `@ghost-shell/predicate/safe-path` with the corresponding `kuery` export or `kuery/safe-path`.
+
+## @ghost-shell/schema-core → @scheman/core
+
+**Migrated to**: https://github.com/spralle/scheman
+**Date**: 2026-09-03
+**Package**: `@scheman/core` on npm
+**Issue**: `armada-i9qa`
+
+The generic schema ingestion and metadata extraction pipeline now lives in the standalone Scheman package. Ghost no longer owns a local schema-core workspace.
+
+Consumers should update their dependencies:
+- Replace `@ghost-shell/schema-core` with `@scheman/core`.
+- Import `ingestSchema`, `JsonSchema`, `SchemaFieldInfo`, `SchemaFieldMetadata`, and related schema ingestion types from `@scheman/core`.
+- Table annotations should be emitted as `metadata.extensions.table`; Ghost's table compiler preserves a fallback for legacy `metadata.extra.table` annotations.

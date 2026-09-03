@@ -28,7 +28,6 @@ const CONFIG_PLUGIN_RUNTIME_SRC_ROOT = pkgSrc("config-plugin-runtime");
 const DATA_TABLE_SRC_ROOT = pkgSrc("data-table");
 const ENTITY_TABLE_SRC_ROOT = pkgSrc("entity-table");
 const REACT_SRC_ROOT = pkgSrc("react");
-const SCHEMA_CORE_SRC_ROOT = pkgSrc("schema-core");
 const TABLE_FROM_SCHEMA_SRC_ROOT = pkgSrc("table-from-schema");
 const WEAVER_FORMBAR_BRIDGE_SRC_ROOT = pkgSrc("weaver-formbar-bridge");
 
@@ -76,8 +75,6 @@ export default defineConfig({
       "@ghost-shell/entity-table": `${ENTITY_TABLE_SRC_ROOT}/index.ts`,
       "@ghost-shell/react/": `${REACT_SRC_ROOT}/`,
       "@ghost-shell/react": `${REACT_SRC_ROOT}/index.ts`,
-      "@ghost-shell/schema-core/": `${SCHEMA_CORE_SRC_ROOT}/`,
-      "@ghost-shell/schema-core": `${SCHEMA_CORE_SRC_ROOT}/index.ts`,
       "@ghost-shell/table-from-schema/": `${TABLE_FROM_SCHEMA_SRC_ROOT}/`,
       "@ghost-shell/table-from-schema": `${TABLE_FROM_SCHEMA_SRC_ROOT}/index.ts`,
       "@ghost-shell/weaver-formbar-bridge/": `${WEAVER_FORMBAR_BRIDGE_SRC_ROOT}/`,

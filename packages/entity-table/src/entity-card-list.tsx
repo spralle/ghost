@@ -1,4 +1,3 @@
-import { ingestSchema } from "@ghost-shell/schema-core";
 import type {
   CompileTableFieldsOptions,
   TableFieldDescriptor,
@@ -6,6 +5,7 @@ import type {
 } from "@ghost-shell/table-from-schema";
 import { compileTableFields } from "@ghost-shell/table-from-schema";
 import { cn, Skeleton } from "@ghost-shell/ui";
+import { ingestSchema } from "@scheman/core";
 import { useMemo, useState } from "react";
 import type { ZodObject, ZodRawShape } from "zod";
 

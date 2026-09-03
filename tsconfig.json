@@ -26,9 +26,6 @@
       "path": "./plugins/plugin-starter"
     },
     {
-      "path": "./packages/schema-core"
-    },
-    {
       "path": "./packages/intents"
     },
     {

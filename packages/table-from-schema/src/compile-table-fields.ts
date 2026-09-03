@@ -1,4 +1,4 @@
-import type { SchemaFieldInfo, SchemaFieldMetadata } from "@ghost-shell/schema-core";
+import type { SchemaFieldInfo, SchemaFieldMetadata } from "@scheman/core";
 import { humanize } from "./humanize.js";
 import { inferPriority } from "./priority.js";
 import type { CompileTableFieldsOptions, FilterVariant, TableFieldDescriptor, TableFieldOverride } from "./types.js";
@@ -21,7 +21,7 @@ export function compileTableFields(
     const derived = deriveFromType(field);
 
     const label = resolveHeader(field, override, annotation);
-    const sortable = resolveSortable(field, override);
+    const sortable = resolveSortable(field, override, annotation);
     const visible = resolveVisible(field.path, override, annotation, defaultVisible);
     const order = override?.order ?? index;
     const align = override?.align ?? deriveAlign(field.type);
@@ -72,17 +72,19 @@ interface DerivedColumnConfig {
   filterMax?: number | undefined;
 }
 
-/** Table-specific annotations from metadata.extra.table */
+/** Table-specific annotations from schema metadata. */
 interface TableAnnotation {
   label?: string;
   cell?: string;
-  cellProps?: Record<string, unknown>;
+  cellProps?: Readonly<Record<string, unknown>>;
   pinned?: "left" | "right" | false;
   sortable?: boolean;
   filterable?: boolean;
   filterVariant?: FilterVariant;
   hidden?: boolean;
 }
+
+type TablePinned = "left" | "right" | false;
 
 function filterFields(
   fields: readonly SchemaFieldInfo[],
@@ -101,11 +103,42 @@ function filterFields(
 }
 
 function readTableAnnotation(metadata: SchemaFieldMetadata | undefined): TableAnnotation | undefined {
-  const extra = metadata?.extra;
-  if (!extra || typeof extra !== "object") return undefined;
-  const table = (extra as Record<string, unknown>)["table"];
-  if (!table || typeof table !== "object") return undefined;
-  return table as TableAnnotation;
+  return readTableAnnotationValue(metadata?.extensions?.table) ?? readTableAnnotationValue(metadata?.extra?.["table"]);
+}
+
+function readTableAnnotationValue(value: unknown): TableAnnotation | undefined {
+  if (!isRecord(value)) return undefined;
+
+  return {
+    ...(typeof value.label === "string" ? { label: value.label } : {}),
+    ...(typeof value.cell === "string" ? { cell: value.cell } : {}),
+    ...(isRecord(value.cellProps) ? { cellProps: value.cellProps } : {}),
+    ...(isTablePinned(value.pinned) ? { pinned: value.pinned } : {}),
+    ...(typeof value.sortable === "boolean" ? { sortable: value.sortable } : {}),
+    ...(typeof value.filterable === "boolean" ? { filterable: value.filterable } : {}),
+    ...(isFilterVariant(value.filterVariant) ? { filterVariant: value.filterVariant } : {}),
+    ...(typeof value.hidden === "boolean" ? { hidden: value.hidden } : {}),
+  };
+}
+
+function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isTablePinned(value: unknown): value is TablePinned {
+  return value === "left" || value === "right" || value === false;
+}
+
+function isFilterVariant(value: unknown): value is FilterVariant {
+  return (
+    value === "text" ||
+    value === "number" ||
+    value === "range" ||
+    value === "select" ||
+    value === "multiSelect" ||
+    value === "boolean" ||
+    value === "date"
+  );
 }
 
 function deriveFromType(field: SchemaFieldInfo): DerivedColumnConfig {
@@ -184,8 +217,13 @@ function resolveHeader(
   return override?.label ?? annotation?.label ?? field.metadata?.label ?? field.metadata?.title ?? humanize(field.path);
 }
 
-function resolveSortable(field: SchemaFieldInfo, override: TableFieldOverride | undefined): boolean {
+function resolveSortable(
+  field: SchemaFieldInfo,
+  override: TableFieldOverride | undefined,
+  annotation: TableAnnotation | undefined,
+): boolean {
   if (override?.sortable != null) return override.sortable;
+  if (annotation?.sortable != null) return annotation.sortable;
   if (field.type === "array" || field.type === "object") return false;
   return true;
 }

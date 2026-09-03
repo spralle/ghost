@@ -1,4 +1,4 @@
-import type { JsonSchema } from "@ghost-shell/schema-core";
+import type { JsonSchema } from "@scheman/core";
 import { describe, expect, it } from "vitest";
 import type { WeaverFormbarContext } from "../schema-middleware.js";
 import { weaverToFormbarMiddleware } from "../schema-middleware.js";

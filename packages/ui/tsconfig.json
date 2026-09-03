@@ -16,6 +16,5 @@
     "skipLibCheck": true,
     "composite": true
   },
-  "include": ["src"],
-  "references": [{ "path": "../schema-core" }]
+  "include": ["src"]
 }

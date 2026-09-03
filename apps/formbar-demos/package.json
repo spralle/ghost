@@ -14,7 +14,6 @@
     "@formbar/from-schema": "^0.2.0",
     "@formbar/react": "^0.2.0",
     "@formbar/react-schema": "^0.2.0",
-    "@ghost-shell/schema-core": "workspace:*",
     "@ghost-shell/ui": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
