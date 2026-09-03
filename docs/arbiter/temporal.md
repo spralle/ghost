@@ -7,7 +7,7 @@ Time-aware rules allow the arbiter to reason about durations, deadlines, schedul
 ### Production: Real Clock
 
 ```typescript
-import { createRealClock, createSession } from "@ghost-shell/arbiter";
+import { createRealClock, createSession } from "@arbitre/core";
 
 const session = createSession({
   clock: createRealClock(),
@@ -18,7 +18,7 @@ const session = createSession({
 ### Testing: Virtual Clock
 
 ```typescript
-import { createVirtualClock, createSession } from "@ghost-shell/arbiter";
+import { createVirtualClock, createSession } from "@arbitre/core";
 
 const clock = createVirtualClock(1000); // start at t=1000ms
 const session = createSession({ clock, rules: [/* ... */] });
@@ -197,7 +197,7 @@ Use cases:
 Detect when a user has been inactive for 30 seconds and show an engagement prompt.
 
 ```typescript
-import { createVirtualClock, createSession } from "@ghost-shell/arbiter";
+import { createVirtualClock, createSession } from "@arbitre/core";
 
 const clock = createVirtualClock(0);
 const session = createSession({
@@ -234,7 +234,7 @@ session.tick(31000);
 A promotional offer activates when the user is eligible, but auto-expires after 5 minutes.
 
 ```typescript
-import { createVirtualClock, createSession } from "@ghost-shell/arbiter";
+import { createVirtualClock, createSession } from "@arbitre/core";
 
 const clock = createVirtualClock(0);
 const session = createSession({
@@ -269,7 +269,7 @@ session.tick(301000);
 Block actions when more than 10 events occur in a 60-second window.
 
 ```typescript
-import { createVirtualClock, createSession } from "@ghost-shell/arbiter";
+import { createVirtualClock, createSession } from "@arbitre/core";
 
 const clock = createVirtualClock(0);
 const session = createSession({
@@ -312,7 +312,7 @@ session.tick(62000);
 ### Pattern: Deterministic Time Control
 
 ```typescript
-import { createVirtualClock, createSession } from "@ghost-shell/arbiter";
+import { createVirtualClock, createSession } from "@arbitre/core";
 
 const clock = createVirtualClock(0);
 const session = createSession({ clock, rules: [/* ... */] });

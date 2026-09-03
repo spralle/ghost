@@ -1,5 +1,7 @@
+import { createArbiterPlugin } from "@formbar/arbiter";
 import { useForm } from "@formbar/react";
 import { Card, CardContent, CardHeader, CardTitle, cn } from "@ghost-shell/ui";
+import { useMemo } from "react";
 import { DemoShell } from "../renderers/DemoShell";
 
 // NOTE: $ui entries are synced shallowly (top-level keys only).
@@ -66,6 +68,8 @@ function SectionWrapper({ title, children }: { readonly title: string; readonly 
 }
 
 export function ArbiterDynamicSectionsDemo() {
+  const plugins = useMemo(() => [createArbiterPlugin({ rules: arbiterRules })], []);
+
   const form = useForm<FormData, UiState>({
     initialData: {
       coverageType: "",
@@ -80,7 +84,7 @@ export function ArbiterDynamicSectionsDemo() {
       conditions: "",
     },
     initialUiState: { showAutoSection: false, showHomeSection: false, showLifeSection: false },
-    arbiterRules,
+    plugins,
   });
 
   const { data, uiState } = form.getState();

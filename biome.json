@@ -98,12 +98,7 @@
       }
     },
     {
-      "includes": [
-        "packages/arbiter/**",
-        "packages/formbar-core/**",
-        "packages/formbar-from-schema/**",
-        "apps/formbar-demos/**"
-      ],
+      "includes": ["apps/formbar-demos/**"],
       "linter": {
         "rules": {
           "suspicious": {

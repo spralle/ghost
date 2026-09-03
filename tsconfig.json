@@ -26,16 +26,7 @@
       "path": "./plugins/plugin-starter"
     },
     {
-      "path": "./packages/formbar-core"
-    },
-    {
       "path": "./packages/schema-core"
-    },
-    {
-      "path": "./packages/formbar-from-schema"
-    },
-    {
-      "path": "./packages/predicate"
     },
     {
       "path": "./packages/intents"
@@ -60,9 +51,6 @@
     },
     {
       "path": "./packages/federation"
-    },
-    {
-      "path": "./packages/formbar-react"
     },
     {
       "path": "./apps/typecheck-fixture"

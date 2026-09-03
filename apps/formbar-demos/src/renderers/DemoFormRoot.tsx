@@ -1,7 +1,7 @@
 import type { FormApi } from "@formbar/core";
 import type { LayoutNode, SchemaFieldInfo } from "@formbar/from-schema";
 import { isSectionNode } from "@formbar/from-schema";
-import { useSchemaForm } from "@formbar/react";
+import { useSchemaForm } from "@formbar/react-schema";
 import { Card, CardContent, CardHeader, CardTitle } from "@ghost-shell/ui";
 import { useCallback, useMemo, useState } from "react";
 import { ArrayRenderer } from "./ArrayRenderer";

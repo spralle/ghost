@@ -1,4 +1,4 @@
-import type { ProductionRule } from "@ghost-shell/arbiter";
+import type { ProductionRule } from "@arbitre/core";
 
 export interface WeaverSchemaEntry {
   readonly path: string;

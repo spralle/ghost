@@ -1,4 +1,4 @@
-import { compileFilter } from "@ghost-shell/predicate";
+import { compileFilter } from "kuery";
 
 import type { CompiledPolicy, CompiledRule } from "./compile-policy.js";
 import type { EvalContext } from "./policy-types.js";
@@ -18,10 +18,7 @@ function targetsAction(rule: CompiledRule, action: string): boolean {
 }
 
 /** Evaluate a rule's condition against the eval context */
-function matchesCondition(
-  condition: Record<string, unknown>,
-  context: EvalContext,
-): boolean {
+function matchesCondition(condition: Record<string, unknown>, context: EvalContext): boolean {
   if (Object.keys(condition).length === 0) {
     return true;
   }
@@ -30,11 +27,7 @@ function matchesCondition(
 }
 
 /** Evaluate compiled policy against an action and eval context */
-export function evaluatePolicy(
-  policy: CompiledPolicy,
-  action: string,
-  context: EvalContext,
-): PolicyDecision {
+export function evaluatePolicy(policy: CompiledPolicy, action: string, context: EvalContext): PolicyDecision {
   const matchedRules: CompiledRule[] = [];
 
   for (const rule of policy.rules) {

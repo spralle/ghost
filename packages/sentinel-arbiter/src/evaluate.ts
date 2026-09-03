@@ -2,7 +2,7 @@
  * High-level evaluation: asserts context into session, fires, and returns PolicyDecision.
  */
 
-import type { RuleSession } from "@ghost-shell/arbiter";
+import type { RuleSession } from "@arbitre/core";
 import { createSentinelSession } from "./create-sentinel-session.js";
 import type { CompiledPolicy, EvalContext, PolicyDecision } from "./types.js";
 
@@ -10,6 +10,8 @@ import type { CompiledPolicy, EvalContext, PolicyDecision } from "./types.js";
  * Asserts the EvalContext into the session state under the "ctx" prefix.
  */
 function assertContext(session: RuleSession, context: EvalContext): void {
+  session.retract("decision.effect");
+  session.retract("decision.ruleName");
   session.assert("ctx.action", context.action);
   session.assert("ctx.principal", context.principal);
   session.assert("ctx.resource", context.resource);
@@ -67,7 +69,11 @@ export function evaluate(policy: CompiledPolicy, context: EvalContext): PolicyDe
  * Evaluates using an existing session — useful for batch evaluation or session reuse.
  * Caller is responsible for session lifecycle.
  */
-export function evaluateWithSession(session: RuleSession, policy: CompiledPolicy, context: EvalContext): PolicyDecision {
+export function evaluateWithSession(
+  session: RuleSession,
+  policy: CompiledPolicy,
+  context: EvalContext,
+): PolicyDecision {
   assertContext(session, context);
   session.fire();
   return readDecision(session, policy);

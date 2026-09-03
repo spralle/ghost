@@ -12,7 +12,6 @@ const pkgSrc = (name: string) => fileURLToPath(new URL(`../../packages/${name}/s
 const weaverSrc = (name: string) => fileURLToPath(new URL(`../../node_modules/@weaver/${name}/src`, import.meta.url));
 
 const PLUGIN_CONTRACTS_SRC = pkgSrc("plugin-contracts");
-const PREDICATE_SRC_ROOT = pkgSrc("predicate");
 const UI_SRC_ROOT = pkgSrc("ui");
 const SHELL_SRC_ROOT = pkgSrc("shell");
 const LAYER_SRC_ROOT = pkgSrc("layer");
@@ -23,15 +22,11 @@ const STATE_SRC_ROOT = pkgSrc("state");
 const PERSISTENCE_SRC_ROOT = pkgSrc("persistence");
 const ROUTER_SRC_ROOT = pkgSrc("router");
 const INTENTS_SRC_ROOT = pkgSrc("intents");
-const ARBITER_SRC_ROOT = pkgSrc("arbiter");
 const BRIDGE_SRC_ROOT = pkgSrc("bridge");
 const COMMANDS_SRC_ROOT = pkgSrc("commands");
 const CONFIG_PLUGIN_RUNTIME_SRC_ROOT = pkgSrc("config-plugin-runtime");
 const DATA_TABLE_SRC_ROOT = pkgSrc("data-table");
 const ENTITY_TABLE_SRC_ROOT = pkgSrc("entity-table");
-const FORMBAR_CORE_SRC_ROOT = pkgSrc("formbar-core");
-const FORMBAR_FROM_SCHEMA_SRC_ROOT = pkgSrc("formbar-from-schema");
-const FORMBAR_REACT_SRC_ROOT = pkgSrc("formbar-react");
 const REACT_SRC_ROOT = pkgSrc("react");
 const SCHEMA_CORE_SRC_ROOT = pkgSrc("schema-core");
 const TABLE_FROM_SCHEMA_SRC_ROOT = pkgSrc("table-from-schema");
@@ -49,8 +44,6 @@ export default defineConfig({
       // Subpath aliases must come before root aliases for correct matching order
       "@ghost-shell/contracts/": `${PLUGIN_CONTRACTS_SRC}/`,
       "@ghost-shell/contracts": `${PLUGIN_CONTRACTS_SRC}/index.ts`,
-      "@ghost-shell/predicate/": `${PREDICATE_SRC_ROOT}/`,
-      "@ghost-shell/predicate": `${PREDICATE_SRC_ROOT}/index.ts`,
       "@ghost-shell/ui/": `${UI_SRC_ROOT}/`,
       "@ghost-shell/ui": `${UI_SRC_ROOT}/index.ts`,
       "@ghost-shell/shell/": `${SHELL_SRC_ROOT}/`,
@@ -71,8 +64,6 @@ export default defineConfig({
       "@ghost-shell/router": `${ROUTER_SRC_ROOT}/index.ts`,
       "@ghost-shell/intents/": `${INTENTS_SRC_ROOT}/`,
       "@ghost-shell/intents": `${INTENTS_SRC_ROOT}/index.ts`,
-      "@ghost-shell/arbiter/": `${ARBITER_SRC_ROOT}/`,
-      "@ghost-shell/arbiter": `${ARBITER_SRC_ROOT}/index.ts`,
       "@ghost-shell/bridge/": `${BRIDGE_SRC_ROOT}/`,
       "@ghost-shell/bridge": `${BRIDGE_SRC_ROOT}/index.ts`,
       "@ghost-shell/commands/": `${COMMANDS_SRC_ROOT}/`,
@@ -83,12 +74,6 @@ export default defineConfig({
       "@ghost-shell/data-table": `${DATA_TABLE_SRC_ROOT}/index.ts`,
       "@ghost-shell/entity-table/": `${ENTITY_TABLE_SRC_ROOT}/`,
       "@ghost-shell/entity-table": `${ENTITY_TABLE_SRC_ROOT}/index.ts`,
-      "@ghost-shell/formbar-core/": `${FORMBAR_CORE_SRC_ROOT}/`,
-      "@ghost-shell/formbar-core": `${FORMBAR_CORE_SRC_ROOT}/index.ts`,
-      "@ghost-shell/formbar-from-schema/": `${FORMBAR_FROM_SCHEMA_SRC_ROOT}/`,
-      "@ghost-shell/formbar-from-schema": `${FORMBAR_FROM_SCHEMA_SRC_ROOT}/index.ts`,
-      "@ghost-shell/formbar-react/": `${FORMBAR_REACT_SRC_ROOT}/`,
-      "@ghost-shell/formbar-react": `${FORMBAR_REACT_SRC_ROOT}/index.ts`,
       "@ghost-shell/react/": `${REACT_SRC_ROOT}/`,
       "@ghost-shell/react": `${REACT_SRC_ROOT}/index.ts`,
       "@ghost-shell/schema-core/": `${SCHEMA_CORE_SRC_ROOT}/`,

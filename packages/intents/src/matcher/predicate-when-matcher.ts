@@ -1,4 +1,4 @@
-import { compileShorthand, evaluateWithTrace } from "@ghost-shell/predicate";
+import { compileShorthand, evaluateWithTrace } from "kuery";
 import type {
   IntentFactBag,
   IntentWhenMatcher,

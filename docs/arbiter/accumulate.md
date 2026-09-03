@@ -11,7 +11,7 @@ Accumulate nodes maintain **running aggregates** over asserted facts in a sessio
 Count all orders in a session and expose the result at `$aggregates.orderCount`:
 
 ```typescript
-import { createSession } from "@ghost-shell/arbiter";
+import { createSession } from "@arbitre/core";
 
 const session = createSession({
   factTypes: [
@@ -197,7 +197,7 @@ session.assertFact("order", { amount: 50, status: "open" });
 Register custom aggregate functions via `SessionConfig.accumulateFunctions`:
 
 ```typescript
-import type { CustomAccumulateFunction } from "@ghost-shell/arbiter";
+import type { CustomAccumulateFunction } from "@arbitre/core";
 
 const medianFn: CustomAccumulateFunction = {
   fn: (values) => {
@@ -284,7 +284,7 @@ On each clock tick, facts older than `now - window` are evicted from the aggrega
 Fire a rule when order count exceeds a threshold:
 
 ```typescript
-import { createSession } from "@ghost-shell/arbiter";
+import { createSession } from "@arbitre/core";
 
 const session = createSession({
   factTypes: [
@@ -318,7 +318,7 @@ console.log(state.$aggregates.orderCount); // 101
 Track stock levels using sum with filters:
 
 ```typescript
-import { createSession } from "@ghost-shell/arbiter";
+import { createSession } from "@arbitre/core";
 
 const session = createSession({
   factTypes: [
@@ -363,7 +363,7 @@ console.log(state.$aggregates.dispatched);     // 30 (only outbound)
 Sum order amounts only for VIP customers using cross-type accumulation with beta joins:
 
 ```typescript
-import { createSession } from "@ghost-shell/arbiter";
+import { createSession } from "@arbitre/core";
 
 const session = createSession({
   factTypes: [

@@ -17,5 +17,5 @@
   },
   "include": ["src"],
   "exclude": ["src/**/__tests__", "src/**/*.test.ts", "src/**/*.test.tsx"],
-  "references": [{ "path": "../schema-core" }, { "path": "../formbar-from-schema" }, { "path": "../arbiter" }]
+  "references": [{ "path": "../schema-core" }]
 }

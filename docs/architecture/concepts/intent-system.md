@@ -136,7 +136,7 @@ export interface PredicateEvaluationResult {
 
 Two matcher implementations:
 - **`createDefaultIntentWhenMatcher()`** — Simple key-value equality matching
-- **`createPredicateWhenMatcher()`** — Full predicate engine integration via `@ghost-shell/predicate`
+- **`createPredicateWhenMatcher()`** — Full predicate engine integration via `kuery`
 
 ## Action Catalog
 

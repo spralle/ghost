@@ -15,16 +15,7 @@
       "path": "../../packages/plugin-contracts"
     },
     {
-      "path": "../../packages/formbar-core"
-    },
-    {
       "path": "../../packages/schema-core"
-    },
-    {
-      "path": "../../packages/formbar-from-schema"
-    },
-    {
-      "path": "../../packages/formbar-react"
     },
     {
       "path": "../../packages/ui"

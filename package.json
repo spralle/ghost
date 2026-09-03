@@ -8,22 +8,20 @@
     "packages/*"
   ],
   "scripts": {
-    "test:formbar": "bun test packages/formbar-core/src packages/predicate/src packages/formbar-from-schema/src packages/formbar-react/src",
-    "test:conformance": "bun test --test-name-pattern F[0-9] packages/formbar-core/src packages/predicate/src packages/formbar-from-schema/src",
-    "lint": "biome check --diagnostic-level=error . && npm run check:architecture-guardrails --silent && npm run check:code-principles --silent && npm run check:config-schema --silent && npm run check:change-policies --silent && npm run check:ghost-tokens --silent && tsc --pretty false -p tsconfig.json --noEmit",
+    "lint": "biome check --diagnostic-level=error . && bun run check:architecture-guardrails --silent && bun run check:code-principles --silent && bun run check:config-schema --silent && bun run check:change-policies --silent && bun run check:ghost-tokens --silent && tsc --pretty false -p tsconfig.json --noEmit",
     "format": "biome format --write .",
     "format:check": "biome format . --diagnostic-level=error",
     "lint:biome": "biome check --diagnostic-level=error .",
     "check:ghost-tokens": "node scripts/check-ghost-tokens.mjs",
     "typecheck": "tsc --pretty false -p tsconfig.json --noEmit",
-    "test": "npm run build --silent && tsc --pretty false -p apps/shell/tsconfig.test.json && tsc --pretty false -p apps/backend/tsconfig.test.json && node --test packages/*/test/*.test.mjs apps/shell/test/*.test.mjs apps/shell/src/*.integration.test.mjs apps/shell/dist-test/src/context-state.spec.js apps/shell/dist-test/src/window-bridge.spec.js apps/backend/test/*.test.mjs scripts/test/*.test.mjs && node --test --import ./apps/backend/test/register-ts-hooks.mjs apps/backend/test/*.test-hooked.mjs",
+    "test": "bun run build --silent && tsc --pretty false -p apps/shell/tsconfig.test.json && tsc --pretty false -p apps/backend/tsconfig.test.json && node --test packages/*/test/*.test.mjs apps/shell/test/*.test.mjs apps/shell/src/*.integration.test.mjs apps/shell/dist-test/src/context-state.spec.js apps/shell/dist-test/src/window-bridge.spec.js apps/backend/test/*.test.mjs scripts/test/*.test.mjs && node --test --import ./apps/backend/test/register-ts-hooks.mjs apps/backend/test/*.test-hooked.mjs",
     "build": "tsc -b --pretty false",
     "check:architecture-guardrails": "node ./scripts/check-architecture-guardrails.mjs",
     "check:code-principles": "node ./scripts/check-code-principles.mjs",
     "check:config-schema": "node ./scripts/check-config-schema.mjs",
     "check:change-policies": "node ./scripts/validate-change-policies.mjs",
-    "dev": "npx concurrently -n backend,plugins,shell -c blue,magenta,green \"npm run dev:backend\" \"npm run dev:plugins\" \"npm run dev:shell\"",
-    "dev:shell": "npm run dev --workspace @ghost-shell/shell-app",
+    "dev": "bunx concurrently -n backend,plugins,shell -c blue,magenta,green \"bun run dev:backend\" \"bun run dev:plugins\" \"bun run dev:shell\"",
+    "dev:shell": "bun run dev --workspace @ghost-shell/shell-app",
     "dev:backend": "bun --watch apps/backend/src/index.ts --gateway-port 41337",
     "dev:plugins": "bun apps/plugin-dev-host/src/main.ts --all --build",
     "dev:plugins:live": "bun apps/plugin-dev-host/src/main.ts --live",
@@ -34,8 +32,7 @@
     "build:dist": "bun run --filter './packages/*' build:dist",
     "biome": "biome",
     "knip": "knip",
-    "knip:report": "knip --reporter compact",
-    "docs:api": "typedoc"
+    "knip:report": "knip --reporter compact"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.13",
@@ -43,10 +40,15 @@
     "happy-dom": "20.9.0",
     "knip": "6.8.0",
     "tsup": "8.5.1",
-    "typedoc": "0.28.19",
-    "typedoc-plugin-markdown": "4.11.0",
     "typescript": "^5.8.3",
     "vite": "^5.4.19",
     "vitest": "4.1.5"
+  },
+  "overrides": {
+    "@formbar/core": "0.2.0",
+    "@formbar/from-schema": "0.2.0",
+    "@formbar/react": "0.2.0",
+    "@formbar/react-schema": "0.2.0",
+    "@formbar/arbiter": "0.2.0"
   }
 }
