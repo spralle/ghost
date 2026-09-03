@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@arbitre/core": "^0.2.0",
-    "@formbar/from-schema": "^0.2.0",
+    "@formbar/from-schema": "^0.2.1",
     "@scheman/core": "^0.1.0"
   },
   "peerDependencies": {

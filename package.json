@@ -43,12 +43,5 @@
     "typescript": "^5.8.3",
     "vite": "^5.4.19",
     "vitest": "4.1.5"
-  },
-  "overrides": {
-    "@formbar/core": "0.2.0",
-    "@formbar/from-schema": "0.2.0",
-    "@formbar/react": "0.2.0",
-    "@formbar/react-schema": "0.2.0",
-    "@formbar/arbiter": "0.2.0"
   }
 }
