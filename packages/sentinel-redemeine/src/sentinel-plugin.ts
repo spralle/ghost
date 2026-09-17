@@ -1,4 +1,4 @@
-import type { CheckContext, SentinelPrincipal } from "@ghost/sentinel";
+import type { CheckContext, CheckResult, DerivationNode, SentinelPrincipal } from "@ghost/sentinel";
 import { check, expand } from "@ghost/sentinel";
 import { resolveAction } from "./action-mapper.js";
 import { AuthorizationError, type EvaluationMode, type SentinelPluginConfig } from "./types.js";
@@ -58,68 +58,66 @@ function createDeniedResult() {
   };
 }
 
+async function authorizeCommand(
+  config: SentinelPluginConfig,
+  dependencies: SentinelPluginDependencies,
+  ctx: CommandContext,
+): Promise<void> {
+  const { actionMap, resolvePrincipal, mode, denyUnmapped = false, denyAnonymous = true, buildResource } = config;
+  const action = resolveAction(actionMap, ctx.commandType);
+  if (!action) return handleUnmappedCommand(ctx, denyUnmapped);
+
+  const principal = resolvePrincipal(ctx.meta);
+  if (!principal) return handleAnonymousCommand(ctx, action, denyAnonymous);
+
+  const checkContext = buildCheckContext(mode, principal, ctx, buildResource);
+  if (!checkContext) throw createAuthorizationError(principal, action, ctx, createDeniedResult());
+
+  const result = dependencies.check(principal, action, checkContext);
+  if (result.effect !== "deny") return;
+
+  const derivation = dependencies.expand(principal, action, checkContext);
+  throw createAuthorizationError(principal, action, ctx, result, derivation);
+}
+
+function handleUnmappedCommand(ctx: CommandContext, denyUnmapped: boolean): void {
+  if (!denyUnmapped) return;
+  const principal = { userId: "unknown", tenantId: "unknown", roles: [], partyIds: [], orgChain: [] };
+  const result = { effect: "deny" as const, matchedRules: [], reason: "Unmapped command denied" };
+  throw createAuthorizationError(principal, ctx.commandType, ctx, result);
+}
+
+function handleAnonymousCommand(ctx: CommandContext, action: string, denyAnonymous: boolean): void {
+  if (!denyAnonymous) return;
+  const principal = { userId: "anonymous", tenantId: "unknown", roles: [], partyIds: [], orgChain: [] };
+  const result = { effect: "deny" as const, matchedRules: [], reason: "Anonymous access denied" };
+  throw createAuthorizationError(principal, action, ctx, result);
+}
+
+function createAuthorizationError(
+  principal: SentinelPrincipal,
+  action: string,
+  ctx: CommandContext,
+  checkResult: CheckResult,
+  derivation?: DerivationNode,
+): AuthorizationError {
+  return new AuthorizationError({
+    principal,
+    action,
+    commandType: ctx.commandType,
+    aggregateId: ctx.aggregateId,
+    checkResult,
+    ...(derivation !== undefined && { derivation }),
+  });
+}
+
 /** Create a Sentinel authorization plugin for redemeine */
 export function createSentinelPlugin(
   config: SentinelPluginConfig,
   dependencies: SentinelPluginDependencies = defaultDependencies,
 ): RedemeinePlugin {
-  const { actionMap, resolvePrincipal, mode, denyUnmapped = false, denyAnonymous = true, buildResource } = config;
-
   return {
     key: "sentinel-auth",
-    async onBeforeCommand(ctx: CommandContext) {
-      const action = resolveAction(actionMap, ctx.commandType);
-      if (!action) {
-        if (denyUnmapped) {
-          throw new AuthorizationError({
-            principal: { userId: "unknown", tenantId: "unknown", roles: [], partyIds: [], orgChain: [] },
-            action: ctx.commandType,
-            commandType: ctx.commandType,
-            aggregateId: ctx.aggregateId,
-            checkResult: { effect: "deny", matchedRules: [], reason: "Unmapped command denied" },
-          });
-        }
-        return;
-      }
-
-      const principal = resolvePrincipal(ctx.meta);
-      if (!principal) {
-        if (denyAnonymous) {
-          throw new AuthorizationError({
-            principal: { userId: "anonymous", tenantId: "unknown", roles: [], partyIds: [], orgChain: [] },
-            action,
-            commandType: ctx.commandType,
-            aggregateId: ctx.aggregateId,
-            checkResult: { effect: "deny", matchedRules: [], reason: "Anonymous access denied" },
-          });
-        }
-        return;
-      }
-
-      const checkContext = buildCheckContext(mode, principal, ctx, buildResource);
-      if (!checkContext) {
-        throw new AuthorizationError({
-          principal,
-          action,
-          commandType: ctx.commandType,
-          aggregateId: ctx.aggregateId,
-          checkResult: createDeniedResult(),
-        });
-      }
-
-      const result = dependencies.check(principal, action, checkContext);
-
-      if (result.effect === "deny") {
-        const derivation = dependencies.expand(principal, action, checkContext);
-        throw new AuthorizationError({
-          principal,
-          action,
-          commandType: ctx.commandType,
-          aggregateId: ctx.aggregateId,
-          checkResult: result,
-          derivation,
-        });
-      }
-    },
+    onBeforeCommand: (ctx) => authorizeCommand(config, dependencies, ctx),
   };
 }
