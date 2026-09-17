@@ -14,7 +14,7 @@
     "lint:biome": "biome check --diagnostic-level=error .",
     "check:ghost-tokens": "node scripts/check-ghost-tokens.mjs",
     "typecheck": "tsc --pretty false -p tsconfig.json --noEmit",
-    "test": "bun run build --silent && tsc --pretty false -p apps/shell/tsconfig.test.json && tsc --pretty false -p apps/backend/tsconfig.test.json && node --test packages/*/test/*.test.mjs apps/shell/test/*.test.mjs apps/shell/src/*.integration.test.mjs apps/shell/dist-test/src/context-state.spec.js apps/shell/dist-test/src/window-bridge.spec.js apps/backend/test/*.test.mjs scripts/test/*.test.mjs && node --test --import ./apps/backend/test/register-ts-hooks.mjs apps/backend/test/*.test-hooked.mjs",
+    "test": "bun run build && tsc --pretty false -p apps/shell/tsconfig.test.json && tsc --pretty false -p apps/backend/tsconfig.test.json && node --test packages/*/test/*.test.mjs apps/shell/test/*.test.mjs apps/shell/src/*.integration.test.mjs apps/shell/dist-test/src/context-state.spec.js apps/shell/dist-test/src/window-bridge.spec.js apps/backend/test/*.test.mjs scripts/test/*.test.mjs && node --test --import ./apps/backend/test/register-ts-hooks.mjs apps/backend/test/*.test-hooked.mjs",
     "build": "tsc -b --pretty false",
     "check:architecture-guardrails": "node ./scripts/check-architecture-guardrails.mjs",
     "check:code-principles": "node ./scripts/check-code-principles.mjs",
