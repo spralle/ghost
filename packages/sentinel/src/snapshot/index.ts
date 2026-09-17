@@ -9,5 +9,7 @@ export { DEFAULT_ROLE_TTLS, getTtlForRoles, isExpired, needsRefresh } from "./sn
 export {
   isStoredCondition,
   normalizeStoredCondition,
+  STORED_CONDITION_COMPILE_NODE_BUDGET,
+  type StoredConditionComplexity,
   type StoredConditionNormalization,
 } from "./stored-condition.js";

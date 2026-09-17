@@ -1,6 +1,7 @@
 ---
 "@ghost/sentinel": minor
 "@ghost/sentinel-redemeine": minor
+"@ghost/sentinel-store-memory": patch
 "@ghost/sentinel-store-mongodb": minor
 "@ghost-shell/bridge": patch
 "@ghost-shell/commands": patch

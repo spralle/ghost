@@ -3,6 +3,7 @@ import { check } from "../engine/check.js";
 import { createNode } from "../graph/relation-node.js";
 import { createPrincipal } from "../principal/sentinel-principal.js";
 import { buildSnapshot, SnapshotBuildError } from "../snapshot/snapshot-builder.js";
+import { normalizeStoredCondition, STORED_CONDITION_COMPILE_NODE_BUDGET } from "../snapshot/stored-condition.js";
 import type { SentinelStore, StoredPolicyRecord } from "../storage/sentinel-store.js";
 
 const principal = createPrincipal({
@@ -88,6 +89,19 @@ function conditionWithReadonlyData(): Record<string, unknown> {
     writable: false,
   });
   return condition;
+}
+
+function createSharedCondition(depth: number): {
+  readonly condition: Record<string, unknown>;
+  readonly distinctNodes: number;
+  readonly operator: { $eq: string };
+} {
+  const operator = { $eq: "user-1" };
+  let condition: Record<string, unknown> = { "principal.userId": operator };
+  for (let level = 0; level < depth; level += 1) {
+    condition = { $and: [condition, condition] };
+  }
+  return { condition, distinctNodes: 2 + depth * 2, operator };
 }
 
 describe("buildSnapshot stored policy ingestion", () => {
@@ -226,6 +240,66 @@ describe("buildSnapshot stored policy ingestion", () => {
     );
     operator.$eq = "other-user";
     delete condition["principal.userId"];
+    const bob = createPrincipal({
+      userId: "other-user",
+      tenantId: "tenant-1",
+      roles: [],
+      partyIds: [],
+      orgChain: [],
+    });
+    const decide = (subject: typeof principal) =>
+      check(subject, "read", {
+        policy: snapshot.compiledPolicy,
+        graphSubset: snapshot.graphCone,
+        resource: { type: "document" },
+      }).effect;
+
+    expect(decide(principal)).toBe("allow");
+    expect(decide(bob)).toBe("deny");
+  });
+
+  it("rejects compact DAGs whose bounded compile expansion exceeds the budget", async () => {
+    const fixture = createSharedCondition(20);
+
+    const normalized = normalizeStoredCondition(fixture.condition);
+
+    expect(normalized.ok).toBe(false);
+    if (normalized.ok) return;
+    expect(normalized.reason).toBe("complexity-budget");
+    expect(normalized.complexity).toEqual({
+      distinctNodes: fixture.distinctNodes,
+      operatorVisits: fixture.distinctNodes,
+      expandedNodes: STORED_CONDITION_COMPILE_NODE_BUDGET + 1,
+    });
+    await expect(
+      buildSnapshot(
+        createStore([{ resourceType: "document", action: "read", condition: fixture.condition }]),
+        principal,
+        ["document"],
+      ),
+    ).rejects.toBeInstanceOf(SnapshotBuildError);
+  });
+
+  it("supports an ordinary shared DAG with one visit per node and preserved clone identity", async () => {
+    const fixture = createSharedCondition(8);
+    const normalized = normalizeStoredCondition(fixture.condition);
+    expect(normalized.ok).toBe(true);
+    if (!normalized.ok) return;
+    expect(normalized.complexity).toEqual({
+      distinctNodes: fixture.distinctNodes,
+      operatorVisits: fixture.distinctNodes,
+      expandedNodes: 1_278,
+    });
+    const rootBranches = normalized.condition.$and;
+    expect(Array.isArray(rootBranches)).toBe(true);
+    if (Array.isArray(rootBranches)) expect(rootBranches[0]).toBe(rootBranches[1]);
+
+    const snapshot = await buildSnapshot(
+      createStore([{ resourceType: "document", action: "read", condition: fixture.condition }]),
+      principal,
+      ["document"],
+    );
+    fixture.operator.$eq = "other-user";
     const bob = createPrincipal({
       userId: "other-user",
       tenantId: "tenant-1",

@@ -69,6 +69,8 @@ export {
   SnapshotBuildError,
   type SnapshotBuildErrorCode,
   type SnapshotBuilderOptions,
+  STORED_CONDITION_COMPILE_NODE_BUDGET,
+  type StoredConditionComplexity,
   type StoredConditionNormalization,
 } from "./snapshot/index.js";
 export type {
