@@ -8,5 +8,6 @@ export {
 export {
   createShellFederationRuntime,
   isModuleFederationRuntimeInstance,
+  type RemoteModuleLoader,
   type ShellFederationRuntime,
 } from "./federation-runtime.js";

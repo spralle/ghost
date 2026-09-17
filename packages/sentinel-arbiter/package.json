@@ -21,6 +21,7 @@
     "@arbitre/core": "^0.2.0"
   },
   "scripts": {
+    "build": "tsc -p tsconfig.json",
     "build:dist": "tsup"
   }
 }

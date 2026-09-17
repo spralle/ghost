@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@ghost-shell/config-plugin-runtime": "file:../../packages/config-plugin-runtime",
-    "@ghost-shell/contracts": "file:../../packages/plugin-contracts",
+    "@ghost-shell/config-plugin-runtime": "workspace:*",
+    "@ghost-shell/contracts": "workspace:*",
     "@weaver/config-engine": "link:@weaver/config-engine",
     "@weaver/config-policy": "link:@weaver/config-policy",
     "@weaver/config-providers": "link:@weaver/config-providers",

@@ -3,6 +3,6 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@ghost-shell/contracts": "file:../../packages/plugin-contracts"
+    "@ghost-shell/contracts": "workspace:*"
   }
 }

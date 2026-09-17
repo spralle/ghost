@@ -31,7 +31,7 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@ghost-shell/contracts": "file:../../packages/plugin-contracts",
+    "@ghost-shell/contracts": "workspace:*",
     "@ghost-shell/theme": "workspace:*",
     "@ghost-shell/plugin-system": "workspace:*"
   },

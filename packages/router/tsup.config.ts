@@ -3,7 +3,5 @@ import { baseConfig } from "../../tsup.config.base";
 
 export default defineConfig({
   ...baseConfig,
-  format: ["esm"],
-  entry: ["src/index.ts"],
-  external: ["react", "react-dom"],
+  entry: { index: "src/index.ts", "testing/index": "src/testing/index.ts" },
 });

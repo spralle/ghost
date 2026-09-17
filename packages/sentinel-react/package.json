@@ -19,6 +19,7 @@
   "sideEffects": false,
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "build:dist": "tsup",
     "test": "bun test"
   },
   "dependencies": {

@@ -1,10 +1,16 @@
+import { copyFile, mkdir } from "node:fs/promises";
 import { defineConfig } from "tsup";
 import { baseConfig } from "../../tsup.config.base";
 
 export default defineConfig({
   ...baseConfig,
+  format: ["esm"],
   entry: ["src/index.ts"],
-  // DTS disabled: pre-existing type errors with exactOptionalPropertyTypes
-  // and React types that only pass under tsc -b. See follow-up issue.
-  dts: false,
+  async onSuccess() {
+    await mkdir("dist", { recursive: true });
+    await Promise.all([
+      copyFile("src/styles/globals.css", "dist/globals.css"),
+      copyFile("src/styles/theme.css", "dist/theme.css"),
+    ]);
+  },
 });

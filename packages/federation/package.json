@@ -21,6 +21,9 @@
     "build": "tsc -p tsconfig.json",
     "build:dist": "tsup"
   },
+  "engines": {
+    "node": ">=24"
+  },
   "dependencies": {
     "@ghost-shell/contracts": "workspace:*",
     "@ghost-shell/react": "workspace:*",

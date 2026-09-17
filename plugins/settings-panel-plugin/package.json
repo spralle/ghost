@@ -41,10 +41,10 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@ghost-shell/contracts": "file:../../packages/plugin-contracts",
-    "@ghost-shell/react": "file:../../packages/react",
+    "@ghost-shell/contracts": "workspace:*",
+    "@ghost-shell/react": "workspace:*",
     "@ghost-shell/weaver-formbar-bridge": "workspace:*",
-    "@ghost-shell/ui": "file:../../packages/ui",
+    "@ghost-shell/ui": "workspace:*",
     "@scheman/core": "^0.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

@@ -24,7 +24,7 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@ghost-shell/contracts": "file:../../packages/plugin-contracts",
+    "@ghost-shell/contracts": "workspace:*",
     "@formbar/core": "^0.2.1",
     "@formbar/from-schema": "^0.2.1",
     "@formbar/react": "^0.2.1",

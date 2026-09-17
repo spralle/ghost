@@ -18,7 +18,7 @@
     "test:node": "node ./scripts/run-test-lane.mjs node",
     "test:vitest": "node ./scripts/run-test-lane.mjs vitest",
     "test:bun": "node ./scripts/run-test-lane.mjs bun",
-    "build": "tsc -b --pretty false",
+    "build": "tsc -b --pretty false --force",
     "check:architecture-guardrails": "node ./scripts/check-architecture-guardrails.mjs",
     "check:code-principles": "node ./scripts/check-code-principles.mjs",
     "check:config-schema": "node ./scripts/check-config-schema.mjs",

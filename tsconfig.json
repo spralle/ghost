@@ -105,6 +105,30 @@
     },
     {
       "path": "./packages/weaver-formbar-bridge"
+    },
+    {
+      "path": "./packages/sentinel"
+    },
+    {
+      "path": "./packages/sentinel-arbiter"
+    },
+    {
+      "path": "./packages/sentinel-react"
+    },
+    {
+      "path": "./packages/sentinel-redemeine"
+    },
+    {
+      "path": "./packages/sentinel-roles"
+    },
+    {
+      "path": "./packages/sentinel-store-memory"
+    },
+    {
+      "path": "./packages/sentinel-store-mongodb"
+    },
+    {
+      "path": "./packages/sentinel-sync"
     }
   ]
 }

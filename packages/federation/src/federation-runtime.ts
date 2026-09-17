@@ -1,7 +1,7 @@
 import * as pluginContracts from "@ghost-shell/contracts";
 import * as ghostReact from "@ghost-shell/react";
 import * as ghostUi from "@ghost-shell/ui";
-import { createInstance, type ModuleFederation } from "@module-federation/enhanced/runtime";
+import { createInstance } from "@module-federation/enhanced/runtime";
 import * as react from "react";
 import * as reactJsxRuntime from "react/jsx-runtime";
 import * as reactDom from "react-dom";
@@ -138,6 +138,10 @@ export interface ShellFederationRuntime {
   loadPluginServices(remoteId: string): Promise<unknown>;
 }
 
+export interface RemoteModuleLoader {
+  loadRemote<T = unknown>(request: string): Promise<T | null>;
+}
+
 export function createShellFederationRuntime(): ShellFederationRuntime {
   // Seed the global cache before creating the instance so that any
   // preloadAssets calls during remote resolution find modules immediately.
@@ -178,6 +182,7 @@ export function createShellFederationRuntime(): ShellFederationRuntime {
   };
 }
 
-export function isModuleFederationRuntimeInstance(value: unknown): value is ModuleFederation {
-  return Boolean(value) && typeof value === "object" && "loadRemote" in (value as object);
+export function isModuleFederationRuntimeInstance(value: unknown): value is RemoteModuleLoader {
+  if (!value || typeof value !== "object") return false;
+  return typeof Reflect.get(value, "loadRemote") === "function";
 }

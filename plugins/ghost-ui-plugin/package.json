@@ -21,8 +21,8 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@ghost-shell/contracts": "file:../../packages/plugin-contracts",
-    "@ghost-shell/ui": "file:../../packages/ui",
+    "@ghost-shell/contracts": "workspace:*",
+    "@ghost-shell/ui": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

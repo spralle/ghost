@@ -2,25 +2,27 @@
   "name": "@ghost-shell/entity-table",
   "version": "0.0.0",
   "type": "module",
-  "main": "./dist/index.cjs",
+  "main": "./dist/index.js",
   "module": "./dist/index.js",
-  "types": "./src/index.ts",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "require": "./dist/index.js"
     },
     "./*": null
   },
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "sideEffects": false,
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "build:dist": "tsup"
+  },
+  "engines": {
+    "node": ">=24"
   },
   "dependencies": {
     "@ghost-shell/contracts": "workspace:*",
@@ -35,7 +37,7 @@
     "@tanstack/react-table": "^8.21.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "zod": "^3.24.0"
+    "zod": "^3.24.0 || ^4.0.0"
   },
   "peerDependenciesMeta": {
     "@chenglou/pretext": {
