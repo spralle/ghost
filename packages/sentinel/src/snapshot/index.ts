@@ -6,3 +6,4 @@ export {
   type SnapshotBuilderOptions,
 } from "./snapshot-builder.js";
 export { DEFAULT_ROLE_TTLS, getTtlForRoles, isExpired, needsRefresh } from "./snapshot-validator.js";
+export { isStoredCondition } from "./stored-condition.js";

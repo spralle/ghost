@@ -97,4 +97,47 @@ describe("buildSnapshot stored policy ingestion", () => {
       if (error instanceof SnapshotBuildError) expect(error.code).toBe(code);
     }
   });
+
+  it.each([
+    ["Date", new Date(0)],
+    ["RegExp", /document/],
+    ["Map", new Map()],
+    ["Set", new Set()],
+    ["class instance", new (class StoredCondition {})()],
+    ["function", () => true],
+    ["symbol", Symbol("condition")],
+    ["bigint", 1n],
+    ["condition array", []],
+    ["malformed $and", { $and: "not-an-array" }],
+    ["nested Date", { "resource.createdAt": { $eq: new Date(0) } }],
+    ["nested unknown operator", { "resource.id": { $unknown: "document-1" } }],
+  ])("rejects a %s condition before snapshot creation", async (_label, condition) => {
+    const record = { resourceType: "document", action: "read", condition };
+
+    await expect(buildSnapshot(createStore([record]), principal, ["document"])).rejects.toMatchObject({
+      name: "SnapshotBuildError",
+      code: "invalid-condition",
+    });
+  });
+
+  it("accepts nested logical, comparison, and array predicate shapes", async () => {
+    const condition = {
+      $and: [
+        { "principal.roles": { $in: ["viewer", "admin"] } },
+        { "resource.labels": { $all: ["public"], $size: 1 } },
+        { "resource.name": { $regex: "^report", $options: "i" } },
+        { $not: { "resource.archived": { $eq: true } } },
+      ],
+    };
+
+    const snapshot = await buildSnapshot(
+      createStore([{ resourceType: "document", action: "read", condition }]),
+      principal,
+      ["document"],
+    );
+
+    expect(snapshot.compiledPolicy.rules[0]?.condition).toEqual({
+      $and: [condition, { "resource.type": { $eq: "document" } }],
+    });
+  });
 });

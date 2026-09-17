@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "bun:test";
-import { buildSnapshot, check, createPrincipal, GraphSubset } from "@ghost/sentinel";
+import { buildSnapshot, check, createPrincipal, GraphSubset, SnapshotBuildError } from "@ghost/sentinel";
 import { BSON, type Collection, type Db } from "mongodb";
 import { MongoSentinelStore } from "../src/mongodb-store";
 
@@ -108,10 +108,11 @@ function createMockDb(): Db {
 }
 
 describe("MongoSentinelStore", () => {
+  let db: Db;
   let store: MongoSentinelStore;
 
   beforeEach(() => {
-    const db = createMockDb();
+    db = createMockDb();
     store = new MongoSentinelStore({ db });
   });
 
@@ -153,7 +154,7 @@ describe("MongoSentinelStore", () => {
     const policy = {
       resourceType: "document",
       action: "read",
-      condition: { nested: { retained: undefined } },
+      condition: { "resource.id": "document-1" },
       effect: undefined,
       salience: undefined,
     };
@@ -162,9 +163,37 @@ describe("MongoSentinelStore", () => {
 
     expect(Object.hasOwn(loaded, "effect")).toBe(false);
     expect(Object.hasOwn(loaded, "salience")).toBe(false);
-    expect(loaded.condition).toEqual({ nested: { retained: null } });
+    expect(loaded.condition).toEqual({ "resource.id": "document-1" });
     expect(policy.effect).toBeUndefined();
     expect(policy.salience).toBeUndefined();
+  });
+
+  it.each([
+    ["Date", new Date(0)],
+    ["RegExp", /document/],
+    ["Map", new Map()],
+    ["malformed $and", { $and: "not-an-array" }],
+    ["nested invalid value", { "resource.createdAt": { $eq: new Date(0) } }],
+  ])("rejects a %s condition before BSON can turn it into a grant", async (_label, condition) => {
+    const write = store.addPolicy({ resourceType: "document", action: "read", condition });
+
+    await expect(write).rejects.toBeInstanceOf(SnapshotBuildError);
+    expect(await store.loadPolicies("document")).toEqual([]);
+  });
+
+  it.each([
+    ["Date", new Date(0)],
+    ["RegExp", /document/],
+    ["nested Date", { "resource.createdAt": { $eq: new Date(0) } }],
+  ])("rejects an untrusted %s condition after an actual BSON round trip", async (_label, condition) => {
+    await db.collection("sentinel_policies").insertOne({
+      resourceType: "document",
+      action: "read",
+      condition,
+    });
+    const principal = createPrincipal({ userId: "u1", tenantId: "tenant-1", roles: [], partyIds: [], orgChain: [] });
+
+    await expect(buildSnapshot(store, principal, ["document"])).rejects.toBeInstanceOf(SnapshotBuildError);
   });
 
   it("preserves resource isolation and decisions after a BSON-backed snapshot round trip", async () => {
@@ -246,7 +275,7 @@ describe("MongoSentinelStore", () => {
 
   it("clear removes all data", async () => {
     await store.addTuple({ nodeType: "org", nodeId: "o1", relation: "member", targetType: "user", targetId: "u1" });
-    await store.addPolicy({ resourceType: "doc", action: "read", condition: null });
+    await store.addPolicy({ resourceType: "doc", action: "read", condition: {} });
     await store.setRoles("u1", ["admin"]);
     await store.clear();
     expect(await store.loadTuples("org", "o1", "member")).toEqual([]);

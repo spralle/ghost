@@ -62,6 +62,7 @@ export {
   DEFAULT_ROLE_TTLS,
   getTtlForRoles,
   isExpired,
+  isStoredCondition,
   needsRefresh,
   type PermissionSnapshot,
   SnapshotBuildError,

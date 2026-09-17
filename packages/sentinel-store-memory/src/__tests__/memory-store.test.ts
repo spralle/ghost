@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "bun:test";
-import { buildSnapshot, check, createPrincipal } from "@ghost/sentinel";
+import { buildSnapshot, check, createPrincipal, SnapshotBuildError } from "@ghost/sentinel";
 import { MemorySentinelStore } from "../memory-store.js";
 
 describe("MemorySentinelStore", () => {
@@ -85,8 +85,8 @@ describe("MemorySentinelStore", () => {
 
       const result = await store.loadPolicies("doc");
       expect(result).toHaveLength(2);
-      expect(result[0]!.action).toBe("read");
-      expect(result[1]!.action).toBe("write");
+      expect(result[0]?.action).toBe("read");
+      expect(result[1]?.action).toBe("write");
     });
 
     it("preserves stored effects and salience through scoped snapshot evaluation", async () => {
@@ -112,6 +112,25 @@ describe("MemorySentinelStore", () => {
       expect(evaluate("document").effect).toBe("allow");
       expect(evaluate("invoice").effect).toBe("deny");
       expect(snapshot.compiledPolicy.rules.map((rule) => rule.salience)).toEqual([0, -1]);
+    });
+
+    it.each([
+      ["Date", new Date(0)],
+      ["RegExp", /document/],
+      ["Map", new Map()],
+      ["malformed $and", { $and: "not-an-array" }],
+      ["nested invalid value", { "resource.createdAt": { $eq: new Date(0) } }],
+    ])("cannot turn a %s condition into a usable snapshot", async (_label, condition) => {
+      store.addPolicy({ resourceType: "document", action: "read", condition });
+      const principal = createPrincipal({
+        userId: "alice",
+        tenantId: "tenant-1",
+        roles: [],
+        partyIds: [],
+        orgChain: [],
+      });
+
+      await expect(buildSnapshot(store, principal, ["document"])).rejects.toBeInstanceOf(SnapshotBuildError);
     });
   });
 

@@ -1,3 +1,4 @@
+import { isStoredCondition, SnapshotBuildError } from "@ghost/sentinel";
 import type { Collection, Db } from "mongodb";
 import { COLLECTION_NAMES, INDEXES } from "./collections";
 import type { MongoSentinelStoreConfig, PolicyDocument, RoleDocument, TupleDocument } from "./types";
@@ -91,7 +92,7 @@ export class MongoSentinelStore implements SentinelStore {
 
   async addPolicies(policies: readonly PolicyDocument[]): Promise<this> {
     if (policies.length > 0) {
-      await this.policies.insertMany(policies.map(policyForBson));
+      await this.policies.insertMany(policies.map((policy, index) => policyForBson(policy, index)));
     }
     return this;
   }
@@ -130,7 +131,10 @@ export class MongoSentinelStore implements SentinelStore {
   }
 }
 
-function policyForBson(policy: PolicyDocument): PolicyDocument {
+function policyForBson(policy: PolicyDocument, ruleIndex = 0): PolicyDocument {
+  if (!isStoredCondition(policy.condition)) {
+    throw new SnapshotBuildError("invalid-condition", policy.resourceType, ruleIndex);
+  }
   const { effect, salience, ...required } = policy;
   return {
     ...required,

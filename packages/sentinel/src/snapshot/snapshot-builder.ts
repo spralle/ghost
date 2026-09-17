@@ -6,6 +6,7 @@ import type { SentinelPrincipal } from "../principal/sentinel-principal.js";
 import type { SentinelStore, StoredPolicyRecord } from "../storage/sentinel-store.js";
 import type { PermissionSnapshot } from "./permission-snapshot.js";
 import { getTtlForRoles } from "./snapshot-validator.js";
+import { isStoredCondition } from "./stored-condition.js";
 
 export interface SnapshotBuilderOptions {
   readonly maxGraphDepth?: number; // default 5
@@ -78,7 +79,7 @@ function normalizeStoredRule(rule: StoredPolicyRecord, resourceType: string, rul
   if (typeof rule.action !== "string" || rule.action.trim().length === 0) {
     throw new SnapshotBuildError("invalid-action", resourceType, ruleIndex);
   }
-  if (!isRecord(rule.condition)) {
+  if (!isStoredCondition(rule.condition)) {
     throw new SnapshotBuildError("invalid-condition", resourceType, ruleIndex);
   }
   const effect = normalizeEffect(rule.effect, resourceType, ruleIndex);
@@ -107,8 +108,4 @@ function normalizeSalience(value: unknown, resourceType: string, ruleIndex: numb
 function scopeCondition(condition: Record<string, unknown>, resourceType: string): Record<string, unknown> {
   const resourceConstraint = { "resource.type": { $eq: resourceType } };
   return Object.keys(condition).length === 0 ? resourceConstraint : { $and: [condition, resourceConstraint] };
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
