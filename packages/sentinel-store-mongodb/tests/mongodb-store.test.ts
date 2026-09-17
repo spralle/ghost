@@ -4,7 +4,7 @@ import { BSON, type Collection, type Db } from "mongodb";
 import { MongoSentinelStore } from "../src/mongodb-store";
 
 /** Minimal in-memory mock of a MongoDB Collection */
-function createMockCollection<T extends Record<string, unknown>>(): Collection<T> {
+function createMockCollection<T extends Record<string, unknown>>(onInsert: (count: number) => void): Collection<T> {
   let docs: Record<string, unknown>[] = [];
 
   const col = {
@@ -39,10 +39,12 @@ function createMockCollection<T extends Record<string, unknown>>(): Collection<T
       return Promise.resolve(found);
     },
     insertOne(doc: Record<string, unknown>) {
+      onInsert(1);
       docs.push(bsonRoundTrip({ _id: Math.random().toString(), ...doc }));
       return Promise.resolve({ insertedId: docs[docs.length - 1]._id });
     },
     insertMany(items: Record<string, unknown>[]) {
+      onInsert(items.length);
       for (const doc of items) {
         docs.push(bsonRoundTrip({ _id: Math.random().toString(), ...doc }));
       }
@@ -107,24 +109,90 @@ function descriptorCondition(kind: "symbol" | "hidden", nested: boolean): Record
   return nested ? { "principal.userId": target } : target;
 }
 
-function createMockDb(): Db {
-  const collections = new Map<string, unknown>();
+interface ProxyConditionFixture {
+  readonly condition: Record<string, unknown>;
+  readonly getterCalls: () => number;
+  readonly trapCalls: () => number;
+}
+
+function proxyCondition(kind: "alternating-keys" | "stateful-descriptor", nested: boolean): ProxyConditionFixture {
+  let getterCount = 0;
+  let trapCount = 0;
+  const key = nested ? "$eq" : "principal.userId";
+  const restriction = Symbol("restriction");
+  const target: Record<string, unknown> = {};
+  Object.defineProperty(target, key, {
+    configurable: true,
+    enumerable: true,
+    get() {
+      getterCount += 1;
+      return "u1";
+    },
+  });
+  const proxy = new Proxy(target, {
+    ownKeys() {
+      trapCount += 1;
+      if (kind === "alternating-keys") return trapCount % 2 === 1 ? [] : [restriction];
+      return [key];
+    },
+    getOwnPropertyDescriptor() {
+      trapCount += 1;
+      const value = kind === "alternating-keys" ? false : trapCount % 2 === 0 ? "u1" : "u2";
+      return { value, enumerable: true, configurable: true, writable: true };
+    },
+  });
   return {
+    condition: nested ? { "principal.userId": proxy } : proxy,
+    getterCalls: () => getterCount,
+    trapCalls: () => trapCount,
+  };
+}
+
+function proxyArrayCondition(): ProxyConditionFixture {
+  let trapCount = 0;
+  const values = new Proxy(["viewer"], {
+    ownKeys(target) {
+      trapCount += 1;
+      return Reflect.ownKeys(target);
+    },
+    getOwnPropertyDescriptor(target, key) {
+      trapCount += 1;
+      return Reflect.getOwnPropertyDescriptor(target, key);
+    },
+  });
+  return {
+    condition: { "principal.roles": { $in: values } },
+    getterCalls: () => 0,
+    trapCalls: () => trapCount,
+  };
+}
+
+function createMockDb(): { readonly db: Db; readonly policyInsertCount: () => number } {
+  const collections = new Map<string, unknown>();
+  let policyInserts = 0;
+  const db = {
     collection<T>(name: string) {
       if (!collections.has(name)) {
-        collections.set(name, createMockCollection<T>());
+        const onInsert = (count: number) => {
+          if (name === "sentinel_policies") policyInserts += count;
+        };
+        collections.set(name, createMockCollection<T>(onInsert));
       }
       return collections.get(name);
     },
   } as unknown as Db;
+  return { db, policyInsertCount: () => policyInserts };
 }
 
 describe("MongoSentinelStore", () => {
   let db: Db;
   let store: MongoSentinelStore;
+  let policyInsertCount = () => 0;
 
   beforeEach(() => {
-    db = createMockDb();
+    const mock = createMockDb();
+    db = mock.db;
+    policyInsertCount = mock.policyInsertCount;
     store = new MongoSentinelStore({ db });
   });
 
@@ -222,6 +290,24 @@ describe("MongoSentinelStore", () => {
       SnapshotBuildError,
     );
     expect(getterCalls).toBe(0);
+    expect(await store.loadPolicies("document")).toEqual([]);
+  });
+
+  it.each([
+    ["alternating ownKeys", () => proxyCondition("alternating-keys", false)],
+    ["nested alternating ownKeys", () => proxyCondition("alternating-keys", true)],
+    ["stateful descriptor", () => proxyCondition("stateful-descriptor", false)],
+    ["nested stateful descriptor", () => proxyCondition("stateful-descriptor", true)],
+    ["nested proxied array", proxyArrayCondition],
+  ] as const)("rejects a %s Proxy before actual BSON insertion", async (_label, createFixture) => {
+    const fixture = createFixture();
+
+    await expect(
+      store.addPolicy({ resourceType: "document", action: "read", condition: fixture.condition }),
+    ).rejects.toMatchObject({ name: "SnapshotBuildError", code: "invalid-condition" });
+    expect(policyInsertCount()).toBe(0);
+    expect(fixture.trapCalls()).toBeGreaterThan(0);
+    expect(fixture.getterCalls()).toBe(0);
     expect(await store.loadPolicies("document")).toEqual([]);
   });
 

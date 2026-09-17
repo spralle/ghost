@@ -104,6 +104,92 @@ function createSharedCondition(depth: number): {
   return { condition, distinctNodes: 2 + depth * 2, operator };
 }
 
+interface ProxyConditionFixture {
+  readonly condition: Record<string, unknown>;
+  readonly getterCalls: () => number;
+  readonly trapCalls: () => number;
+}
+
+function alternatingOwnKeysCondition(nested: boolean): ProxyConditionFixture {
+  let getterCount = 0;
+  let trapCount = 0;
+  const target: Record<string, unknown> = {};
+  Object.defineProperty(target, nested ? "$eq" : "principal.userId", {
+    configurable: true,
+    enumerable: true,
+    get() {
+      getterCount += 1;
+      return "user-1";
+    },
+  });
+  const restriction = Symbol("restriction");
+  const proxy = new Proxy(target, {
+    ownKeys() {
+      trapCount += 1;
+      return trapCount % 2 === 1 ? [] : [restriction];
+    },
+    getOwnPropertyDescriptor() {
+      trapCount += 1;
+      return { value: false, enumerable: true, configurable: true, writable: true };
+    },
+  });
+  return {
+    condition: nested ? { "principal.userId": proxy } : proxy,
+    getterCalls: () => getterCount,
+    trapCalls: () => trapCount,
+  };
+}
+
+function statefulDescriptorCondition(nested: boolean): ProxyConditionFixture {
+  let getterCount = 0;
+  let trapCount = 0;
+  const key = nested ? "$eq" : "principal.userId";
+  const target: Record<string, unknown> = {};
+  Object.defineProperty(target, key, {
+    configurable: true,
+    enumerable: true,
+    get() {
+      getterCount += 1;
+      return "user-1";
+    },
+  });
+  const proxy = new Proxy(target, {
+    ownKeys() {
+      trapCount += 1;
+      return [key];
+    },
+    getOwnPropertyDescriptor() {
+      trapCount += 1;
+      const value = trapCount % 2 === 0 ? "user-1" : "other-user";
+      return { value, enumerable: true, configurable: true, writable: true };
+    },
+  });
+  return {
+    condition: nested ? { "principal.userId": proxy } : proxy,
+    getterCalls: () => getterCount,
+    trapCalls: () => trapCount,
+  };
+}
+
+function proxiedArrayCondition(): ProxyConditionFixture {
+  let trapCount = 0;
+  const values = new Proxy(["viewer"], {
+    ownKeys(target) {
+      trapCount += 1;
+      return Reflect.ownKeys(target);
+    },
+    getOwnPropertyDescriptor(target, key) {
+      trapCount += 1;
+      return Reflect.getOwnPropertyDescriptor(target, key);
+    },
+  });
+  return {
+    condition: { "principal.roles": { $in: values } },
+    getterCalls: () => 0,
+    trapCalls: () => trapCount,
+  };
+}
+
 describe("buildSnapshot stored policy ingestion", () => {
   it("preserves exact resource scope, conditions, effects, salience, and user graph traversal", async () => {
     const store = createStore([
@@ -219,6 +305,26 @@ describe("buildSnapshot stored policy ingestion", () => {
       buildSnapshot(createStore([{ resourceType: "document", action: "read", condition }]), principal, ["document"]),
     ).rejects.toBeInstanceOf(SnapshotBuildError);
     expect(setterCalls).toBe(0);
+  });
+
+  it.each([
+    ["alternating ownKeys", () => alternatingOwnKeysCondition(false)],
+    ["nested alternating ownKeys", () => alternatingOwnKeysCondition(true)],
+    ["stateful descriptor", () => statefulDescriptorCondition(false)],
+    ["nested stateful descriptor", () => statefulDescriptorCondition(true)],
+    ["nested proxied array", proxiedArrayCondition],
+  ] as const)("rejects a %s Proxy condition with a typed error", async (_label, createFixture) => {
+    const fixture = createFixture();
+
+    await expect(
+      buildSnapshot(
+        createStore([{ resourceType: "document", action: "read", condition: fixture.condition }]),
+        principal,
+        ["document"],
+      ),
+    ).rejects.toMatchObject({ name: "SnapshotBuildError", code: "invalid-condition" });
+    expect(fixture.trapCalls()).toBeGreaterThan(0);
+    expect(fixture.getterCalls()).toBe(0);
   });
 
   it("rejects cycles with a typed error", async () => {

@@ -36,6 +36,10 @@ export const STORED_CONDITION_COMPILE_NODE_BUDGET = 10_000;
 
 type ValueNormalization = { readonly ok: true; readonly value: unknown } | { readonly ok: false };
 type ObjectNormalization = { readonly ok: true; readonly value: Record<string, unknown> } | { readonly ok: false };
+interface SafeProperty {
+  readonly key: string;
+  readonly value: unknown;
+}
 export type StoredConditionNormalization =
   | {
       readonly ok: true;
@@ -61,6 +65,7 @@ export function normalizeStoredCondition(value: unknown): StoredConditionNormali
     const context = { active: new WeakSet<object>(), clones: new WeakMap<object, unknown>(), distinctNodes: 0 };
     const normalized = normalizeObject(value, context);
     if (!normalized.ok) return { ok: false, reason: "invalid-condition" };
+    if (!passesStructuredCloneCheck(value)) return { ok: false, reason: "invalid-condition" };
     const operators = createOperatorValidationContext();
     if (!usesKnownOperators(normalized.value, operators)) return { ok: false, reason: "invalid-condition" };
     const expandedNodes = measureExpandedNodes(normalized.value, new WeakMap<object, number>());
@@ -95,32 +100,30 @@ function normalizeValue(value: unknown, context: NormalizationContext): ValueNor
 }
 
 function normalizeObject(value: Record<string, unknown>, context: NormalizationContext): ObjectNormalization {
-  const descriptors = readSafeObjectDescriptors(value);
-  if (descriptors === undefined) return { ok: false };
+  const properties = readSafeObjectProperties(value);
+  if (properties === undefined) return { ok: false };
   const clone: Record<string, unknown> = {};
   context.distinctNodes += 1;
   context.clones.set(value, clone);
   context.active.add(value);
-  for (const [key, descriptor] of Object.entries(descriptors)) {
-    const normalized = normalizeValue(descriptor.value, context);
+  for (const property of properties) {
+    const normalized = normalizeValue(property.value, context);
     if (!normalized.ok) return { ok: false };
-    Object.defineProperty(clone, key, safeDataDescriptor(normalized.value));
+    Object.defineProperty(clone, property.key, safeDataDescriptor(normalized.value));
   }
   context.active.delete(value);
   return { ok: true, value: clone };
 }
 
 function normalizeArray(value: unknown[], context: NormalizationContext): ValueNormalization {
-  const length = readSafeArrayLength(value);
-  if (length === undefined) return { ok: false };
+  const elements = readSafeArrayElements(value);
+  if (elements === undefined) return { ok: false };
   const clone: unknown[] = [];
   context.distinctNodes += 1;
   context.clones.set(value, clone);
   context.active.add(value);
-  for (let index = 0; index < length; index += 1) {
-    const descriptor = Object.getOwnPropertyDescriptor(value, String(index));
-    if (!isSafeDataDescriptor(descriptor)) return { ok: false };
-    const normalized = normalizeValue(descriptor.value, context);
+  for (const element of elements) {
+    const normalized = normalizeValue(element, context);
     if (!normalized.ok) return { ok: false };
     clone.push(normalized.value);
   }
@@ -128,46 +131,78 @@ function normalizeArray(value: unknown[], context: NormalizationContext): ValueN
   return { ok: true, value: clone };
 }
 
-function readSafeObjectDescriptors(value: object): PropertyDescriptorMap | undefined {
-  const keys = Reflect.ownKeys(value);
-  if (keys.some((key) => typeof key === "symbol")) return undefined;
-  const descriptors = Object.getOwnPropertyDescriptors(value);
-  for (const key of keys) {
-    if (typeof key !== "string" || !isSafeDataDescriptor(descriptors[key])) return undefined;
+function readSafeObjectProperties(value: object): readonly SafeProperty[] | undefined {
+  const snapshot = Object.getOwnPropertyDescriptors(value);
+  const properties: SafeProperty[] = [];
+  for (const key of Reflect.ownKeys(snapshot)) {
+    if (typeof key !== "string") return undefined;
+    const descriptor = descriptorFromSnapshot(snapshot, key);
+    if (!isSafeDataDescriptor(descriptor)) return undefined;
+    properties.push({ key, value: descriptor.value });
   }
-  return descriptors;
+  return properties;
 }
 
-function readSafeArrayLength(value: unknown[]): number | undefined {
-  const keys = Reflect.ownKeys(value);
+function readSafeArrayElements(value: unknown[]): readonly unknown[] | undefined {
+  const snapshot = Object.getOwnPropertyDescriptors(value);
+  const keys = Reflect.ownKeys(snapshot);
   if (keys.some((key) => typeof key === "symbol")) return undefined;
-  const length = Object.getOwnPropertyDescriptor(value, "length");
+  const length = descriptorFromSnapshot(snapshot, "length");
   if (!isStandardArrayLength(length) || keys.length !== length.value + 1) return undefined;
+  const elements: unknown[] = [];
   for (let index = 0; index < length.value; index += 1) {
-    if (!isSafeDataDescriptor(Object.getOwnPropertyDescriptor(value, String(index)))) return undefined;
+    const descriptor = descriptorFromSnapshot(snapshot, String(index));
+    if (!isSafeDataDescriptor(descriptor)) return undefined;
+    elements.push(descriptor.value);
   }
-  return length.value;
+  return elements;
 }
 
-function isSafeDataDescriptor(descriptor: PropertyDescriptor | undefined): descriptor is PropertyDescriptor & {
+// Structured clone rejects Proxy anywhere in the graph; descriptor validation runs first so accessors never reach it.
+function passesStructuredCloneCheck(value: object): boolean {
+  try {
+    structuredClone(value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function descriptorFromSnapshot(snapshot: object, key: PropertyKey): unknown {
+  return Object.getOwnPropertyDescriptor(snapshot, key)?.value;
+}
+
+function isSafeDataDescriptor(descriptor: unknown): descriptor is PropertyDescriptor & {
   value: unknown;
 } {
   return Boolean(
-    descriptor && "value" in descriptor && descriptor.enumerable && descriptor.configurable && descriptor.writable,
+    descriptor &&
+      typeof descriptor === "object" &&
+      "value" in descriptor &&
+      "enumerable" in descriptor &&
+      descriptor.enumerable &&
+      "configurable" in descriptor &&
+      descriptor.configurable &&
+      "writable" in descriptor &&
+      descriptor.writable,
   );
 }
 
-function isStandardArrayLength(descriptor: PropertyDescriptor | undefined): descriptor is PropertyDescriptor & {
+function isStandardArrayLength(descriptor: unknown): descriptor is PropertyDescriptor & {
   value: number;
 } {
   return Boolean(
     descriptor &&
+      typeof descriptor === "object" &&
       "value" in descriptor &&
       typeof descriptor.value === "number" &&
       Number.isSafeInteger(descriptor.value) &&
       descriptor.value >= 0 &&
+      "enumerable" in descriptor &&
       !descriptor.enumerable &&
+      "configurable" in descriptor &&
       !descriptor.configurable &&
+      "writable" in descriptor &&
       descriptor.writable,
   );
 }
