@@ -18,7 +18,13 @@ import {
   renderSyncStatus as renderSyncStatusView,
 } from "./shell-runtime/runtime-render.js";
 import { createEdgeSlotRenderer } from "./ui/edge-slot-renderer.js";
-import { getLayerRegistry, mountMainWindow, mountPopout } from "./ui/shell-mount.js";
+import {
+  getLayerRegistry,
+  type MainWindowMountDeps,
+  mountMainWindow,
+  mountPopout,
+  type PopoutMountDeps,
+} from "./ui/shell-mount.js";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -47,22 +53,14 @@ export interface ShellBootstrap {
   core: ShellCoreApi;
   layerRegistry: LayerRegistry;
   initialize: (root: HTMLElement, runtime: ShellRuntime) => void;
-  mountMainWindow: (root: HTMLElement, deps: MountDeps) => () => void;
-  mountPopout: (root: HTMLElement, runtime: ShellRuntime, deps: MountDeps) => () => void;
+  mountMainWindow: (root: HTMLElement, deps: Omit<MainWindowMountDeps, "layerRegistry">) => () => void;
+  mountPopout: (root: HTMLElement, runtime: ShellRuntime, deps: PopoutMountDeps) => () => void;
   renderPanels: (root: HTMLElement, runtime: ShellRuntime) => void;
   renderParts: (root: HTMLElement, runtime: ShellRuntime) => void;
   renderSyncStatus: (root: HTMLElement, runtime: ShellRuntime) => void;
   renderContextControlsPanel: (root: HTMLElement, runtime: ShellRuntime) => void;
   renderEdgeSlots: (root: HTMLElement, runtime: ShellRuntime) => void;
   renderLayerSurfaces: (root: HTMLElement, runtime: ShellRuntime) => void;
-}
-
-interface MountDeps {
-  renderParts: () => void;
-  renderLayerSurfaces: () => void;
-  updateWindowReadOnlyState: () => void;
-  setupResize: () => () => void;
-  publishRestoreRequestOnUnload: () => void;
 }
 
 // ---------------------------------------------------------------------------

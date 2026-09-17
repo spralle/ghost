@@ -12,7 +12,12 @@ import {
 import type { PluginHost, ShellRuntime } from "../app/types.js";
 import { ensureRemoteRegistered, normalizeCleanup, safeUnmount } from "../federation-mount-utils.js";
 import type { ShellFederationRuntime } from "../federation-runtime.js";
-import { composeSurfaceKey, createSurfaceMountKey, resolveSurfaceMount } from "./surface-mount-utils.js";
+import {
+  composeSurfaceKey,
+  createSurfaceMountKey,
+  isMountCleanup,
+  resolveSurfaceMount,
+} from "./surface-mount-utils.js";
 import type { MountSurfaceComponentFn, SurfaceMountState } from "./surface-renderer.js";
 
 // ---------------------------------------------------------------------------
@@ -215,7 +220,41 @@ async function mountSurfaceComponent(
     return;
   }
 
-  await mountViaFederation(ctx, target, pluginId, surface, runtime, key, mountKey, expectedGeneration, surfaceContext);
+  await mountViaFederation(ctx, target, pluginId, surface, key, mountKey, expectedGeneration, surfaceContext);
+}
+
+export type SurfaceMountCompletionContext = Pick<
+  ReconcilerContext,
+  "generation" | "maybeActivateSurfaceBehaviors" | "mounted" | "onSurfaceEntering" | "onSurfaceMounted"
+>;
+
+export function finishSurfaceMount(
+  ctx: SurfaceMountCompletionContext,
+  target: HTMLDivElement,
+  pluginId: string,
+  surface: PluginLayerSurfaceContribution,
+  key: string,
+  mountKey: string,
+  expectedGeneration: number,
+  cleanup: (() => void) | null,
+): void {
+  if (ctx.generation !== expectedGeneration) {
+    safeUnmount(cleanup);
+    return;
+  }
+
+  ctx.mounted.set(key, {
+    surfaceId: key,
+    pluginId,
+    surface,
+    element: target,
+    cleanup,
+    mountKey,
+    generation: expectedGeneration,
+  });
+  ctx.maybeActivateSurfaceBehaviors(key, target, surface);
+  ctx.onSurfaceMounted?.(key, pluginId);
+  ctx.onSurfaceEntering?.(target, key, pluginId);
 }
 
 async function mountBuiltIn(
@@ -234,23 +273,7 @@ async function mountBuiltIn(
     const cleanupResult = await builtInMount(target, { surface, pluginId, surfaceContext, runtime });
     const cleanup = normalizeCleanup(cleanupResult);
 
-    if (ctx.generation !== expectedGeneration) {
-      safeUnmount(cleanup);
-      return;
-    }
-
-    ctx.mounted.set(key, {
-      surfaceId: key,
-      pluginId,
-      surface,
-      element: target,
-      cleanup,
-      mountKey,
-      generation: expectedGeneration,
-    });
-    ctx.maybeActivateSurfaceBehaviors(key, target, surface);
-    ctx.onSurfaceMounted?.(key, pluginId);
-    ctx.onSurfaceEntering?.(target, key, pluginId);
+    finishSurfaceMount(ctx, target, pluginId, surface, key, mountKey, expectedGeneration, cleanup);
   } catch (err) {
     console.warn(`[shell] Built-in surface mount failed for "${key}":`, err);
     ctx.onSurfaceMountError?.(key, pluginId, err);
@@ -262,7 +285,6 @@ async function mountViaFederation(
   target: HTMLDivElement,
   pluginId: string,
   surface: PluginLayerSurfaceContribution,
-  runtime: ShellRuntime,
   key: string,
   mountKey: string,
   expectedGeneration: number,
@@ -289,30 +311,9 @@ async function mountViaFederation(
       return;
     }
 
-    // Plugin mount functions expect LayerSurfaceContext directly per @ghost-shell/contracts.
-    // The MountSurfaceComponentFn type is for built-in shell mounts only.
-    const cleanupResult = await (
-      mountFn as unknown as (t: HTMLElement, ctx: typeof surfaceContext) => ReturnType<typeof mountFn>
-    )(target, surfaceContext);
-    const cleanup = normalizeCleanup(cleanupResult);
-
-    if (ctx.generation !== expectedGeneration) {
-      safeUnmount(cleanup);
-      return;
-    }
-
-    ctx.mounted.set(key, {
-      surfaceId: key,
-      pluginId,
-      surface,
-      element: target,
-      cleanup,
-      mountKey,
-      generation: expectedGeneration,
-    });
-    ctx.maybeActivateSurfaceBehaviors(key, target, surface);
-    ctx.onSurfaceMounted?.(key, pluginId);
-    ctx.onSurfaceEntering?.(target, key, pluginId);
+    const cleanupResult = await mountFn(target, surfaceContext);
+    const cleanup = isMountCleanup(cleanupResult) ? normalizeCleanup(cleanupResult) : null;
+    finishSurfaceMount(ctx, target, pluginId, surface, key, mountKey, expectedGeneration, cleanup);
   } catch (err) {
     console.warn(`[shell] Federation surface mount failed for "${key}" (plugin: ${pluginId}):`, err);
     ctx.onSurfaceMountError?.(key, pluginId, err);

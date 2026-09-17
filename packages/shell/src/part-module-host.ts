@@ -1,4 +1,4 @@
-import type { PartRenderer, PartRendererRegistry, PartRenderHandle } from "@ghost-shell/contracts";
+import type { PartRenderer, PartRendererRegistry, PartRenderHandle, PluginMountContext } from "@ghost-shell/contracts";
 import type { ShellPartHostAdapter } from "./app/contracts.js";
 import type { PluginHost, ShellRuntime } from "./app/types.js";
 import { ensureRemoteRegistered, normalizeCleanup, safeUnmount } from "./federation-mount-utils.js";
@@ -226,19 +226,34 @@ function mountViaRenderer(
   runtime: ShellRuntime,
   module: unknown,
 ): PartRenderHandle {
+  const mountContext = createRendererMountContext(part, runtime);
+
   return renderer.mount({
     container,
-    mountContext: {
-      part: { id: part.id, title: part.title ?? part.id, component: part.component ?? part.id },
-      instanceId: resolvePartInstanceId(part),
-      definitionId: resolvePartDefinitionId(part),
-      args: resolvePartArgs(part),
-      runtime: { services: runtime.services, registry: runtime.registry },
-    },
+    mountContext,
     partId: resolvePartDefinitionId(part),
     pluginId: part.pluginId,
     module,
   });
+}
+
+export function createRendererMountContext(
+  part: ComposedShellPart,
+  runtime: Pick<ShellRuntime, "registry" | "services">,
+): PluginMountContext & { runtime: PluginMountContext["runtime"] & Pick<ShellRuntime, "registry"> } {
+  // The host's registry is an internal structural extension consumed by existing vanilla parts.
+  const mountRuntime: PluginMountContext["runtime"] & Pick<ShellRuntime, "registry"> = {
+    services: runtime.services,
+    registry: runtime.registry,
+  };
+
+  return {
+    part: { id: part.id, title: part.title ?? part.id, component: part.component ?? part.id },
+    instanceId: resolvePartInstanceId(part),
+    definitionId: resolvePartDefinitionId(part),
+    args: resolvePartArgs(part),
+    runtime: mountRuntime,
+  };
 }
 
 function mountedFromHandle(

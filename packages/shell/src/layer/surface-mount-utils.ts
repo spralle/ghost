@@ -17,6 +17,8 @@ export type MountSurfaceComponentFn = (
   },
 ) => MountCleanup | Promise<MountCleanup>;
 
+export type FederatedSurfaceMountFn = (target: HTMLElement, context: LayerSurfaceContext) => unknown;
+
 // ---------------------------------------------------------------------------
 // Surface mount resolution
 // ---------------------------------------------------------------------------
@@ -24,7 +26,7 @@ export type MountSurfaceComponentFn = (
 export function resolveSurfaceMount(
   moduleValue: unknown,
   surface: PluginLayerSurfaceContribution,
-): MountSurfaceComponentFn | null {
+): FederatedSurfaceMountFn | null {
   const fn = resolveModuleMountFn(moduleValue, {
     topLevelNames: ["mountSurface", "mount"],
     collectionName: "surfaces",
@@ -32,7 +34,25 @@ export function resolveSurfaceMount(
     checkDefault: true,
   });
 
-  return (fn as MountSurfaceComponentFn) ?? null;
+  if (!fn) {
+    return null;
+  }
+
+  return (target, context) => fn(target, context);
+}
+
+export function isMountCleanup(value: unknown): value is MountCleanup {
+  if (value === undefined || typeof value === "function") {
+    return true;
+  }
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  return (
+    ("dispose" in value && typeof value.dispose === "function") ||
+    ("unmount" in value && typeof value.unmount === "function")
+  );
 }
 
 // ---------------------------------------------------------------------------

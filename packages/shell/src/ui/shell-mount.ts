@@ -42,14 +42,19 @@ function getSharedStyles(): string {
     }`;
 }
 
-type MountDeps = {
+type CommonMountDeps = {
   renderParts: () => void;
-  renderLayerSurfaces: () => void;
   updateWindowReadOnlyState: () => void;
   setupResize: () => () => void;
   publishRestoreRequestOnUnload: () => void;
+};
+
+export type MainWindowMountDeps = CommonMountDeps & {
+  renderLayerSurfaces: () => void;
   layerRegistry: LayerRegistry;
 };
+
+export type PopoutMountDeps = CommonMountDeps;
 
 let _layerRegistry: LayerRegistry | undefined;
 
@@ -58,7 +63,7 @@ export function getLayerRegistry(): LayerRegistry | undefined {
   return _layerRegistry;
 }
 
-export function mountMainWindow(root: HTMLElement, deps: MountDeps): () => void {
+export function mountMainWindow(root: HTMLElement, deps: MainWindowMountDeps): () => void {
   injectThemeVariables(DEFAULT_DARK_PALETTE);
 
   const layerRegistry = deps.layerRegistry;
@@ -186,7 +191,7 @@ export function mountMainWindow(root: HTMLElement, deps: MountDeps): () => void 
   };
 }
 
-export function mountPopout(root: HTMLElement, runtime: ShellRuntime, deps: MountDeps): () => void {
+export function mountPopout(root: HTMLElement, runtime: ShellRuntime, deps: PopoutMountDeps): () => void {
   injectThemeVariables(DEFAULT_DARK_PALETTE, root.ownerDocument.documentElement);
 
   root.innerHTML = `

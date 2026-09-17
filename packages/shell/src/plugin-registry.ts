@@ -28,6 +28,7 @@ import type {
   ShellPluginRegistry,
   ShellPluginRegistryOptions,
 } from "./plugin-registry-types.js";
+import { createPluginServiceAccessor } from "./plugin-service-accessor.js";
 
 function resolveServiceFromRegistry<T = unknown>(
   serviceId: string,
@@ -88,9 +89,9 @@ export function createShellPluginRegistry(options: ShellPluginRegistryOptions = 
   // Lazy service accessor for activation contexts — closes over capabilityRegistry
   // and states which are available. Safe because plugins activate after construction.
   const activationServices: PluginServices = {
-    getService<T = unknown>(serviceId: string): T | null {
-      return resolveServiceFromRegistry<T>(serviceId, capabilityRegistry, states);
-    },
+    getService: createPluginServiceAccessor(<T = unknown>(serviceId: string) =>
+      resolveServiceFromRegistry<T>(serviceId, capabilityRegistry, states),
+    ),
     hasService(serviceId: string): boolean {
       return resolveServiceFromRegistry(serviceId, capabilityRegistry, states) !== null;
     },

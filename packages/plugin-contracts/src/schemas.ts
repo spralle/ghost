@@ -1,6 +1,10 @@
 import { z } from "zod";
 
+import { activationsSchema } from "./activation-schemas.js";
 import { partialThemePaletteSchema, terminalPaletteSchema } from "./theme-types.js";
+
+export type { ActivationRule } from "./activation-schemas.js";
+export { activationRuleSchema, activationsSchema } from "./activation-schemas.js";
 
 /** Configuration property schema validator (JSON Schema subset). */
 const configurationPropertySchemaSchema: z.ZodType<Record<string, unknown>> = z.lazy(() =>
@@ -243,15 +247,6 @@ export const brandingContributionSchema = z
       .optional(),
   })
   .strict();
-
-export const activationRuleSchema = z.object({
-  entry: z.string(),
-  when: z.record(z.unknown()),
-});
-
-export const activationsSchema = z.array(activationRuleSchema);
-
-export type ActivationRule = z.infer<typeof activationRuleSchema>;
 
 export const activationEventsSchema = z.array(z.enum(["onStartup"]));
 
