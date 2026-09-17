@@ -21,8 +21,8 @@ const FIELD_OPERATORS = new Set([
 
 /** Return whether a stored condition is plain JSON accepted by Kuery. */
 export function isStoredCondition(value: unknown): value is Record<string, unknown> {
-  if (!isPlainJsonObject(value) || !usesKnownOperators(value)) return false;
   try {
+    if (!isPlainJsonObject(value) || !usesKnownOperators(value)) return false;
     compile(value);
     return true;
   } catch {

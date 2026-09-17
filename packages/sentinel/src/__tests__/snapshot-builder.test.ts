@@ -111,6 +111,15 @@ describe("buildSnapshot stored policy ingestion", () => {
     ["malformed $and", { $and: "not-an-array" }],
     ["nested Date", { "resource.createdAt": { $eq: new Date(0) } }],
     ["nested unknown operator", { "resource.id": { $unknown: "document-1" } }],
+    [
+      "throwing getter",
+      Object.defineProperty({}, "resource.id", {
+        enumerable: true,
+        get() {
+          throw new Error("untrusted getter");
+        },
+      }),
+    ],
   ])("rejects a %s condition before snapshot creation", async (_label, condition) => {
     const record = { resourceType: "document", action: "read", condition };
 
