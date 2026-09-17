@@ -199,6 +199,7 @@
     }
   ],
   "browserArtifacts": {
+    "outputDirectory": "dist",
     "remoteEntry": "remoteEntry.js",
     "manifest": "mf-manifest.json",
     "assetDirectory": "assets"

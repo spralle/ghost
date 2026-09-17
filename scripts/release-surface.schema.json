@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ghost.local/schemas/release-surface.schema.json",
+  "title": "Ghost release surface",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "issue",
+    "registryHoldIssue",
+    "runtime",
+    "expectedCounts",
+    "publishablePackages",
+    "sentinelPackages",
+    "moduleFormats",
+    "privateNodeApps",
+    "compilerFixtures",
+    "browserApps",
+    "plugins",
+    "browserArtifacts",
+    "externalPrerequisites"
+  ],
+  "properties": {
+    "$schema": { "const": "./release-surface.schema.json" },
+    "schemaVersion": { "const": 1 },
+    "issue": { "type": "string", "minLength": 1 },
+    "registryHoldIssue": { "type": "string", "minLength": 1 },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bun", "node"],
+      "properties": {
+        "bun": { "type": "string", "minLength": 1 },
+        "node": { "type": "string", "minLength": 1 }
+      }
+    },
+    "expectedCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workspaces",
+        "publishablePackages",
+        "sentinelPackages",
+        "privatePlugins",
+        "privateBrowserApps",
+        "privateNodeApps",
+        "compilerFixtures",
+        "packageExportEntries",
+        "pluginExposes"
+      ],
+      "properties": {
+        "workspaces": { "type": "integer" },
+        "publishablePackages": { "type": "integer" },
+        "sentinelPackages": { "type": "integer" },
+        "privatePlugins": { "type": "integer" },
+        "privateBrowserApps": { "type": "integer" },
+        "privateNodeApps": { "type": "integer" },
+        "compilerFixtures": { "type": "integer" },
+        "packageExportEntries": { "type": "integer" },
+        "pluginExposes": { "type": "integer" }
+      }
+    },
+    "publishablePackages": { "$ref": "#/$defs/workspacePaths" },
+    "sentinelPackages": { "$ref": "#/$defs/workspacePaths" },
+    "moduleFormats": { "type": "object" },
+    "privateNodeApps": { "$ref": "#/$defs/workspacePaths" },
+    "compilerFixtures": { "$ref": "#/$defs/workspacePaths" },
+    "browserApps": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/browserApp" }
+    },
+    "plugins": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/plugin" }
+    },
+    "browserArtifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["outputDirectory", "remoteEntry", "manifest", "assetDirectory"],
+      "properties": {
+        "outputDirectory": { "$ref": "#/$defs/relativeName" },
+        "remoteEntry": { "$ref": "#/$defs/relativeName" },
+        "manifest": { "$ref": "#/$defs/relativeName" },
+        "assetDirectory": { "$ref": "#/$defs/relativeName" }
+      }
+    },
+    "externalPrerequisites": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["trustedInternalScope", "trustedArtifacts", "registryReady", "reason"],
+      "properties": {
+        "trustedInternalScope": { "type": "string", "minLength": 1 },
+        "trustedArtifacts": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } },
+        "registryReady": { "const": false },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "$defs": {
+    "workspacePath": { "type": "string", "pattern": "^(apps|packages|plugins)/[^/]+$" },
+    "workspacePaths": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/workspacePath" }
+    },
+    "relativeName": { "type": "string", "pattern": "^[^/\\\\]+$" },
+    "browserApp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "output", "entry"],
+      "properties": {
+        "path": { "$ref": "#/$defs/workspacePath" },
+        "output": { "$ref": "#/$defs/relativeName" },
+        "entry": { "$ref": "#/$defs/relativeName" }
+      }
+    },
+    "plugin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "remote", "exposes"],
+      "properties": {
+        "path": { "$ref": "#/$defs/workspacePath" },
+        "remote": { "type": "string", "minLength": 1 },
+        "exposes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^\\./[^/]+$" }
+        }
+      }
+    }
+  }
+}
