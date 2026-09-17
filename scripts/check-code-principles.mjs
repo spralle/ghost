@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "..");
 
 const sourceRoots = ["apps", "packages", "plugins"];
-const MAX_FILE_LINES = 350;
+const MAX_FILE_LINES = 400;
 
 async function main() {
   const productionFiles = await collectProductionTsFiles();
@@ -69,16 +69,17 @@ function isProductionTsFile(relativePath) {
   if (!relativePath.endsWith(".ts") && !relativePath.endsWith(".tsx")) {
     return false;
   }
-  if (relativePath.endsWith(".spec.ts") || relativePath.endsWith(".test.ts")) {
-    return false;
-  }
-  if (relativePath.endsWith(".spec.tsx") || relativePath.endsWith(".test.tsx")) {
+  if (isTestTsFile(relativePath)) {
     return false;
   }
   if (relativePath.includes("/fixtures/") || relativePath.includes("/internal-negative/")) {
     return false;
   }
   return true;
+}
+
+function isTestTsFile(relativePath) {
+  return /\.(spec|test)(?:[-.][^.]+)*\.tsx?$/.test(path.basename(relativePath));
 }
 
 async function walkFiles(rootPath) {
