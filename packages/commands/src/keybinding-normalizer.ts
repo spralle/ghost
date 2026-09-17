@@ -38,10 +38,9 @@ export function normalizeConfiguredChord(input: string): NormalizedKeybindingCho
   const parts = input
     .toLowerCase()
     .split("+")
-    .map((part) => part.trim())
-    .filter((part) => part.length > 0);
+    .map((part) => part.trim());
 
-  if (parts.length === 0) {
+  if (parts.length === 0 || parts.some((part) => part.length === 0)) {
     return null;
   }
 
