@@ -215,7 +215,7 @@ export function createLayerSurfaceRenderer(options: LayerSurfaceRendererOptions)
       if (!container) continue;
 
       const sorted = [...surfaces].sort((a, b) => (a.surface.order ?? 0) - (b.surface.order ?? 0));
-      reconcileLayerContainer(ctx, container, sorted, runtime, currentGeneration);
+      void reconcileLayerContainer(ctx, container, sorted, runtime, currentGeneration);
     }
 
     // Reconcile shell surfaces (imperative mount)

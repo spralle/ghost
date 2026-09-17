@@ -57,8 +57,9 @@ export function reconcileLayerContainer(
   surfaces: Array<{ pluginId: string; surface: PluginLayerSurfaceContribution }>,
   runtime: ShellRuntime,
   currentGeneration: number,
-): void {
+): Promise<void> {
   const desiredIds = new Set(surfaces.map((s) => composeSurfaceKey(s.pluginId, s.surface.id)));
+  const pendingMounts: Promise<void>[] = [];
 
   removeStaleChildren(ctx, container, desiredIds);
 
@@ -86,10 +87,13 @@ export function reconcileLayerContainer(
       ctx.mounted.delete(key);
     }
 
-    void mountSurfaceComponent(ctx, target, pluginId, surface, runtime, key, mountKey, currentGeneration);
+    pendingMounts.push(
+      mountSurfaceComponent(ctx, target, pluginId, surface, runtime, key, mountKey, currentGeneration),
+    );
   }
 
   applyAutoStackingForContainer(container, surfaces);
+  return Promise.all(pendingMounts).then(() => undefined);
 }
 
 // ---------------------------------------------------------------------------
