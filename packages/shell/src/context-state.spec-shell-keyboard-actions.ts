@@ -1,4 +1,3 @@
-import { createInitialWorkspaceManagerState } from "@ghost-shell/state";
 import { type ActionSurface, buildActionSurface } from "./action-surface.js";
 import type { ShellRuntime } from "./app/types.js";
 import {
@@ -16,6 +15,7 @@ import {
   isBrowserSafeDefaultKeybinding,
 } from "./shell-runtime/default-shell-keybindings.js";
 import { bindKeyboardShortcuts, type KeyboardBindings } from "./shell-runtime/keyboard-handlers.js";
+import { createWorkspacePersistenceFixture } from "./test-fixtures/workspace-persistence-fixture.js";
 
 type KeydownListener = (event: KeyboardEvent) => Promise<void>;
 
@@ -301,6 +301,7 @@ function createKeyboardRuntimeFixture(): ShellRuntime {
       },
     },
     contextState,
+    ...createWorkspacePersistenceFixture(contextState),
     hostWindowId: null,
     incomingTransferJournal: { bySessionId: {} },
     intentRuntime: {
@@ -338,7 +339,6 @@ function createKeyboardRuntimeFixture(): ShellRuntime {
     syncDegradedReason: null,
     syncHealthState: "healthy",
     windowId: "window-a",
-    workspaceManager: createInitialWorkspaceManagerState(contextState),
   } as unknown as ShellRuntime;
 }
 

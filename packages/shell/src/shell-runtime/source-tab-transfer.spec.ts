@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { ShellRuntime } from "../app/types.js";
 import { updateContextState } from "../context/runtime-state.js";
 import { createInitialShellContextState, registerTab, type ShellContextState, setActiveTab } from "../context-state.js";
+import { createWorkspacePersistenceFixture } from "../test-fixtures/workspace-persistence-fixture.js";
 import { applySourceTabTransferTerminal, beginSourceTabTransferPending } from "./source-tab-transfer.js";
 
 function createRuntime(): ShellRuntime {
@@ -23,6 +24,7 @@ function createRuntime(): ShellRuntime {
     selectedPartId: "tab-b",
     selectedPartTitle: "Tab B",
     contextState: state,
+    ...createWorkspacePersistenceFixture(state),
     sourceTabTransferPendingBySessionId: new Map(),
     sourceTabTransferTerminalSessionIds: new Set(),
     contextPersistence: {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ShellRuntime } from "../app/types.js";
 import { createInitialShellContextState, registerTab, type ShellContextState } from "../context-state.js";
+import { createWorkspacePersistenceFixture } from "../test-fixtures/workspace-persistence-fixture.js";
 import { closeTabFromUi, reopenMostRecentlyClosedTabThroughRuntime } from "./parts-controller.js";
 import { applyPendingFocus } from "./pending-focus.js";
 
@@ -19,30 +20,19 @@ describe("pending-focus", () => {
       activeTabId: "tab-b",
     };
 
-    const persistCalls: ShellContextState[] = [];
-
     const runtime = {
       contextState: state,
+      ...createWorkspacePersistenceFixture(state),
       selectedPartId: "tab-b",
       selectedPartTitle: "Bravo",
       windowId: "window-a",
       pendingFocusSelector: null,
       notice: "",
       contextPersistence: {
-        save(nextState: ShellContextState) {
-          persistCalls.push(nextState);
+        save(_nextState: ShellContextState) {
           return { warning: null };
         },
       },
-      workspacePersistence: {
-        save() {
-          return { warning: null };
-        },
-        load() {
-          return { warning: null };
-        },
-      },
-      workspaceManager: {},
       registry: {
         getSnapshot() {
           return {
@@ -56,7 +46,10 @@ describe("pending-focus", () => {
     expect(runtime.contextState.tabs["tab-b"]).toBe(undefined);
     expect(runtime.contextState.activeTabId).toBe("tab-c");
     expect(pendingSelector).toBe("button[data-action='activate-tab'][data-part-id='tab-c']");
-    expect(persistCalls.length >= 1).toBe(true);
+    const loaded = runtime.workspacePersistence.load(state);
+    const persistedState = loaded.state.workspaces[loaded.state.activeWorkspaceId]?.contextState;
+    expect(persistedState?.activeTabId).toBe("tab-c");
+    expect(persistedState?.tabs["tab-b"]).toBeUndefined();
 
     let focused = false;
     let cleared = false;
@@ -94,6 +87,7 @@ describe("pending-focus", () => {
 
     const runtime = {
       contextState: state,
+      ...createWorkspacePersistenceFixture(state),
       selectedPartId: "tab-b",
       selectedPartTitle: "Bravo",
       windowId: "window-a",
@@ -106,15 +100,6 @@ describe("pending-focus", () => {
           return { warning: null };
         },
       },
-      workspacePersistence: {
-        save() {
-          return { warning: null };
-        },
-        load() {
-          return { warning: null };
-        },
-      },
-      workspaceManager: {},
       registry: {
         getSnapshot() {
           return {

@@ -1,6 +1,7 @@
 import type { WindowBridge, WindowBridgeEvent, WindowBridgeHealth } from "@ghost-shell/bridge";
 import type { ShellRuntime } from "./app/types.js";
 import { createInitialShellContextState, registerTab } from "./context-state.js";
+import { createWorkspacePersistenceFixture } from "./test-fixtures/workspace-persistence-fixture.js";
 
 export class TestBridge implements WindowBridge {
   available = true;
@@ -74,6 +75,18 @@ export function createRuntime(bridge: TestBridge): ShellRuntime {
     },
   } as unknown as Window;
 
+  const contextState = registerTab(
+    createInitialShellContextState({
+      initialTabId: "tab-a",
+      initialGroupId: "group-main",
+    }),
+    {
+      tabId: "tab-b",
+      groupId: "group-main",
+      closePolicy: "closeable",
+    },
+  );
+
   return {
     bridge,
     dragSessionBroker: {
@@ -90,17 +103,8 @@ export function createRuntime(bridge: TestBridge): ShellRuntime {
     popoutHandles: new Map([["part-a", popoutHandle]]),
     selectedPartId: "tab-a",
     selectedPartTitle: "Tab A",
-    contextState: registerTab(
-      createInitialShellContextState({
-        initialTabId: "tab-a",
-        initialGroupId: "group-main",
-      }),
-      {
-        tabId: "tab-b",
-        groupId: "group-main",
-        closePolicy: "closeable",
-      },
-    ),
+    contextState,
+    ...createWorkspacePersistenceFixture(contextState),
     contextPersistence: {
       save() {
         return { warning: null };

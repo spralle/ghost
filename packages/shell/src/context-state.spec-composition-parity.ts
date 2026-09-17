@@ -1,9 +1,12 @@
+import { createIntentRuntime } from "@ghost-shell/intents";
 import { createShellCoreApi } from "./app/shell-core.js";
 import type { ShellRuntime } from "./app/types.js";
 import { createInitialShellContextState, registerTab, type ShellContextState } from "./context-state.js";
 import type { SpecHarness } from "./context-state.spec-harness.js";
+import { createContract } from "./context-state.spec-intent-runtime-fixtures.js";
 import { dismissIntentChooser } from "./shell-runtime/keyboard-handlers.js";
 import { createRuntimeEventHandlers } from "./shell-runtime/runtime-event-handlers.js";
+import { createWorkspacePersistenceFixture } from "./test-fixtures/workspace-persistence-fixture.js";
 import type { PartLifecycleDeps } from "./ui/part-instance-tab-lifecycle.js";
 import { closeTabThroughRuntime, reopenMostRecentlyClosedTabThroughRuntime } from "./ui/part-instance-tab-lifecycle.js";
 import { resolveClosedPopoutTransition } from "./ui/parts-controller-popout-transition.js";
@@ -41,7 +44,7 @@ interface MutablePluginRecord {
         id: string;
         title: string;
         handler: string;
-        intentType: string;
+        intent: string;
         when: Record<string, unknown>;
       }[];
     };
@@ -94,7 +97,7 @@ function runParityFlow(mode: FlowMode): ParityStepSnapshot[] {
               id: "open-a",
               title: "Open A",
               handler: "openA",
-              intentType: "intent.open-order",
+              intent: "intent.open-order",
               when: {},
             },
           ],
@@ -116,7 +119,7 @@ function runParityFlow(mode: FlowMode): ParityStepSnapshot[] {
               id: "open-b",
               title: "Open B",
               handler: "openB",
-              intentType: "intent.open-order",
+              intent: "intent.open-order",
               when: {},
             },
           ],
@@ -278,9 +281,20 @@ function createRuntimeFixture(pluginRecords: MutablePluginRecord[]): ShellRuntim
     selectedPartId: "tab-a",
     selectedPartTitle: "Home",
     contextState,
+    ...createWorkspacePersistenceFixture(contextState),
     notice: "",
     pluginNotice: "",
     intentNotice: "",
+    intentRuntime: createIntentRuntime({
+      getRegistrySnapshot: () => ({
+        plugins: pluginRecords.map((plugin) => ({
+          id: plugin.id,
+          enabled: plugin.enabled,
+          loadStrategy: "local",
+          contract: createContract(plugin.contract),
+        })),
+      }),
+    }),
     actionNotice: "",
     activeIntentSession: null,
     lastIntentTrace: null,
@@ -316,6 +330,9 @@ function createRuntimeFixture(pluginRecords: MutablePluginRecord[]): ShellRuntim
 
 function createRootStub(): HTMLElement {
   return {
+    querySelector() {
+      return null;
+    },
     querySelectorAll() {
       return [];
     },

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ShellRuntime } from "../app/types.js";
 import { createInitialShellContextState, readGlobalLane, readGroupLaneForTab, registerTab } from "../context-state.js";
+import { createWorkspacePersistenceFixture } from "../test-fixtures/workspace-persistence-fixture.js";
 import { createRuntimeEventHandlers } from "./runtime-event-handlers.js";
 
 function createRuntime(): ShellRuntime {
@@ -26,6 +27,7 @@ function createRuntime(): ShellRuntime {
     selectedPartId: null,
     selectedPartTitle: null,
     contextState: state,
+    ...createWorkspacePersistenceFixture(state),
     windowId: "window-host",
     notice: "",
     activeIntentSession: null,

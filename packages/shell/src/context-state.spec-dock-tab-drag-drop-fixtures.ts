@@ -5,6 +5,7 @@ import {
   registerTab,
   type ShellContextState,
 } from "./context-state.js";
+import { createWorkspacePersistenceFixture } from "./test-fixtures/workspace-persistence-fixture.js";
 
 interface DragDataTransfer {
   effectAllowed: string;
@@ -197,6 +198,7 @@ export function createRuntime(): ShellRuntime {
     syncDegraded: false,
     syncDegradedReason: null,
     contextState: state,
+    ...createWorkspacePersistenceFixture(state),
     selectedPartId: "tab-a",
     selectedPartTitle: "tab-a",
     pendingFocusSelector: null,

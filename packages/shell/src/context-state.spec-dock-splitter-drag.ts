@@ -8,6 +8,7 @@ import {
   type ShellContextState,
 } from "./context-state.js";
 import type { SpecHarness } from "./context-state.spec-harness.js";
+import { createWorkspacePersistenceFixture } from "./test-fixtures/workspace-persistence-fixture.js";
 import { wireDockSplitterDrag } from "./ui/dock-splitter-dnd.js";
 
 type PointerListener = (event: PointerEvent) => void;
@@ -182,6 +183,7 @@ function createRuntime(): ShellRuntime {
 
   const runtime = {
     contextState: state,
+    ...createWorkspacePersistenceFixture(state),
     contextPersistence: {
       save(nextState: ShellContextState) {
         runtime.contextState = nextState;

@@ -7,6 +7,7 @@ import {
   type ShellContextState,
 } from "./context-state.js";
 import type { SpecHarness } from "./context-state.spec-harness.js";
+import { createWorkspacePersistenceFixture } from "./test-fixtures/workspace-persistence-fixture.js";
 import { wireTabStripDragDrop } from "./ui/tab-drag-drop.js";
 
 interface DragDataTransfer {
@@ -177,6 +178,7 @@ function createRuntime(): ShellRuntime {
     windowId: "window-a",
     syncDegraded: false,
     contextState: state,
+    ...createWorkspacePersistenceFixture(state),
     notice: "",
     dragSessionBroker: {
       available: false,
