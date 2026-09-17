@@ -44,7 +44,7 @@ test("canonical runner ownership is nonempty, complete, and disjoint", () => {
   assert.deepEqual(Object.fromEntries(Object.entries(selections).map(([lane, files]) => [lane, files.length])), {
     node: 49,
     vitest: 78,
-    bun: 17,
+    bun: 18,
   });
   assert.ok(selections.node.includes("apps/plugin-dev-host/test/manifest-rewrite.test.mjs"));
   assert.ok(selections.vitest.includes("packages/sentinel/src/__tests__/engine.test.ts"));

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from "bun:test";
+import { buildSnapshot, check, createPrincipal } from "@ghost/sentinel";
 import { MemorySentinelStore } from "../memory-store.js";
 
 describe("MemorySentinelStore", () => {
@@ -86,6 +87,31 @@ describe("MemorySentinelStore", () => {
       expect(result).toHaveLength(2);
       expect(result[0]!.action).toBe("read");
       expect(result[1]!.action).toBe("write");
+    });
+
+    it("preserves stored effects and salience through scoped snapshot evaluation", async () => {
+      store.addPolicies([
+        { resourceType: "document", action: "read", condition: {}, effect: "grant", salience: 0 },
+        { resourceType: "invoice", action: "read", condition: {}, effect: "deny", salience: -1 },
+      ]);
+      const principal = createPrincipal({
+        userId: "alice",
+        tenantId: "tenant-1",
+        roles: [],
+        partyIds: [],
+        orgChain: [],
+      });
+      const snapshot = await buildSnapshot(store, principal, ["document", "invoice"]);
+      const evaluate = (type: string) =>
+        check(principal, "read", {
+          policy: snapshot.compiledPolicy,
+          graphSubset: snapshot.graphCone,
+          resource: { type },
+        });
+
+      expect(evaluate("document").effect).toBe("allow");
+      expect(evaluate("invoice").effect).toBe("deny");
+      expect(snapshot.compiledPolicy.rules.map((rule) => rule.salience)).toEqual([0, -1]);
     });
   });
 

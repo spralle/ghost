@@ -17,6 +17,8 @@ export interface PolicyDocument {
   readonly resourceType: string;
   readonly action: string;
   readonly condition: unknown;
+  readonly effect?: "deny" | "reject" | "grant";
+  readonly salience?: number;
 }
 
 export interface RoleDocument {

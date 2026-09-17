@@ -16,6 +16,7 @@ export const bunTestFiles = [
   "packages/sentinel/src/__tests__/graph.test.ts",
   "packages/sentinel/src/__tests__/policy.test.ts",
   "packages/sentinel/src/__tests__/principal.test.ts",
+  "packages/sentinel/src/__tests__/snapshot-builder.test.ts",
 ];
 
 export const nodeTestPatterns = ["{apps,packages,plugins,scripts}/**/*.test*.mjs"];

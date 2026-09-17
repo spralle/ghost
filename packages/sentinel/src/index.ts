@@ -64,6 +64,8 @@ export {
   isExpired,
   needsRefresh,
   type PermissionSnapshot,
+  SnapshotBuildError,
+  type SnapshotBuildErrorCode,
   type SnapshotBuilderOptions,
 } from "./snapshot/index.js";
 export type {

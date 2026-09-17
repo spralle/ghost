@@ -11,9 +11,11 @@ interface RelationTuple {
 }
 
 interface PolicyRule {
-  readonly resourceType: string;
-  readonly action: string;
+  readonly resourceType: unknown;
+  readonly action: unknown;
   readonly condition: unknown;
+  readonly effect?: unknown;
+  readonly salience?: unknown;
 }
 
 interface SentinelStore {
@@ -83,13 +85,13 @@ export class MongoSentinelStore implements SentinelStore {
   }
 
   async addPolicy(policy: PolicyDocument): Promise<this> {
-    await this.policies.insertOne({ ...policy });
+    await this.policies.insertOne(policyForBson(policy));
     return this;
   }
 
   async addPolicies(policies: readonly PolicyDocument[]): Promise<this> {
     if (policies.length > 0) {
-      await this.policies.insertMany(policies.map((p) => ({ ...p })));
+      await this.policies.insertMany(policies.map(policyForBson));
     }
     return this;
   }
@@ -126,4 +128,13 @@ export class MongoSentinelStore implements SentinelStore {
     await this.policies.deleteMany({});
     await this.roles.deleteMany({});
   }
+}
+
+function policyForBson(policy: PolicyDocument): PolicyDocument {
+  const { effect, salience, ...required } = policy;
+  return {
+    ...required,
+    ...(effect !== undefined && { effect }),
+    ...(salience !== undefined && { salience }),
+  };
 }

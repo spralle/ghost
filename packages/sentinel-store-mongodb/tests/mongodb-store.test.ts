@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "bun:test";
-import type { Collection, Db } from "mongodb";
+import { buildSnapshot, check, createPrincipal, GraphSubset } from "@ghost/sentinel";
+import { BSON, type Collection, type Db } from "mongodb";
 import { MongoSentinelStore } from "../src/mongodb-store";
 
 /** Minimal in-memory mock of a MongoDB Collection */
@@ -38,12 +39,12 @@ function createMockCollection<T extends Record<string, unknown>>(): Collection<T
       return Promise.resolve(found);
     },
     insertOne(doc: Record<string, unknown>) {
-      docs.push({ _id: Math.random().toString(), ...doc });
+      docs.push(bsonRoundTrip({ _id: Math.random().toString(), ...doc }));
       return Promise.resolve({ insertedId: docs[docs.length - 1]._id });
     },
     insertMany(items: Record<string, unknown>[]) {
       for (const doc of items) {
-        docs.push({ _id: Math.random().toString(), ...doc });
+        docs.push(bsonRoundTrip({ _id: Math.random().toString(), ...doc }));
       }
       return Promise.resolve({ insertedCount: items.length });
     },
@@ -88,6 +89,10 @@ function createMockCollection<T extends Record<string, unknown>>(): Collection<T
   };
 
   return col as unknown as Collection<T>;
+}
+
+function bsonRoundTrip(document: Record<string, unknown>): Record<string, unknown> {
+  return BSON.deserialize(BSON.serialize(document, { ignoreUndefined: false }));
 }
 
 function createMockDb(): Db {
@@ -142,6 +147,51 @@ describe("MongoSentinelStore", () => {
     const result = await store.loadPolicies("document");
     expect(result).toHaveLength(1);
     expect(result[0].action).toBe("read");
+  });
+
+  it("omits undefined optional policy fields before actual BSON serialization", async () => {
+    const policy = {
+      resourceType: "document",
+      action: "read",
+      condition: { nested: { retained: undefined } },
+      effect: undefined,
+      salience: undefined,
+    };
+    await store.addPolicy(policy);
+    const [loaded] = await store.loadPolicies("document");
+
+    expect(Object.hasOwn(loaded, "effect")).toBe(false);
+    expect(Object.hasOwn(loaded, "salience")).toBe(false);
+    expect(loaded.condition).toEqual({ nested: { retained: null } });
+    expect(policy.effect).toBeUndefined();
+    expect(policy.salience).toBeUndefined();
+  });
+
+  it("preserves resource isolation and decisions after a BSON-backed snapshot round trip", async () => {
+    await store.addPolicies([
+      { resourceType: "document", action: "read", condition: {}, effect: "grant", salience: 5 },
+      { resourceType: "invoice", action: "read", condition: {}, effect: "reject", salience: 4 },
+    ]);
+    const principal = createPrincipal({ userId: "u1", tenantId: "tenant-1", roles: [], partyIds: [], orgChain: [] });
+    const snapshot = await buildSnapshot(store, principal, ["invoice", "document"]);
+    const restored = {
+      ...snapshot,
+      compiledPolicy: JSON.parse(JSON.stringify(snapshot.compiledPolicy)),
+      graphCone: new GraphSubset(JSON.parse(JSON.stringify(snapshot.graphCone.tuples))),
+    };
+    const decide = (type: unknown, current = snapshot) =>
+      check(principal, "read", {
+        policy: current.compiledPolicy,
+        graphSubset: current.graphCone,
+        resource: { type },
+      }).effect;
+
+    expect(decide("document")).toBe("allow");
+    expect(decide("invoice")).toBe("deny");
+    expect(decide("other")).toBe("deny");
+    expect(decide(["document"])).toBe("deny");
+    expect(decide("document", restored)).toBe("allow");
+    expect(decide("invoice", restored)).toBe("deny");
   });
 
   it("loadPolicies returns empty for unknown resourceType", async () => {

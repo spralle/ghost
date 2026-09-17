@@ -20,6 +20,7 @@ export interface CheckResult {
 /** Build EvalContext from principal, resource, and graph subset */
 function buildEvalContext(principal: SentinelPrincipal, action: string, context: CheckContext): EvalContext {
   const principalNode = createNode("user", principal.userId);
+  const resource = normalizeResourceType(context.resource);
 
   return {
     principal: {
@@ -29,7 +30,7 @@ function buildEvalContext(principal: SentinelPrincipal, action: string, context:
       partyIds: principal.partyIds,
       orgChain: principal.orgChain,
     },
-    resource: context.resource,
+    resource,
     graph: {
       hasRelation(relation: string, targetType: string, targetId: string): boolean {
         const targets = context.graphSubset.resolve(principalNode, relation);
@@ -38,6 +39,10 @@ function buildEvalContext(principal: SentinelPrincipal, action: string, context:
     },
     action,
   };
+}
+
+function normalizeResourceType(resource: Record<string, unknown>): Record<string, unknown> {
+  return typeof resource.type === "string" ? resource : { ...resource, type: undefined };
 }
 
 /** Check if a principal can perform an action on a resource */
