@@ -1,0 +1,221 @@
+{
+  "$schema": "./release-surface.schema.json",
+  "schemaVersion": 1,
+  "issue": "armada-v82a.17",
+  "registryHoldIssue": "armada-v82a.2",
+  "runtime": {
+    "bun": "1.2.21",
+    "node": ">=24"
+  },
+  "expectedCounts": {
+    "workspaces": 58,
+    "publishablePackages": 27,
+    "sentinelPackages": 8,
+    "privatePlugins": 25,
+    "privateBrowserApps": 3,
+    "privateNodeApps": 2,
+    "compilerFixtures": 1,
+    "packageExportEntries": 36,
+    "pluginExposes": 69
+  },
+  "publishablePackages": [
+    "packages/bridge",
+    "packages/commands",
+    "packages/config-plugin-runtime",
+    "packages/data-table",
+    "packages/entity-table",
+    "packages/federation",
+    "packages/intents",
+    "packages/layer",
+    "packages/persistence",
+    "packages/plugin-contracts",
+    "packages/plugin-system",
+    "packages/react",
+    "packages/router",
+    "packages/sentinel",
+    "packages/sentinel-arbiter",
+    "packages/sentinel-react",
+    "packages/sentinel-redemeine",
+    "packages/sentinel-roles",
+    "packages/sentinel-store-memory",
+    "packages/sentinel-store-mongodb",
+    "packages/sentinel-sync",
+    "packages/shell",
+    "packages/state",
+    "packages/table-from-schema",
+    "packages/theme",
+    "packages/ui",
+    "packages/weaver-formbar-bridge"
+  ],
+  "sentinelPackages": [
+    "packages/sentinel",
+    "packages/sentinel-arbiter",
+    "packages/sentinel-react",
+    "packages/sentinel-redemeine",
+    "packages/sentinel-roles",
+    "packages/sentinel-store-memory",
+    "packages/sentinel-store-mongodb",
+    "packages/sentinel-sync"
+  ],
+  "moduleFormats": {
+    "dualEsmCjs": "all publishable packages except nativeRequireEsm",
+    "nativeRequireEsm": [
+      "@ghost-shell/config-plugin-runtime",
+      "@ghost-shell/data-table",
+      "@ghost-shell/entity-table",
+      "@ghost-shell/shell",
+      "@ghost-shell/ui"
+    ],
+    "types": "declarations under dist for every exported JavaScript entry",
+    "assets": {
+      "@ghost-shell/ui/globals.css": "./dist/globals.css",
+      "@ghost-shell/ui/theme.css": "./dist/theme.css"
+    }
+  },
+  "privateNodeApps": ["apps/backend", "apps/plugin-dev-host"],
+  "compilerFixtures": ["apps/typecheck-fixture"],
+  "browserApps": [
+    { "path": "apps/shell", "output": "dist", "entry": "index.html" },
+    { "path": "apps/entity-table-demos", "output": "dist", "entry": "index.html" },
+    { "path": "apps/formbar-demos", "output": "dist", "entry": "index.html" }
+  ],
+  "plugins": [
+    {
+      "path": "plugins/action-palette-plugin",
+      "remote": "ghost_action_palette",
+      "exposes": ["./pluginContract", "./pluginParts", "./pluginComponents", "./pluginServices"]
+    },
+    {
+      "path": "plugins/appearance-settings-plugin",
+      "remote": "ghost.appearance-settings",
+      "exposes": ["./pluginContract", "./pluginParts"]
+    },
+    {
+      "path": "plugins/domain-unplanned-orders-plugin",
+      "remote": "ghost.domain.unplanned-orders",
+      "exposes": ["./pluginContract", "./pluginParts", "./pluginComponents", "./pluginServices"]
+    },
+    {
+      "path": "plugins/domain-vessel-view-plugin",
+      "remote": "ghost.domain.vessel-view",
+      "exposes": ["./pluginContract", "./pluginParts", "./pluginComponents", "./pluginServices"]
+    },
+    {
+      "path": "plugins/example-layer-anchor-showcase-plugin",
+      "remote": "ghost_example_layer_anchor_showcase",
+      "exposes": ["./pluginContract", "./pluginLayerSurfaces"]
+    },
+    {
+      "path": "plugins/example-layer-background-plugin",
+      "remote": "ghost_example_layer_background",
+      "exposes": ["./pluginContract", "./pluginLayerSurfaces"]
+    },
+    {
+      "path": "plugins/example-layer-custom-plugin",
+      "remote": "ghost_example_layer_custom",
+      "exposes": ["./pluginContract", "./pluginLayerSurfaces"]
+    },
+    {
+      "path": "plugins/example-layer-modal-plugin",
+      "remote": "ghost_example_layer_modal",
+      "exposes": ["./pluginContract", "./pluginLayerSurfaces"]
+    },
+    {
+      "path": "plugins/example-layer-notification-plugin",
+      "remote": "ghost_example_layer_notification",
+      "exposes": ["./pluginContract", "./pluginLayerSurfaces"]
+    },
+    {
+      "path": "plugins/example-layer-overlay-plugin",
+      "remote": "ghost_example_layer_overlay",
+      "exposes": ["./pluginContract", "./pluginLayerSurfaces"]
+    },
+    {
+      "path": "plugins/example-layer-panel-plugin",
+      "remote": "ghost_example_layer_panel",
+      "exposes": ["./pluginContract", "./pluginLayerSurfaces"]
+    },
+    {
+      "path": "plugins/ghost-motion-plugin",
+      "remote": "ghost.motion",
+      "exposes": ["./pluginContract", "./pluginServices", "./pluginComponents"]
+    },
+    { "path": "plugins/ghost-ui-plugin", "remote": "ghost.ui", "exposes": ["./pluginContract"] },
+    {
+      "path": "plugins/group-context-plugin",
+      "remote": "ghost.group-context",
+      "exposes": ["./pluginContract", "./pluginParts"]
+    },
+    {
+      "path": "plugins/keybindings-plugin",
+      "remote": "ghost.keybindings",
+      "exposes": ["./pluginContract", "./pluginParts"]
+    },
+    {
+      "path": "plugins/pending-chord-indicator-plugin",
+      "remote": "ghost_pending_chord_indicator",
+      "exposes": ["./pluginContract", "./pluginSlots", "./pluginParts", "./pluginComponents", "./pluginServices"]
+    },
+    {
+      "path": "plugins/plugin-starter",
+      "remote": "ghost.plugin-starter",
+      "exposes": ["./pluginContract", "./pluginParts", "./pluginComponents", "./pluginServices"]
+    },
+    {
+      "path": "plugins/plugins-panel-plugin",
+      "remote": "ghost.plugins-panel",
+      "exposes": ["./pluginContract", "./pluginParts"]
+    },
+    {
+      "path": "plugins/sample-contract-consumer-plugin",
+      "remote": "ghost.sample.contract-consumer",
+      "exposes": ["./pluginContract", "./pluginParts", "./pluginComponents", "./pluginServices"]
+    },
+    {
+      "path": "plugins/settings-panel-plugin",
+      "remote": "ghost.settings-panel",
+      "exposes": ["./pluginContract", "./pluginParts"]
+    },
+    {
+      "path": "plugins/shadcn-theme-bridge-plugin",
+      "remote": "ghost.shadcn.theme-bridge",
+      "exposes": ["./pluginContract", "./pluginServices"]
+    },
+    {
+      "path": "plugins/shared-ui-capability-plugin",
+      "remote": "ghost.shared.ui-capabilities",
+      "exposes": ["./pluginContract", "./pluginComponents", "./pluginServices", "./pluginParts"]
+    },
+    { "path": "plugins/theme-default-plugin", "remote": "ghost.theme.default", "exposes": ["./pluginContract"] },
+    {
+      "path": "plugins/topbar-widgets-plugin",
+      "remote": "ghost_topbar_widgets",
+      "exposes": ["./pluginContract", "./pluginSlots", "./pluginParts", "./pluginComponents", "./pluginServices"]
+    },
+    {
+      "path": "plugins/view-picker-plugin",
+      "remote": "ghost_view_picker",
+      "exposes": ["./pluginContract", "./pluginParts", "./pluginComponents", "./pluginServices"]
+    }
+  ],
+  "browserArtifacts": {
+    "remoteEntry": "remoteEntry.js",
+    "manifest": "mf-manifest.json",
+    "assetDirectory": "assets"
+  },
+  "externalPrerequisites": {
+    "trustedInternalScope": "@weaver/",
+    "trustedArtifacts": [
+      "@weaver/config-auth",
+      "@weaver/config-engine",
+      "@weaver/config-policy",
+      "@weaver/config-providers",
+      "@weaver/config-server",
+      "@weaver/config-sessions",
+      "@weaver/config-sync",
+      "@weaver/config-types"
+    ],
+    "registryReady": false,
+    "reason": "link: dependencies require unpublished Weaver artifacts; see armada-v82a.2"
+  }
+}

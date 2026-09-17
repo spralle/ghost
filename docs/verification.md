@@ -21,4 +21,6 @@ Do not replace these commands with bare `bun test`: bare discovery mixes incompa
 - `bun run lint` runs Biome and repository policy checks before the reference-aware typecheck.
 - `node --test scripts/test/verification-entrypoints.test.mjs` runs the focused runner-infrastructure regressions.
 
+Release packaging, browser builds, local CI, report paths, and the separate registry hold are documented in [release readiness](./release-readiness.md).
+
 The Vitest config retains a default export because Vitest requires that framework entrypoint shape. This is the only runner-foundation exception to the named-export default.

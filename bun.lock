@@ -11,10 +11,12 @@
         "concurrently": "^9.2.1",
         "happy-dom": "20.9.0",
         "knip": "6.8.0",
+        "semver": "6.3.1",
         "tsup": "8.5.1",
         "typescript": "^5.8.3",
         "vite": "^5.4.19",
         "vitest": "4.1.5",
+        "yaml": "2.9.0",
       },
     },
     "apps/backend": {

@@ -8,7 +8,7 @@
     "packages/*"
   ],
   "scripts": {
-    "lint": "biome check --diagnostic-level=error . && bun run check:architecture-guardrails --silent && bun run check:code-principles --silent && bun run check:config-schema --silent && bun run check:change-policies --silent && bun run check:ghost-tokens --silent && bun run typecheck",
+    "lint": "biome check --diagnostic-level=error . && bun run check:architecture-guardrails --silent && bun run check:code-principles --silent && bun run check:config-schema --silent && bun run check:change-policies --silent && bun run check:ghost-tokens --silent && bun run check:ci-workflow --silent && bun run typecheck",
     "format": "biome format --write .",
     "format:check": "biome format . --diagnostic-level=error",
     "lint:biome": "biome check --diagnostic-level=error .",
@@ -30,9 +30,18 @@
     "dev:plugins:live": "bun apps/plugin-dev-host/src/main.ts --live",
     "dev:integration": "bun --watch apps/shell/src/index.ts",
     "build:plugins": "node ./scripts/build-plugins.mjs",
+    "build:browser": "node ./scripts/verify-browser-builds.mjs",
     "scaffold:plugin": "node ./scripts/scaffold-plugin.mjs",
     "generate:config-schema": "node ./scripts/build-config-schemas.mjs",
-    "build:dist": "bun run --filter './packages/*' build:dist",
+    "build:dist": "node ./scripts/build-release-packages.mjs",
+    "check:release-inventory": "node ./scripts/release-inventory.mjs",
+    "check:release-artifacts": "node ./scripts/verify-release-artifacts.mjs",
+    "check:browser-builds": "node ./scripts/verify-browser-builds.mjs",
+    "check:ci-workflow": "node ./scripts/check-ci-workflow.mjs",
+    "check:workspace-links": "node ./scripts/check-workspace-links.mjs",
+    "repair:workspace-links": "node ./scripts/check-workspace-links.mjs --repair",
+    "verify:registry-consumer": "node ./scripts/registry-consumer-probe.mjs",
+    "verify:ci": "node ./scripts/verify-ci.mjs",
     "biome": "biome",
     "knip": "knip",
     "knip:report": "knip --reporter compact"
@@ -45,9 +54,11 @@
     "concurrently": "^9.2.1",
     "happy-dom": "20.9.0",
     "knip": "6.8.0",
+    "semver": "6.3.1",
     "tsup": "8.5.1",
     "typescript": "^5.8.3",
     "vite": "^5.4.19",
-    "vitest": "4.1.5"
+    "vitest": "4.1.5",
+    "yaml": "2.9.0"
   }
 }
