@@ -116,8 +116,13 @@ export function createActiveViewCodec(): UrlCodecStrategy {
         if (json) {
           try {
             const parsed: unknown = JSON.parse(json);
-            if (parsed && typeof parsed === "object" && "workspaceId" in parsed) {
-              workspaceId = (parsed as { workspaceId?: string }).workspaceId;
+            if (
+              parsed &&
+              typeof parsed === "object" &&
+              "workspaceId" in parsed &&
+              typeof parsed.workspaceId === "string"
+            ) {
+              workspaceId = parsed.workspaceId;
             }
           } catch {
             // Malformed state — continue without it

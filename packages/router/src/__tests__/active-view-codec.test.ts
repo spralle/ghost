@@ -2,6 +2,12 @@ import { describe, expect, test } from "vitest";
 import { createActiveViewCodec } from "../codec/active-view-codec.js";
 import type { UrlCodecState } from "../codec/codec-types.js";
 
+function urlWithEncodedState(state: unknown): URL {
+  const base64 = btoa(JSON.stringify(state));
+  const encoded = base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return new URL(`http://localhost/view?_s=${encoded}`);
+}
+
 describe("createActiveViewCodec", () => {
   const codec = createActiveViewCodec();
 
@@ -70,6 +76,25 @@ describe("createActiveViewCodec", () => {
     const decoded = codec.decode(encoded);
     expect(decoded).not.toBeNull();
     expect(decoded?.workspaceId).toBe("ws-42");
+  });
+
+  test("decode accepts a string workspaceId from untrusted state", () => {
+    const decoded = codec.decode(urlWithEncodedState({ workspaceId: "workspace-safe" }));
+
+    expect(decoded?.workspaceId).toBe("workspace-safe");
+  });
+
+  test.each([
+    ["object", { workspaceId: { tenant: "other" } }],
+    ["number", { workspaceId: 42 }],
+    ["null", { workspaceId: null }],
+    ["boolean", { workspaceId: true }],
+    ["absent", { tabs: [] }],
+  ])("decode rejects a %s workspaceId from untrusted state", (_label, state) => {
+    const decoded = codec.decode(urlWithEncodedState(state));
+
+    expect(decoded?.activeDefinitionId).toBe("view");
+    expect(decoded?.workspaceId).toBeUndefined();
   });
 
   test("state encoding is runtime-neutral and preserves Unicode", () => {
