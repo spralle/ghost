@@ -1,5 +1,6 @@
 import path from "path";
 import { defineConfig } from "vitest/config";
+import { bunTestFiles, vitestTestPatterns } from "./scripts/test-runner-config.mjs";
 
 // biome-ignore lint/style/noDefaultExport: Vitest config uses the framework-required default export.
 export default defineConfig({
@@ -45,7 +46,7 @@ export default defineConfig({
     },
   },
   test: {
-    include: ["packages/**/src/**/*.{test,spec}.ts", "plugins/**/src/**/*.{test,spec}.ts"],
-    exclude: ["**/node_modules/**", "**/dist/**", "**/dist-test/**"],
+    include: vitestTestPatterns,
+    exclude: ["**/node_modules/**", "**/dist/**", "**/dist-test/**", ...bunTestFiles],
   },
 });
