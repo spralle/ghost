@@ -95,6 +95,18 @@ function bsonRoundTrip(document: Record<string, unknown>): Record<string, unknow
   return BSON.deserialize(BSON.serialize(document, { ignoreUndefined: false }));
 }
 
+function descriptorCondition(kind: "symbol" | "hidden", nested: boolean): Record<string, unknown> {
+  const target: Record<string, unknown> = nested ? { $eq: "u1" } : {};
+  const key = kind === "symbol" ? Symbol("restriction") : nested ? "$ne" : "principal.userId";
+  Object.defineProperty(target, key, {
+    value: "u1",
+    enumerable: kind === "symbol",
+    configurable: true,
+    writable: true,
+  });
+  return nested ? { "principal.userId": target } : target;
+}
+
 function createMockDb(): Db {
   const collections = new Map<string, unknown>();
   return {
@@ -179,6 +191,61 @@ describe("MongoSentinelStore", () => {
 
     await expect(write).rejects.toBeInstanceOf(SnapshotBuildError);
     expect(await store.loadPolicies("document")).toEqual([]);
+  });
+
+  it.each([
+    ["symbol-keyed", descriptorCondition("symbol", false)],
+    ["nested symbol-keyed", descriptorCondition("symbol", true)],
+    ["non-enumerable", descriptorCondition("hidden", false)],
+    ["nested non-enumerable", descriptorCondition("hidden", true)],
+  ])("rejects a %s restriction before real BSON serialization", async (_label, condition) => {
+    await expect(store.addPolicy({ resourceType: "document", action: "read", condition })).rejects.toBeInstanceOf(
+      SnapshotBuildError,
+    );
+    expect(await store.loadPolicies("document")).toEqual([]);
+  });
+
+  it.each([false, true])("does not invoke a rejected getter before BSON serialization (nested=%s)", async (nested) => {
+    let getterCalls = 0;
+    const target: Record<string, unknown> = {};
+    Object.defineProperty(target, nested ? "$eq" : "principal.userId", {
+      enumerable: true,
+      configurable: true,
+      get() {
+        getterCalls += 1;
+        return "u1";
+      },
+    });
+    const condition = nested ? { "principal.userId": target } : target;
+
+    await expect(store.addPolicy({ resourceType: "document", action: "read", condition })).rejects.toBeInstanceOf(
+      SnapshotBuildError,
+    );
+    expect(getterCalls).toBe(0);
+    expect(await store.loadPolicies("document")).toEqual([]);
+  });
+
+  it("deep-clones valid predicates across Mongo storage and snapshot compilation", async () => {
+    const operator = { $eq: "u1" };
+    const condition = { "principal.userId": operator };
+    await store.addPolicy({ resourceType: "document", action: "read", condition });
+    operator.$eq = "u2";
+    const alice = createPrincipal({ userId: "u1", tenantId: "tenant-1", roles: [], partyIds: [], orgChain: [] });
+    const bob = createPrincipal({ ...alice, userId: "u2" });
+    const snapshot = await buildSnapshot(store, alice, ["document"]);
+    delete condition["principal.userId"];
+    const decide = (subject: typeof alice) =>
+      check(subject, "read", {
+        policy: snapshot.compiledPolicy,
+        graphSubset: snapshot.graphCone,
+        resource: { type: "document" },
+      }).effect;
+
+    expect(decide(alice)).toBe("allow");
+    expect(decide(bob)).toBe("deny");
+    expect((await store.loadPolicies("document"))[0]?.condition).toEqual({
+      "principal.userId": { $eq: "u1" },
+    });
   });
 
   it.each([

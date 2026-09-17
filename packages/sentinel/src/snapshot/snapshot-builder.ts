@@ -6,7 +6,7 @@ import type { SentinelPrincipal } from "../principal/sentinel-principal.js";
 import type { SentinelStore, StoredPolicyRecord } from "../storage/sentinel-store.js";
 import type { PermissionSnapshot } from "./permission-snapshot.js";
 import { getTtlForRoles } from "./snapshot-validator.js";
-import { isStoredCondition } from "./stored-condition.js";
+import { normalizeStoredCondition } from "./stored-condition.js";
 
 export interface SnapshotBuilderOptions {
   readonly maxGraphDepth?: number; // default 5
@@ -79,7 +79,8 @@ function normalizeStoredRule(rule: StoredPolicyRecord, resourceType: string, rul
   if (typeof rule.action !== "string" || rule.action.trim().length === 0) {
     throw new SnapshotBuildError("invalid-action", resourceType, ruleIndex);
   }
-  if (!isStoredCondition(rule.condition)) {
+  const condition = normalizeStoredCondition(rule.condition);
+  if (!condition.ok) {
     throw new SnapshotBuildError("invalid-condition", resourceType, ruleIndex);
   }
   const effect = normalizeEffect(rule.effect, resourceType, ruleIndex);
@@ -88,7 +89,7 @@ function normalizeStoredRule(rule: StoredPolicyRecord, resourceType: string, rul
     name: `${resourceType}:${rule.action}`,
     effect,
     target: { kind: "action", action: rule.action },
-    condition: scopeCondition(rule.condition, resourceType),
+    condition: scopeCondition(condition.condition, resourceType),
     ...(salience !== undefined && { salience }),
   };
 }

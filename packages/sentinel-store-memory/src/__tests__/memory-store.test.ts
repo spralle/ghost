@@ -2,6 +2,20 @@ import { beforeEach, describe, expect, it } from "bun:test";
 import { buildSnapshot, check, createPrincipal, SnapshotBuildError } from "@ghost/sentinel";
 import { MemorySentinelStore } from "../memory-store.js";
 
+function addUnsafeProperty(target: Record<string, unknown>, key: string | symbol, enumerable: boolean): void {
+  Object.defineProperty(target, key, { value: "user-1", enumerable, configurable: true, writable: true });
+}
+
+function descriptorCondition(kind: "symbol" | "hidden", nested: boolean): Record<string, unknown> {
+  const target: Record<string, unknown> = nested ? { $eq: "alice" } : {};
+  addUnsafeProperty(
+    target,
+    kind === "symbol" ? Symbol("restriction") : nested ? "$ne" : "principal.userId",
+    kind === "symbol",
+  );
+  return nested ? { "principal.userId": target } : target;
+}
+
 describe("MemorySentinelStore", () => {
   let store: MemorySentinelStore;
 
@@ -81,7 +95,7 @@ describe("MemorySentinelStore", () => {
     it("returns policies for a resource type", async () => {
       store.addPolicy({ resourceType: "doc", action: "read", condition: { role: "viewer" } });
       store.addPolicy({ resourceType: "doc", action: "write", condition: { role: "editor" } });
-      store.addPolicy({ resourceType: "folder", action: "read", condition: null });
+      store.addPolicy({ resourceType: "folder", action: "read", condition: {} });
 
       const result = await store.loadPolicies("doc");
       expect(result).toHaveLength(2);
@@ -120,17 +134,67 @@ describe("MemorySentinelStore", () => {
       ["Map", new Map()],
       ["malformed $and", { $and: "not-an-array" }],
       ["nested invalid value", { "resource.createdAt": { $eq: new Date(0) } }],
-    ])("cannot turn a %s condition into a usable snapshot", async (_label, condition) => {
+    ])("cannot store a %s condition", async (_label, condition) => {
+      expect(() => store.addPolicy({ resourceType: "document", action: "read", condition })).toThrow(
+        SnapshotBuildError,
+      );
+      await expect(store.loadPolicies("document")).resolves.toEqual([]);
+    });
+
+    it.each([
+      ["symbol-keyed", descriptorCondition("symbol", false)],
+      ["nested symbol-keyed", descriptorCondition("symbol", true)],
+      ["non-enumerable", descriptorCondition("hidden", false)],
+      ["nested non-enumerable", descriptorCondition("hidden", true)],
+    ])("rejects a %s restriction before storing it", (_label, condition) => {
+      expect(() => store.addPolicy({ resourceType: "document", action: "read", condition })).toThrow(
+        SnapshotBuildError,
+      );
+    });
+
+    it.each([false, true])("does not invoke rejected getters (nested=%s)", (nested) => {
+      let getterCalls = 0;
+      const target: Record<string, unknown> = {};
+      Object.defineProperty(target, nested ? "$eq" : "principal.userId", {
+        enumerable: true,
+        configurable: true,
+        get() {
+          getterCalls += 1;
+          return "alice";
+        },
+      });
+      const condition = nested ? { "principal.userId": target } : target;
+
+      expect(() => store.addPolicy({ resourceType: "document", action: "read", condition })).toThrow(
+        SnapshotBuildError,
+      );
+      expect(getterCalls).toBe(0);
+    });
+
+    it("deep-clones valid conditions before storage and snapshot compilation", async () => {
+      const operator = { $eq: "alice" };
+      const condition = { "principal.userId": operator };
       store.addPolicy({ resourceType: "document", action: "read", condition });
-      const principal = createPrincipal({
+      operator.$eq = "bob";
+      const alice = createPrincipal({
         userId: "alice",
         tenantId: "tenant-1",
         roles: [],
         partyIds: [],
         orgChain: [],
       });
+      const bob = createPrincipal({ ...alice, userId: "bob" });
+      const snapshot = await buildSnapshot(store, alice, ["document"]);
+      delete condition["principal.userId"];
+      const decide = (subject: typeof alice) =>
+        check(subject, "read", {
+          policy: snapshot.compiledPolicy,
+          graphSubset: snapshot.graphCone,
+          resource: { type: "document" },
+        }).effect;
 
-      await expect(buildSnapshot(store, principal, ["document"])).rejects.toBeInstanceOf(SnapshotBuildError);
+      expect(decide(alice)).toBe("allow");
+      expect(decide(bob)).toBe("deny");
     });
   });
 
@@ -151,7 +215,7 @@ describe("MemorySentinelStore", () => {
     it("removes all data", async () => {
       store
         .addTuple({ nodeType: "doc", nodeId: "1", relation: "viewer", targetType: "user", targetId: "a" })
-        .addPolicy({ resourceType: "doc", action: "read", condition: null })
+        .addPolicy({ resourceType: "doc", action: "read", condition: {} })
         .setRoles("alice", ["admin"]);
 
       store.clear();
@@ -166,7 +230,7 @@ describe("MemorySentinelStore", () => {
     it("supports chaining", () => {
       const result = store
         .addTuple({ nodeType: "doc", nodeId: "1", relation: "viewer", targetType: "user", targetId: "a" })
-        .addPolicy({ resourceType: "doc", action: "read", condition: null })
+        .addPolicy({ resourceType: "doc", action: "read", condition: {} })
         .setRoles("alice", ["admin"]);
 
       expect(result).toBe(store);

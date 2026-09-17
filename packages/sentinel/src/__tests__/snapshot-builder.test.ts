@@ -32,6 +32,64 @@ function createStore(records: readonly StoredPolicyRecord[]): SentinelStore {
   };
 }
 
+function conditionWithSymbol(nested: boolean): Record<string, unknown> {
+  const target: Record<string, unknown> = nested ? { $eq: "user-1" } : {};
+  Object.defineProperty(target, Symbol("restriction"), {
+    value: false,
+    enumerable: true,
+    configurable: true,
+    writable: true,
+  });
+  return nested ? { "principal.userId": target } : target;
+}
+
+function conditionWithNonEnumerable(nested: boolean): Record<string, unknown> {
+  const target: Record<string, unknown> = nested ? { $eq: "user-1" } : {};
+  Object.defineProperty(target, nested ? "$ne" : "principal.userId", {
+    value: "user-1",
+    enumerable: false,
+    configurable: true,
+    writable: true,
+  });
+  return nested ? { "principal.userId": target } : target;
+}
+
+function conditionWithGetter(onAccess: () => void, nested: boolean): Record<string, unknown> {
+  const target: Record<string, unknown> = {};
+  Object.defineProperty(target, nested ? "$eq" : "principal.userId", {
+    enumerable: true,
+    configurable: true,
+    get() {
+      onAccess();
+      return "user-1";
+    },
+  });
+  return nested ? { "principal.userId": target } : target;
+}
+
+function conditionWithSetter(onSet: () => void): Record<string, unknown> {
+  const condition: Record<string, unknown> = {};
+  Object.defineProperty(condition, "principal.userId", {
+    enumerable: true,
+    configurable: true,
+    set(_value: unknown) {
+      onSet();
+    },
+  });
+  return condition;
+}
+
+function conditionWithReadonlyData(): Record<string, unknown> {
+  const condition: Record<string, unknown> = {};
+  Object.defineProperty(condition, "principal.userId", {
+    value: "user-1",
+    enumerable: true,
+    configurable: true,
+    writable: false,
+  });
+  return condition;
+}
+
 describe("buildSnapshot stored policy ingestion", () => {
   it("preserves exact resource scope, conditions, effects, salience, and user graph traversal", async () => {
     const store = createStore([
@@ -111,15 +169,11 @@ describe("buildSnapshot stored policy ingestion", () => {
     ["malformed $and", { $and: "not-an-array" }],
     ["nested Date", { "resource.createdAt": { $eq: new Date(0) } }],
     ["nested unknown operator", { "resource.id": { $unknown: "document-1" } }],
-    [
-      "throwing getter",
-      Object.defineProperty({}, "resource.id", {
-        enumerable: true,
-        get() {
-          throw new Error("untrusted getter");
-        },
-      }),
-    ],
+    ["symbol-keyed property", conditionWithSymbol(false)],
+    ["nested symbol-keyed property", conditionWithSymbol(true)],
+    ["non-enumerable property", conditionWithNonEnumerable(false)],
+    ["nested non-enumerable property", conditionWithNonEnumerable(true)],
+    ["unsafe readonly descriptor", conditionWithReadonlyData()],
   ])("rejects a %s condition before snapshot creation", async (_label, condition) => {
     const record = { resourceType: "document", action: "read", condition };
 
@@ -127,6 +181,67 @@ describe("buildSnapshot stored policy ingestion", () => {
       name: "SnapshotBuildError",
       code: "invalid-condition",
     });
+  });
+
+  it.each([false, true])("rejects accessor descriptors without invoking a getter (nested=%s)", async (nested) => {
+    let getterCalls = 0;
+    const condition = conditionWithGetter(() => {
+      getterCalls += 1;
+    }, nested);
+
+    await expect(
+      buildSnapshot(createStore([{ resourceType: "document", action: "read", condition }]), principal, ["document"]),
+    ).rejects.toBeInstanceOf(SnapshotBuildError);
+    expect(getterCalls).toBe(0);
+  });
+
+  it("rejects a setter descriptor without invoking it", async () => {
+    let setterCalls = 0;
+    const condition = conditionWithSetter(() => {
+      setterCalls += 1;
+    });
+
+    await expect(
+      buildSnapshot(createStore([{ resourceType: "document", action: "read", condition }]), principal, ["document"]),
+    ).rejects.toBeInstanceOf(SnapshotBuildError);
+    expect(setterCalls).toBe(0);
+  });
+
+  it("rejects cycles with a typed error", async () => {
+    const condition: Record<string, unknown> = {};
+    condition.self = condition;
+
+    await expect(
+      buildSnapshot(createStore([{ resourceType: "document", action: "read", condition }]), principal, ["document"]),
+    ).rejects.toBeInstanceOf(SnapshotBuildError);
+  });
+
+  it("detaches accepted conditions before snapshot compilation", async () => {
+    const operator = { $eq: "user-1" };
+    const condition = { "principal.userId": operator };
+    const snapshot = await buildSnapshot(
+      createStore([{ resourceType: "document", action: "read", condition }]),
+      principal,
+      ["document"],
+    );
+    operator.$eq = "other-user";
+    delete condition["principal.userId"];
+    const bob = createPrincipal({
+      userId: "other-user",
+      tenantId: "tenant-1",
+      roles: [],
+      partyIds: [],
+      orgChain: [],
+    });
+    const decide = (subject: typeof principal) =>
+      check(subject, "read", {
+        policy: snapshot.compiledPolicy,
+        graphSubset: snapshot.graphCone,
+        resource: { type: "document" },
+      }).effect;
+
+    expect(decide(principal)).toBe("allow");
+    expect(decide(bob)).toBe("deny");
   });
 
   it("accepts nested logical, comparison, and array predicate shapes", async () => {

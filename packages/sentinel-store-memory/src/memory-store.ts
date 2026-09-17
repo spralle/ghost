@@ -1,4 +1,10 @@
-import type { RelationTuple, SentinelStore, StoredPolicyRule } from "@ghost/sentinel";
+import {
+  normalizeStoredCondition,
+  type RelationTuple,
+  type SentinelStore,
+  SnapshotBuildError,
+  type StoredPolicyRule,
+} from "@ghost/sentinel";
 
 /** Re-export-compatible tuple shape for loadTuplesFrom */
 interface StoreTuple {
@@ -31,18 +37,13 @@ export class MemorySentinelStore implements SentinelStore {
   }
 
   addPolicy(policy: StoredPolicyRule): this {
-    const existing = this.policies.get(policy.resourceType);
-    if (existing) {
-      existing.push(policy);
-    } else {
-      this.policies.set(policy.resourceType, [policy]);
-    }
+    this.storePolicy(policy, 0);
     return this;
   }
 
   addPolicies(policies: readonly StoredPolicyRule[]): this {
-    for (const policy of policies) {
-      this.addPolicy(policy);
+    for (const [index, policy] of policies.entries()) {
+      this.storePolicy(policy, index);
     }
     return this;
   }
@@ -72,5 +73,16 @@ export class MemorySentinelStore implements SentinelStore {
     this.tuples.length = 0;
     this.policies.clear();
     this.roles.clear();
+  }
+
+  private storePolicy(policy: StoredPolicyRule, ruleIndex: number): void {
+    const condition = normalizeStoredCondition(policy.condition);
+    if (!condition.ok) {
+      throw new SnapshotBuildError("invalid-condition", policy.resourceType, ruleIndex);
+    }
+    const stored = { ...policy, condition: condition.condition };
+    const existing = this.policies.get(policy.resourceType);
+    if (existing) existing.push(stored);
+    else this.policies.set(policy.resourceType, [stored]);
   }
 }

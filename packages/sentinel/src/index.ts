@@ -64,10 +64,12 @@ export {
   isExpired,
   isStoredCondition,
   needsRefresh,
+  normalizeStoredCondition,
   type PermissionSnapshot,
   SnapshotBuildError,
   type SnapshotBuildErrorCode,
   type SnapshotBuilderOptions,
+  type StoredConditionNormalization,
 } from "./snapshot/index.js";
 export type {
   PolicyRule as StoredPolicyRule,
