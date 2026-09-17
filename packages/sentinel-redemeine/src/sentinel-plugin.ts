@@ -17,6 +17,13 @@ interface RedemeinePlugin {
   onBeforeCommand?: (ctx: CommandContext) => void | Promise<void>;
 }
 
+export interface SentinelPluginDependencies {
+  readonly check: typeof check;
+  readonly expand: typeof expand;
+}
+
+const defaultDependencies: SentinelPluginDependencies = { check, expand };
+
 function buildCheckContext(
   mode: EvaluationMode,
   principal: SentinelPrincipal,
@@ -52,7 +59,10 @@ function createDeniedResult() {
 }
 
 /** Create a Sentinel authorization plugin for redemeine */
-export function createSentinelPlugin(config: SentinelPluginConfig): RedemeinePlugin {
+export function createSentinelPlugin(
+  config: SentinelPluginConfig,
+  dependencies: SentinelPluginDependencies = defaultDependencies,
+): RedemeinePlugin {
   const { actionMap, resolvePrincipal, mode, denyUnmapped = false, denyAnonymous = true, buildResource } = config;
 
   return {
@@ -97,10 +107,10 @@ export function createSentinelPlugin(config: SentinelPluginConfig): RedemeinePlu
         });
       }
 
-      const result = check(principal, action, checkContext);
+      const result = dependencies.check(principal, action, checkContext);
 
       if (result.effect === "deny") {
-        const derivation = expand(principal, action, checkContext);
+        const derivation = dependencies.expand(principal, action, checkContext);
         throw new AuthorizationError({
           principal,
           action,

@@ -1,14 +1,19 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createActivationRuntime } from "../dist/activation-runtime.js";
-import { bootstrapShellWithTenantManifest } from "../dist/app/bootstrap.js";
-import { composeRuntimeCommands, executeKeybinding } from "../dist/command-runtime.js";
-import { createInitialWorkspaceManagerState } from "../dist/context-state/workspace.js";
-import { createInitialShellContextState, registerTab } from "../dist/context-state.js";
-import { composeVisibleParts } from "../dist/part-composition.js";
-import { moveDockTabThroughRuntime } from "../dist/ui/dock-tab-dnd.js";
-import { closeTabThroughRuntime } from "../dist/ui/parts-controller.js";
-import { renderDockTree } from "../dist/ui/parts-rendering.js";
+import { createIntentRuntime } from "@ghost-shell/intents";
+import { createInitialWorkspaceManagerState } from "@ghost-shell/state";
+import { Window } from "happy-dom";
+import { buildActionSurface, dispatchAction, resolveMenuActions } from "../../../packages/shell/src/action-surface.ts";
+import { bootstrapShellWithTenantManifest } from "../../../packages/shell/src/app/bootstrap.ts";
+import { createInitialShellContextState, registerTab } from "../../../packages/shell/src/context-state.ts";
+import { moveDockTabThroughRuntime } from "../../../packages/shell/src/ui/dock-tab-dnd.ts";
+import { closeTabThroughRuntime } from "../../../packages/shell/src/ui/part-instance-tab-lifecycle.ts";
+import { renderDockTree } from "../../../packages/shell/src/ui/parts-rendering.ts";
+
+const browserWindow = new Window();
+globalThis.window = browserWindow;
+globalThis.document = browserWindow.document;
+globalThis.localStorage = browserWindow.localStorage;
 
 const DOMAIN_UNPLANNED = {
   id: "ghost.domain.unplanned-orders",
@@ -30,194 +35,85 @@ const DOMAIN_VESSEL = {
   },
 };
 
-test("plugin-composed parts follow plugin enablement in runtime snapshot", () => {
-  const parts = [
-    {
-      id: "domain.unplanned-orders.part",
-      title: "Unplanned Orders",
-      slot: "master",
-      ownerPluginId: DOMAIN_UNPLANNED.id,
-      render: () => "",
+function createActionContract() {
+  return {
+    manifest: { id: "ghost.integration.commands", name: "Integration Commands", version: "0.1.0" },
+    contributes: {
+      actions: [
+        { id: "domain.open-order", title: "Open order", intent: "domain.order.open", when: { hasOrder: true } },
+      ],
+      menus: [{ menu: "actionPalette", action: "domain.open-order", when: { canOpenOrder: true } }],
+      keybindings: [{ action: "domain.open-order", keybinding: "ctrl+shift+o", when: { canOpenOrder: true } }],
     },
-    {
-      id: "domain.vessel-view.part",
-      title: "Vessel View",
-      slot: "secondary",
-      ownerPluginId: DOMAIN_VESSEL.id,
-      render: () => "",
-    },
-    { id: "workbench.side.navigator", title: "Navigator", slot: "side", alwaysVisible: true, render: () => "" },
-  ];
+  };
+}
 
-  const emptySnapshot = {
-    tenantId: "demo",
-    diagnostics: [],
-    plugins: [
-      { id: DOMAIN_UNPLANNED.id, enabled: false },
-      { id: DOMAIN_VESSEL.id, enabled: false },
-    ],
+test("plugin-composed actions follow the enabled contract set", () => {
+  const disabledSurface = buildActionSurface([]);
+  const enabledSurface = buildActionSurface([createActionContract()]);
+
+  assert.deepEqual(disabledSurface.actions, []);
+  assert.deepEqual(
+    enabledSurface.actions.map((action) => action.id),
+    ["domain.open-order"],
+  );
+  assert.deepEqual(
+    enabledSurface.keybindings.map((binding) => binding.keybinding),
+    ["ctrl+shift+o"],
+  );
+});
+
+test("context-gated action visibility is resolved from runtime facts", () => {
+  const surface = buildActionSurface([createActionContract()]);
+
+  assert.deepEqual(resolveMenuActions(surface, "actionPalette", { hasOrder: true, canOpenOrder: false }), []);
+  assert.deepEqual(
+    resolveMenuActions(surface, "actionPalette", { hasOrder: true, canOpenOrder: true }).map((action) => action.id),
+    ["domain.open-order"],
+  );
+});
+
+test("action dispatch only runs predicate-compatible contributions", async () => {
+  const surface = buildActionSurface([createActionContract()]);
+  const calls = [];
+  const runtime = {
+    async resolve(intent) {
+      calls.push(intent.type);
+      return { kind: "executed", trace: { actions: [], matched: [], evaluatedAt: 0, intentType: intent.type } };
+    },
   };
 
-  let visible = composeVisibleParts(parts, emptySnapshot);
-  assert.deepEqual(visible.map((part) => part.id).sort(), ["workbench.side.navigator"]);
-
-  visible = composeVisibleParts(parts, {
-    ...emptySnapshot,
-    plugins: [
-      { id: DOMAIN_UNPLANNED.id, enabled: true },
-      { id: DOMAIN_VESSEL.id, enabled: false },
-    ],
-  });
-  assert.deepEqual(visible.map((part) => part.id).sort(), ["domain.unplanned-orders.part", "workbench.side.navigator"]);
-
-  visible = composeVisibleParts(parts, {
-    ...emptySnapshot,
-    plugins: [
-      { id: DOMAIN_UNPLANNED.id, enabled: true },
-      { id: DOMAIN_VESSEL.id, enabled: true },
-    ],
-  });
-  assert.deepEqual(visible.map((part) => part.id).sort(), [
-    "domain.unplanned-orders.part",
-    "domain.vessel-view.part",
-    "workbench.side.navigator",
-  ]);
+  assert.equal(await dispatchAction(surface, runtime, "domain.open-order", { hasOrder: false }), false);
+  assert.equal(await dispatchAction(surface, runtime, "domain.open-order", { hasOrder: true }), true);
+  assert.deepEqual(calls, ["domain.order.open"]);
 });
 
-test("context-gated command visibility and enablement are resolved from runtime context", () => {
-  const contracts = [
-    {
-      manifest: {
-        id: "ghost.integration.commands",
-        name: "Integration Commands",
-        version: "0.1.0",
-      },
-      contributes: {
-        commands: [
-          {
-            id: "domain.open-order",
-            title: "Open order",
-            handler: "openOrder",
-            when: "selection.hasOrder",
-            enablement: "selection.canOpenOrder",
-            keybinding: "ctrl+shift+o",
-          },
-        ],
-      },
-    },
-  ];
-
-  const hidden = composeRuntimeCommands(contracts, {
-    values: {
-      "selection.hasOrder": false,
-      "selection.canOpenOrder": false,
-    },
+test("intent runtime activates the matching plugin through its public delegate", async () => {
+  const contract = createActionContract();
+  const runtime = createIntentRuntime({
+    getRegistrySnapshot: () => ({
+      plugins: [{ id: contract.manifest.id, enabled: true, loadStrategy: "local", contract }],
+    }),
   });
-  assert.equal(hidden[0].visible, false);
-  assert.equal(hidden[0].enabled, false);
-
-  const visibleDisabled = composeRuntimeCommands(contracts, {
-    values: {
-      "selection.hasOrder": true,
-      "selection.canOpenOrder": false,
-    },
-  });
-  assert.equal(visibleDisabled[0].visible, true);
-  assert.equal(visibleDisabled[0].enabled, false);
-
-  const visibleEnabled = composeRuntimeCommands(contracts, {
-    values: {
-      "selection.hasOrder": true,
-      "selection.canOpenOrder": true,
-    },
-  });
-  assert.equal(visibleEnabled[0].visible, true);
-  assert.equal(visibleEnabled[0].enabled, true);
-});
-
-test("keybinding execution only runs visible+enabled commands", () => {
-  const commands = [
-    {
-      pluginId: "ghost.integration.commands",
-      commandId: "domain.open-order",
-      title: "Open order",
-      handler: "openOrder",
-      keybinding: "ctrl+shift+o",
-      when: "selection.hasOrder",
-      enablement: "selection.canOpenOrder",
-      visible: true,
-      enabled: true,
-    },
-    {
-      pluginId: "ghost.integration.commands",
-      commandId: "domain.hidden-order",
-      title: "Hidden order",
-      handler: "openHiddenOrder",
-      keybinding: "ctrl+h",
-      when: "selection.hasHidden",
-      enablement: "selection.canOpenHidden",
-      visible: false,
-      enabled: false,
-    },
-  ];
-
-  const executed = [];
-
-  const didRunMatch = executeKeybinding(commands, "CTRL+SHIFT+O", (command) => {
-    executed.push(command.commandId);
-  });
-  assert.equal(didRunMatch, true);
-  assert.deepEqual(executed, ["domain.open-order"]);
-
-  const didRunHidden = executeKeybinding(commands, "ctrl+h", (command) => {
-    executed.push(command.commandId);
-  });
-  assert.equal(didRunHidden, false);
-  assert.deepEqual(executed, ["domain.open-order"]);
-});
-
-test("lazy activation triggers activate plugin once and track latest trigger", async () => {
   const activationCalls = [];
-  const runtime = createActivationRuntime({
-    activatePlugin: async (pluginId, trigger) => {
-      activationCalls.push({ pluginId, trigger });
+  const outcome = await runtime.resolve(
+    { type: "domain.order.open", facts: { hasOrder: true } },
+    {
+      async showChooser(matches) {
+        return matches[0] ?? null;
+      },
+      async activatePlugin(pluginId, trigger) {
+        activationCalls.push({ pluginId, trigger });
+        return true;
+      },
+      announce() {},
     },
-  });
+  );
 
-  runtime.registerContract({
-    manifest: {
-      id: "ghost.integration.activatable",
-      name: "Activatable",
-      version: "0.1.0",
-    },
-    contributes: {
-      activationEvents: ["onCommand:domain.open-order", "onView:domain.vessel.view", "onIntent:domain.order.focus"],
-    },
-  });
-
-  const triggeredByCommand = await runtime.trigger({ type: "command", id: "domain.open-order" });
-  assert.equal(triggeredByCommand, true);
-
-  const triggeredByView = await runtime.trigger({ type: "view", id: "domain.vessel.view" });
-  assert.equal(triggeredByView, true);
-
-  const triggeredByIntent = await runtime.trigger({ type: "intent", id: "domain.order.focus" });
-  assert.equal(triggeredByIntent, true);
-
-  const missed = await runtime.trigger({ type: "command", id: "domain.non-existent" });
-  assert.equal(missed, false);
-
+  assert.equal(outcome.kind, "executed");
   assert.equal(activationCalls.length, 1);
-  assert.deepEqual(activationCalls[0], {
-    pluginId: "ghost.integration.activatable",
-    trigger: { type: "command", id: "domain.open-order" },
-  });
-
-  const snapshot = runtime.snapshot();
-  assert.equal(snapshot.length, 1);
-  assert.equal(snapshot[0].state, "active");
-  assert.equal(snapshot[0].activationCount, 1);
-  assert.deepEqual(snapshot[0].lastTrigger, { type: "intent", id: "domain.order.focus" });
+  assert.equal(activationCalls[0].pluginId, "ghost.integration.commands");
+  assert.deepEqual(activationCalls[0].trigger, { type: "intent", id: "domain.order.open" });
 });
 
 test("shell bootstrap keeps inner-loop mode for loopback override entries", async () => {

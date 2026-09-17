@@ -1,8 +1,5 @@
 import type { WindowBridge } from "./window-bridge.js";
 
-const DEBUG_DND =
-  typeof globalThis !== "undefined" && (globalThis as Record<string, unknown>).__GHOST_DEBUG_DND === true;
-
 export const MIN_TTL_MS = 1_000;
 const TERMINAL_TOMBSTONE_TTL_MS = 120_000;
 
@@ -91,9 +88,8 @@ export function pruneTerminals(terminalSessions: Map<string, number>, now: numbe
 }
 
 export function logProtocol(reason: string, detail: Record<string, unknown>): void {
-  if (DEBUG_DND)
-    console.log("[shell:dnd:protocol]", {
-      reason,
-      ...detail,
-    });
+  console.log("[shell:dnd:protocol]", {
+    reason,
+    ...detail,
+  });
 }

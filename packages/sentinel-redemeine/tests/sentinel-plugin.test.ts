@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { GraphSubset } from "@ghost/sentinel";
+import type { SentinelPluginConfig } from "../src/types.js";
 
-// Mock @ghost/sentinel BEFORE any imports that use it
 const mockCheck = mock(
   (): {
     effect: "allow" | "deny";
@@ -16,15 +17,6 @@ const mockExpand = mock(
   }),
 );
 
-mock.module("@ghost/sentinel", () => ({
-  check: mockCheck,
-  expand: mockExpand,
-  // Re-export types as empty to satisfy any type imports
-  createPrincipal: () => ({}),
-  GraphSubset: class {},
-}));
-
-// Now import our code (which imports @ghost/sentinel)
 const { resolveAction } = await import("../src/action-mapper.js");
 const { AuthorizationError } = await import("../src/types.js");
 const { createSentinelPlugin } = await import("../src/sentinel-plugin.js");
@@ -39,7 +31,7 @@ function makeCtx(commandType: string, meta: unknown = { principal: makePrincipal
   return { aggregateId: "agg-1", commandType, payload: { foo: "bar" }, meta };
 }
 
-const defaultConfig = () => ({
+const defaultConfig = (): SentinelPluginConfig => ({
   actionMap: { "order.create": "order:create", "order.*": "order:wildcard" } as Record<string, string>,
   resolvePrincipal: (meta: unknown) => {
     const m = meta as { principal?: ReturnType<typeof makePrincipal> } | undefined;
@@ -52,13 +44,20 @@ const defaultConfig = () => ({
       tenantId: "tenant-1",
       resolvedRoles: ["admin"],
       compiledPolicy: { rules: [] },
-      graphCone: { resolve: () => [] },
+      graphCone: new GraphSubset([]),
       redactionMap: {},
       timestamp: Date.now(),
       ttl: 3600,
     }),
   },
 });
+
+function createTestPlugin(config: Parameters<typeof createSentinelPlugin>[0] = defaultConfig()) {
+  return createSentinelPlugin(config, {
+    check: mockCheck as never,
+    expand: mockExpand as never,
+  });
+}
 
 beforeEach(() => {
   mockCheck.mockReset();
@@ -99,7 +98,7 @@ describe("AuthorizationError", () => {
 describe("createSentinelPlugin", () => {
   test("allowed command passes through", async () => {
     mockCheck.mockReturnValue({ effect: "allow", matchedRules: [], reason: "allowed" });
-    const plugin = createSentinelPlugin(defaultConfig() as never);
+    const plugin = createTestPlugin();
     await expect(plugin.onBeforeCommand!(makeCtx("order.create"))).resolves.toBeUndefined();
   });
 
@@ -110,7 +109,7 @@ describe("createSentinelPlugin", () => {
       reason: "denied",
     });
     mockExpand.mockReturnValue({ type: "decision", description: "deny", metadata: {} });
-    const plugin = createSentinelPlugin(defaultConfig() as never);
+    const plugin = createTestPlugin();
     try {
       await plugin.onBeforeCommand!(makeCtx("order.create"));
       expect(true).toBe(false);
@@ -124,13 +123,13 @@ describe("createSentinelPlugin", () => {
   });
 
   test("unmapped command passes through (denyUnmapped=false)", async () => {
-    const plugin = createSentinelPlugin(defaultConfig() as never);
+    const plugin = createTestPlugin();
     await expect(plugin.onBeforeCommand!(makeCtx("unknown.cmd"))).resolves.toBeUndefined();
   });
 
   test("unmapped command denied (denyUnmapped=true)", async () => {
     const cfg = { ...defaultConfig(), denyUnmapped: true };
-    const plugin = createSentinelPlugin(cfg as never);
+    const plugin = createTestPlugin(cfg);
     try {
       await plugin.onBeforeCommand!(makeCtx("unknown.cmd"));
       expect(true).toBe(false);
@@ -141,7 +140,7 @@ describe("createSentinelPlugin", () => {
   });
 
   test("anonymous denied by default", async () => {
-    const plugin = createSentinelPlugin(defaultConfig() as never);
+    const plugin = createTestPlugin();
     try {
       await plugin.onBeforeCommand!(makeCtx("order.create", {}));
       expect(true).toBe(false);
@@ -153,7 +152,7 @@ describe("createSentinelPlugin", () => {
 
   test("anonymous passthrough when denyAnonymous=false", async () => {
     const cfg = { ...defaultConfig(), denyAnonymous: false };
-    const plugin = createSentinelPlugin(cfg as never);
+    const plugin = createTestPlugin(cfg);
     await expect(plugin.onBeforeCommand!(makeCtx("order.create", {}))).resolves.toBeUndefined();
   });
 
@@ -165,18 +164,18 @@ describe("createSentinelPlugin", () => {
         kind: "store" as const,
         store: {
           getCompiledPolicy: () => ({ rules: [] }),
-          getGraphSubset: () => ({ resolve: () => [] }),
+          getGraphSubset: () => new GraphSubset([]),
         },
       },
     };
-    const plugin = createSentinelPlugin(cfg as never);
+    const plugin = createTestPlugin(cfg);
     await expect(plugin.onBeforeCommand!(makeCtx("order.create"))).resolves.toBeUndefined();
     expect(mockCheck).toHaveBeenCalled();
   });
 
   test("snapshot mode builds context from snapshot", async () => {
     mockCheck.mockReturnValue({ effect: "allow", matchedRules: [], reason: "ok" });
-    const plugin = createSentinelPlugin(defaultConfig() as never);
+    const plugin = createTestPlugin();
     await expect(plugin.onBeforeCommand!(makeCtx("order.create"))).resolves.toBeUndefined();
     expect(mockCheck).toHaveBeenCalled();
   });
@@ -190,7 +189,7 @@ describe("createSentinelPlugin", () => {
       metadata: { effect: "deny" },
     };
     mockExpand.mockReturnValue(derivationNode);
-    const plugin = createSentinelPlugin(defaultConfig() as never);
+    const plugin = createTestPlugin();
     try {
       await plugin.onBeforeCommand!(makeCtx("order.create"));
       expect(true).toBe(false);
@@ -206,7 +205,7 @@ describe("createSentinelPlugin", () => {
       type: "custom",
     }));
     const cfg = { ...defaultConfig(), buildResource };
-    const plugin = createSentinelPlugin(cfg as never);
+    const plugin = createTestPlugin(cfg);
     await plugin.onBeforeCommand!(makeCtx("order.create"));
     expect(buildResource).toHaveBeenCalledWith({
       aggregateId: "agg-1",
@@ -216,7 +215,7 @@ describe("createSentinelPlugin", () => {
   });
 
   test("plugin key is sentinel-auth", () => {
-    const plugin = createSentinelPlugin(defaultConfig() as never);
+    const plugin = createTestPlugin();
     expect(plugin.key).toBe("sentinel-auth");
   });
 });
