@@ -12,6 +12,9 @@
   "references": [
     {
       "path": "../../packages/plugin-contracts"
+    },
+    {
+      "path": "../../packages/config-plugin-runtime"
     }
   ],
   "include": ["src"]

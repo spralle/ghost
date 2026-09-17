@@ -1,47 +1,13 @@
 #!/usr/bin/env node
 // Schema registry build script — discovers, composes, and generates config schema artifacts
 
-import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { collectConfigurationDeclarations } from "./config-declarations.mjs";
 import { discoverViewConfigs } from "./discover-config.mjs";
 
 const PLUGIN_DIRS = ["plugins", "apps"];
-
-/**
- * Scan plugin directories for package.json files declaring configuration schemas.
- * Looks for `ghost.configuration` or `contributes.configuration` fields.
- */
-async function findConfigPlugins(repoRoot, scanDirs) {
-  /** @type {Array<{ pkgJson: object, dir: string }>} */
-  const results = [];
-  for (const dirName of scanDirs) {
-    const scanRoot = join(repoRoot, dirName);
-    /** @type {import("node:fs").Dirent[]} */
-    let entries;
-    try {
-      entries = await readdir(scanRoot, { withFileTypes: true });
-    } catch {
-      continue; // directory may not exist (e.g. plugins/)
-    }
-    for (const entry of entries) {
-      if (!entry.isDirectory()) continue;
-      const pkgPath = join(scanRoot, entry.name, "package.json");
-      let raw;
-      try {
-        raw = await readFile(pkgPath, "utf-8");
-      } catch {
-        continue;
-      }
-      const pkgJson = JSON.parse(raw);
-      const hasConfig = pkgJson.ghost?.configuration !== undefined || pkgJson.contributes?.configuration !== undefined;
-      if (hasConfig) {
-        results.push({ pkgJson, dir: join(scanRoot, entry.name) });
-      }
-    }
-  }
-  return results;
-}
 
 /**
  * Build configuration schema artifacts from plugin declarations.
@@ -50,30 +16,16 @@ async function findConfigPlugins(repoRoot, scanDirs) {
 export async function buildConfigSchemas(options) {
   const { repoRoot, outputDir, scanDirs = PLUGIN_DIRS } = options;
 
-  const { composeConfigurationSchemas, deriveContractFromPackageJson, generateJsonSchema, generateZodSchemaSource } =
-    await import("../packages/config-engine/dist/index.js");
+  const { composeConfigurationSchemas, generateJsonSchema, generateZodSchemaSource } = await import(
+    "@weaver/config-engine"
+  );
 
-  // 1. Find plugin packages with config declarations
-  const configPlugins = await findConfigPlugins(repoRoot, scanDirs);
+  const declarations = await collectConfigurationDeclarations(repoRoot, scanDirs);
 
-  // 2. Build declarations from discovered plugins
-  /** @type {import('../packages/config-engine/dist/index.js').ConfigurationSchemaDeclaration[]} */
-  const declarations = [];
-  for (const { pkgJson } of configPlugins) {
-    const contract = deriveContractFromPackageJson(pkgJson);
-    const properties = pkgJson.ghost?.configuration ?? pkgJson.contributes?.configuration ?? {};
-    declarations.push({
-      ownerId: contract.pluginId,
-      namespace: contract.namespace,
-      properties,
-    });
-  }
-
-  // 3. Discover view configs (informational — no compilation)
+  // Discover view configs for informational reporting only.
   const viewConfigDirs = scanDirs.map((d) => join(repoRoot, d));
   const viewConfigs = await discoverViewConfigs(viewConfigDirs);
 
-  // 4. Compose schemas — validates ownership, detects duplicates
   const composed = composeConfigurationSchemas(declarations);
   if (composed.errors.length > 0) {
     return {
@@ -83,11 +35,9 @@ export async function buildConfigSchemas(options) {
     };
   }
 
-  // 5. Generate outputs
   const jsonSchema = generateJsonSchema(composed.schemas);
   const zodSource = generateZodSchemaSource(composed.schemas);
 
-  // 6. Write outputs
   await mkdir(outputDir, { recursive: true });
   await writeFile(join(outputDir, "config-schema.json"), `${JSON.stringify(jsonSchema, null, 2)}\n`);
   await writeFile(join(outputDir, "config-schemas.generated.ts"), zodSource);
@@ -101,7 +51,7 @@ export async function buildConfigSchemas(options) {
 
 // CLI entry point
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
-const isDirectRun = import.meta.url === `file:///${process.argv[1].replace(/\\/g, "/")}`;
+const isDirectRun = process.argv[1] !== undefined && import.meta.url === pathToFileURL(resolve(process.argv[1])).href;
 
 if (isDirectRun) {
   const repoRoot = resolve(__dirname, "..");

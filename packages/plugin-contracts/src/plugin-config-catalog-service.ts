@@ -3,7 +3,7 @@
 // Plugins access the catalog via:
 //   services.getService<PluginConfigCatalogService>('ghost.pluginConfigCatalog.Service')
 
-import type { ComposedSchemaEntry } from "@ghost-shell/config-plugin-runtime";
+import type { ComposedSchemaEntry } from "@weaver/config-engine";
 
 /** Read-only view of the plugin configuration catalog for UI consumers. */
 export interface PluginConfigCatalogService {

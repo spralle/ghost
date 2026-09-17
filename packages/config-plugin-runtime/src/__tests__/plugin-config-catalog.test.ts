@@ -6,8 +6,8 @@ import { describe, expect, it } from "vitest";
  * the plugin config catalog to what the settings panel would receive.
  */
 
-import type { PluginConfigInput } from "../plugin-config-catalog";
-import { extractPluginSchemas } from "../plugin-config-catalog";
+import type { PluginConfigInput } from "../plugin-config-catalog.js";
+import { extractPluginSchemas } from "../plugin-config-catalog.js";
 
 describe("plugin-config-catalog integration", () => {
   describe("theme-service builtin contract", () => {
@@ -86,6 +86,13 @@ describe("plugin-config-catalog integration", () => {
             default: 200,
             minimum: 0,
             maximum: 2000,
+            "x-weaver": {
+              changePolicy: "staging-gate",
+              reloadBehavior: "hot",
+              sessionMode: "allowed",
+              maxOverrideLayer: "tenant",
+              writeRestriction: ["tenant-admin"],
+            },
           },
         },
       },
@@ -111,11 +118,18 @@ describe("plugin-config-catalog integration", () => {
 
     it("preserves schema metadata on properties", () => {
       const declarations = extractPluginSchemas([motionPlugin]);
-      const props = declarations[0].properties as Record<string, { enum?: string[]; minimum?: number }>;
+      const props = declarations[0].properties;
 
-      expect(props.reducedMotion.enum).toEqual(["auto", "always", "never"]);
-      expect(props.transitionDuration.minimum).toBe(0);
-      expect(props.transitionDuration.maximum).toBe(2000);
+      expect(props.reducedMotion?.enum).toEqual(["auto", "always", "never"]);
+      expect(props.transitionDuration?.minimum).toBe(0);
+      expect(props.transitionDuration?.maximum).toBe(2000);
+      expect(props.transitionDuration?.["x-weaver"]).toEqual({
+        changePolicy: "staging-gate",
+        reloadBehavior: "hot",
+        sessionMode: "allowed",
+        maxOverrideLayer: "tenant",
+        writeRestriction: ["tenant-admin"],
+      });
     });
   });
 

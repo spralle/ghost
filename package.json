@@ -39,6 +39,9 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.13",
+    "@weaver/config-engine": "link:@weaver/config-engine",
+    "@weaver/config-policy": "link:@weaver/config-policy",
+    "@weaver/config-types": "link:@weaver/config-types",
     "concurrently": "^9.2.1",
     "happy-dom": "20.9.0",
     "knip": "6.8.0",

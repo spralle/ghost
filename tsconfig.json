@@ -5,6 +5,9 @@
       "path": "./packages/plugin-contracts"
     },
     {
+      "path": "./packages/config-plugin-runtime"
+    },
+    {
       "path": "./packages/theme"
     },
     {

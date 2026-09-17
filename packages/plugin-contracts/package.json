@@ -63,6 +63,7 @@
     "build:dist": "tsup"
   },
   "dependencies": {
+    "@weaver/config-engine": "link:@weaver/config-engine",
     "@weaver/config-types": "link:@weaver/config-types",
     "zod": "^4.0.0"
   }

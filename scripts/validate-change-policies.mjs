@@ -1,59 +1,24 @@
 #!/usr/bin/env node
 // CI validation script — checks changePolicy assignments against security conventions
 
-import { readdir, readFile } from "node:fs/promises";
-import { join, resolve } from "node:path";
+import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { collectConfigurationDeclarations } from "./config-declarations.mjs";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const repoRoot = resolve(__dirname, "..");
 const PLUGIN_DIRS = ["plugins", "apps"];
 
 async function main() {
-  const { composeConfigurationSchemas, deriveContractFromPackageJson, validateChangePolicies } = await import(
-    "../packages/config-engine/dist/index.js"
-  );
-
-  /** @type {import('../packages/config-engine/dist/index.js').ConfigurationSchemaDeclaration[]} */
-  const declarations = [];
-
-  for (const dirName of PLUGIN_DIRS) {
-    const scanRoot = join(repoRoot, dirName);
-    /** @type {import("node:fs").Dirent[]} */
-    let entries;
-    try {
-      entries = await readdir(scanRoot, { withFileTypes: true });
-    } catch {
-      continue;
-    }
-    for (const entry of entries) {
-      if (!entry.isDirectory()) continue;
-      const pkgPath = join(scanRoot, entry.name, "package.json");
-      let raw;
-      try {
-        raw = await readFile(pkgPath, "utf-8");
-      } catch {
-        continue;
-      }
-      const pkgJson = JSON.parse(raw);
-      const hasConfig = pkgJson.ghost?.configuration !== undefined || pkgJson.contributes?.configuration !== undefined;
-      if (!hasConfig) continue;
-
-      const contract = deriveContractFromPackageJson(pkgJson);
-      const properties = pkgJson.ghost?.configuration ?? pkgJson.contributes?.configuration ?? {};
-      declarations.push({
-        ownerId: contract.pluginId,
-        namespace: contract.namespace,
-        properties,
-      });
-    }
-  }
+  const { composeConfigurationSchemas } = await import("@weaver/config-engine");
+  const { validateChangePolicies } = await import("@weaver/config-policy");
+  const declarations = await collectConfigurationDeclarations(repoRoot, PLUGIN_DIRS);
 
   const composed = composeConfigurationSchemas(declarations);
   const violations = validateChangePolicies(composed.schemas);
 
   if (violations.length === 0) {
-    console.log("[change-policy] OK: all changePolicy assignments follow conventions.");
+    console.log(`[change-policy] OK: ${composed.schemas.size} schema(s) validated.`);
     return;
   }
 
