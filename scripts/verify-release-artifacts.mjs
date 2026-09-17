@@ -5,8 +5,9 @@ import { pathToFileURL } from "node:url";
 import { readJson, repositoryRoot, validateReleaseInventory } from "./release-inventory.mjs";
 import {
   dependencyEdges,
+  inspectPackedDependencies,
   runtimeExportRequests,
-  validatePackedDependencies,
+  validatePackedImports,
   validatePackedLayout,
 } from "./release-layout.mjs";
 import { runCommand } from "./release-process.mjs";
@@ -172,14 +173,21 @@ async function installAndSmoke(staging, artifacts) {
 
 function validateConstraints(artifacts, trustedWeaverNames) {
   const versions = new Map(artifacts.map(({ name, version }) => [name, version]));
-  for (const artifact of artifacts) validatePackedDependencies(artifact.manifest, versions, trustedWeaverNames);
   const heldEdges = artifacts.flatMap(({ name: packageName, manifest }) =>
-    dependencyEdges(manifest)
-      .filter(({ name, spec }) => trustedWeaverNames.has(name) && /^(?:link|workspace):/.test(spec))
-      .map((edge) => ({ package: packageName, ...edge })),
+    inspectPackedDependencies(manifest, versions, trustedWeaverNames).map((edge) => ({
+      package: packageName,
+      ...edge,
+    })),
   );
   const dependencyCount = artifacts.reduce((sum, artifact) => sum + dependencyEdges(artifact.manifest).length, 0);
   return { dependencyCount, heldEdges };
+}
+
+async function validateArtifactImports(artifacts) {
+  const packageExports = new Map(artifacts.map(({ manifest }) => [manifest.name, manifest.exports]));
+  for (const artifact of artifacts) {
+    await validatePackedImports(artifact.root, artifact.files, artifact.name, packageExports);
+  }
 }
 
 export async function verifyReleaseArtifacts(options = {}) {
@@ -191,6 +199,7 @@ export async function verifyReleaseArtifacts(options = {}) {
   const weaverArtifacts = [];
   for (const entry of weaverEntries) weaverArtifacts.push(await packWeaver(entry, staging));
   const artifacts = [...ghostArtifacts, ...weaverArtifacts];
+  await validateArtifactImports(artifacts);
   const trustedWeaverNames = new Set(weaverArtifacts.map(({ name }) => name));
   const constraints = validateConstraints(artifacts, trustedWeaverNames);
   const disposable = await installAndSmoke(staging, artifacts);
@@ -224,8 +233,13 @@ function createReport(staging, inventoryResult, artifacts, constraints) {
       strictTypeImports: smokeRequests(ghost, "import").length,
       dependencyEdges: constraints.dependencyCount,
       registryHeldEdges: constraints.heldEdges.length,
+      nonRegistrySpecs: constraints.heldEdges.length,
     },
-    registryHold: { issue: inventoryResult.inventory.registryHoldIssue, blockers: constraints.heldEdges },
+    registryHold: {
+      issue: inventoryResult.inventory.registryHoldIssue,
+      blockers: constraints.heldEdges,
+      specKinds: [...new Set(constraints.heldEdges.map(({ kind }) => kind))].sort(),
+    },
     artifacts: artifacts.map(({ category, name, version, tarball, sha256: hash, files }) => ({
       category,
       name,

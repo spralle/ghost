@@ -3,6 +3,7 @@ import { mkdtemp, readdir, readFile, rm, stat, writeFile } from "node:fs/promise
 import { createRequire } from "node:module";
 import { basename, join } from "node:path";
 import { pathToFileURL } from "node:url";
+import { validatePluginManifest } from "./browser-manifest.mjs";
 import { repositoryRoot, validateReleaseInventory } from "./release-inventory.mjs";
 import { runCommand } from "./release-process.mjs";
 
@@ -24,7 +25,11 @@ async function walkFiles(root, directory = root) {
 }
 
 export async function removeBrowserOutputs(inventory, root = repositoryRoot) {
-  const paths = [...inventory.plugins, ...inventory.browserApps].map(({ path }) => join(root, path, "dist"));
+  const pluginOutputs = inventory.plugins.map(({ path }) =>
+    join(root, path, inventory.browserArtifacts.outputDirectory),
+  );
+  const appOutputs = inventory.browserApps.map(({ path, output }) => join(root, path, output));
+  const paths = [...pluginOutputs, ...appOutputs];
   await Promise.all(paths.map((path) => rm(path, { recursive: true, force: true })));
   for (const path of paths) {
     try {
@@ -43,26 +48,15 @@ async function buildApps(inventory) {
   }
 }
 
-function validateExposes(plugin, manifestSource) {
-  for (const exposed of plugin.exposes) {
-    const name = exposed.slice(2);
-    if (!manifestSource.includes(name)) throw new Error(`${plugin.path} manifest omits ${exposed}`);
-  }
-}
-
-async function inspectPlugin(plugin) {
-  const dist = join(repositoryRoot, plugin.path, "dist");
+export async function inspectPluginOutput(plugin, artifacts, root = repositoryRoot) {
+  const dist = join(root, plugin.path, artifacts.outputDirectory);
   const files = await walkFiles(dist);
-  const manifestPath = files.find((path) => basename(path) === "mf-manifest.json");
-  const remoteEntry = files.find((path) => basename(path) === "remoteEntry.js");
-  if (!manifestPath || !remoteEntry) throw new Error(`${plugin.path} lacks federation manifest or remote entry`);
-  const manifestSource = await readFile(manifestPath, "utf8");
-  JSON.parse(manifestSource);
-  validateExposes(plugin, manifestSource);
+  const validation = await validatePluginManifest(plugin, artifacts, dist);
   return {
     path: plugin.path,
     assetCount: files.length,
     exposes: plugin.exposes.length,
+    referencedAssets: validation.referencedAssets.length,
     digest: await digestFiles(files),
   };
 }
@@ -90,7 +84,9 @@ export async function verifyBrowserBuilds(options = {}) {
   await runCommand(process.execPath, ["scripts/build-plugins.mjs", "--force"], { cwd: repositoryRoot, capture: false });
   await buildApps(inventory);
   const plugins = [];
-  for (const plugin of inventory.plugins) plugins.push(await inspectPlugin(plugin));
+  for (const plugin of inventory.plugins) {
+    plugins.push(await inspectPluginOutput(plugin, inventory.browserArtifacts));
+  }
   const apps = [];
   for (const app of inventory.browserApps) apps.push(await inspectApp(app));
   const reportRoot = options.reportRoot ?? (await mkdtemp(join(approvedTemp, "ghost-browser-")));

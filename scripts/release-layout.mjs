@@ -1,9 +1,23 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import { join, relative } from "node:path";
 import semver from "semver";
+import ts from "typescript";
 
 const dependencySections = ["dependencies", "peerDependencies", "optionalDependencies"];
-const localSpec = /^(?:workspace|link|file):|^(?:git|git\+|https?:)/;
+
+export function nonRegistrySpecKind(spec) {
+  if (typeof spec !== "string") return "invalid";
+  if (spec.startsWith("workspace:")) return "workspace";
+  if (spec.startsWith("link:")) return "link";
+  if (spec.startsWith("file:")) return "file";
+  if (/^(?:git(?:\+[^:]+)?|git\+|github|gitlab|bitbucket):/iu.test(spec) || /^(?:git@|ssh:|git:\/\/)/iu.test(spec)) {
+    return "git";
+  }
+  if (/^[a-z][a-z+.-]*:\/\//iu.test(spec)) return "url";
+  if (/^(?:\.{0,2}\/|~\/|[a-z]:[\\/]|\\\\)/iu.test(spec)) return "path";
+  if (/^[^@/\s]+\/[^/\s]+(?:#.*)?$/u.test(spec)) return "git";
+  return undefined;
+}
 
 export function exportTargets(exportsMap) {
   const targets = [];
@@ -37,17 +51,31 @@ export function dependencyEdges(manifest) {
   );
 }
 
-export function validatePackedDependencies(manifest, versions, trustedLocalNames = new Set()) {
-  for (const edge of dependencyEdges(manifest)) {
-    if (localSpec.test(edge.spec)) {
-      if (!trustedLocalNames.has(edge.name)) throw new Error(`${manifest.name} leaks ${edge.name}@${edge.spec}`);
-      continue;
-    }
-    const version = versions.get(edge.name);
-    if (version && !semver.satisfies(version, edge.spec, { includePrerelease: true })) {
-      throw new Error(`${manifest.name} requires ${edge.name}@${edge.spec}, supplied ${version}`);
-    }
+function validateCompatibleVersion(manifest, edge, versions) {
+  const version = versions.get(edge.name);
+  if (version && !semver.satisfies(version, edge.spec, { includePrerelease: true })) {
+    throw new Error(`${manifest.name} requires ${edge.name}@${edge.spec}, supplied ${version}`);
   }
+}
+
+export function validatePackedDependencies(manifest, versions) {
+  for (const edge of dependencyEdges(manifest)) {
+    const kind = nonRegistrySpecKind(edge.spec);
+    if (kind) throw new Error(`${manifest.name} leaks ${kind} dependency ${edge.name}@${edge.spec}`);
+    validateCompatibleVersion(manifest, edge, versions);
+  }
+}
+
+export function inspectPackedDependencies(manifest, versions, allowedHolds) {
+  const blockers = [];
+  for (const edge of dependencyEdges(manifest)) {
+    const kind = nonRegistrySpecKind(edge.spec);
+    if (!kind) validateCompatibleVersion(manifest, edge, versions);
+    else if (!allowedHolds.has(edge.name)) {
+      throw new Error(`${manifest.name} leaks ${kind} dependency ${edge.name}@${edge.spec}`);
+    } else blockers.push({ ...edge, kind });
+  }
+  return blockers;
 }
 
 export async function validatePackedLayout(packageRoot, manifest) {
@@ -64,17 +92,40 @@ export async function validatePackedLayout(packageRoot, manifest) {
   if (files.some((path) => path.startsWith("src/") || (/\.(?:ts|tsx)$/.test(path) && !path.endsWith(".d.ts")))) {
     throw new Error(`${manifest.name} packed source files`);
   }
-  await validateNoPrivateImports(packageRoot, files, manifest.name);
   return files;
 }
 
-async function validateNoPrivateImports(root, files, packageName) {
+function exportedSubpaths(exportsMap) {
+  if (typeof exportsMap === "string" || Array.isArray(exportsMap)) return ["."];
+  const keys = Object.keys(exportsMap ?? {});
+  const subpaths = keys.filter((key) => key.startsWith("."));
+  return subpaths.length > 0 ? subpaths : ["."];
+}
+
+function matchesExport(subpath, exportKey) {
+  if (!exportKey.includes("*")) return subpath === exportKey;
+  const [prefix, suffix] = exportKey.split("*");
+  return subpath.startsWith(prefix) && subpath.endsWith(suffix);
+}
+
+function validatePackageRequest(request, packageExports, owner, file) {
+  if (!request.startsWith("@ghost/") && !request.startsWith("@ghost-shell/")) return;
+  const segments = request.split("/");
+  const packageName = segments.slice(0, 2).join("/");
+  const exportsMap = packageExports.get(packageName);
+  if (!exportsMap) throw new Error(`${owner} imports unknown Ghost package ${packageName} in ${file}`);
+  const subpath = segments.length === 2 ? "." : `./${segments.slice(2).join("/")}`;
+  if (!exportedSubpaths(exportsMap).some((key) => matchesExport(subpath, key))) {
+    throw new Error(`${owner} imports undeclared subpath ${request} in ${file}`);
+  }
+}
+
+export async function validatePackedImports(root, files, packageName, packageExports) {
   const textFiles = files.filter((path) => /\.(?:js|cjs|mjs|d\.ts|d\.cts|json)$/.test(path));
   for (const path of textFiles) {
     const source = await readFile(join(root, path), "utf8");
-    if (/@(?:ghost|ghost-shell)\/[^"'\s]+\/(?:src|dist)\//.test(source)) {
-      throw new Error(`${packageName} contains private deep import in ${path}`);
-    }
+    const requests = ts.preProcessFile(source, true, true).importedFiles.map(({ fileName }) => fileName);
+    for (const request of requests) validatePackageRequest(request, packageExports, packageName, path);
   }
 }
 

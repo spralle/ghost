@@ -3,8 +3,8 @@ import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { repositoryRoot, validateReleaseInventory } from "./release-inventory.mjs";
+import { nonRegistrySpecKind } from "./release-layout.mjs";
 
-const nonRegistrySpec = /^(?:workspace|link|file):|^(?:git|git\+|https?):/;
 const dependencySections = ["dependencies", "peerDependencies", "optionalDependencies", "devDependencies"];
 
 function allDependencyEdges(manifest) {
@@ -20,8 +20,9 @@ export async function inspectRegistryReadiness() {
   const blockers = [];
   for (const { path, manifest } of manifests) {
     for (const edge of allDependencyEdges(manifest)) {
-      if (!nonRegistrySpec.test(edge.spec) || manifestsByName.has(edge.name)) continue;
-      blockers.push({ workspace: path, package: manifest.name, ...edge });
+      const kind = nonRegistrySpecKind(edge.spec);
+      if (!kind || manifestsByName.has(edge.name)) continue;
+      blockers.push({ workspace: path, package: manifest.name, ...edge, kind });
     }
   }
   blockers.sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
