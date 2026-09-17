@@ -1,17 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildActionSurface, dispatchAction, resolveMenuActions } from "../../../apps/shell/src/action-surface.ts";
+import { evaluateShellPluginCompatibility } from "../../plugin-system/src/compatibility.ts";
+import { composeEnabledPluginContributions, composeThemeContributions } from "../../plugin-system/src/composition.ts";
 import {
   createDefaultContributionPredicateMatcher,
   evaluateContributionPredicate,
 } from "../../plugin-system/src/predicate.ts";
-import {
-  composeEnabledPluginContributions,
-  composeThemeContributions,
-  evaluateShellPluginCompatibility,
-  parsePluginContract,
-  parseTenantPluginManifest,
-} from "../dist/index.js";
+import { buildActionSurface, dispatchAction, resolveMenuActions } from "../../shell/src/action-surface.ts";
+import { parsePluginContract, parseTenantPluginManifest } from "../dist/index.js";
 
 test("returns typed data for a valid plugin contract", () => {
   const result = parsePluginContract({
@@ -43,7 +39,7 @@ test("returns typed data for a valid plugin contract", () => {
           id: "valid.action",
           title: "Run Valid",
           intent: "valid.run",
-          predicate: {
+          when: {
             "demo.selection": "valid",
           },
         },
@@ -601,11 +597,11 @@ test("action-surface dispatch predicate semantics stay in parity with default ma
   for (const testCase of cases) {
     let calls = 0;
     const runtime = {
-      resolveAndExecute({ intent }) {
+      resolve(intent) {
         calls += 1;
-        assert.equal(intent, "demo.run");
+        assert.equal(intent.type, "demo.run");
         return {
-          executed: true,
+          kind: "executed",
         };
       },
     };
@@ -623,7 +619,7 @@ test("action-surface dispatch predicate semantics stay in parity with default ma
               id: "demo.action",
               title: "Run",
               intent: "demo.run",
-              predicate: testCase.predicate,
+              when: testCase.predicate,
             },
           ],
         },

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createPluginConfigSyncController } from "../dist-test/src/plugin-config-sync-controller.js";
+import { createPluginConfigSyncController } from "../../../packages/shell/src/plugin-config-sync-controller.js";
 
 function createRegistry(pluginIds) {
   const states = new Map(pluginIds.map((pluginId) => [pluginId, false]));

@@ -5,8 +5,8 @@ import { join } from "node:path";
 import test from "node:test";
 import { createInMemoryOverrideTracker } from "@weaver/config-policy";
 import { createInMemoryAuditLog } from "@weaver/config-server";
-import { extractAccessContext } from "../dist-test/src/config-auth.js";
-import { createConfigRoutes } from "../dist-test/src/config-endpoints.js";
+import { extractAccessContext } from "../src/config-auth.js";
+import { createConfigRoutes } from "../src/config-endpoints.js";
 
 /** Create a temporary config directory with seed data for testing. */
 async function createTestConfigDir() {

@@ -60,7 +60,7 @@ function makeFakeResponse(body = "image-data") {
 // ---------------------------------------------------------------------------
 
 const { resolveBackgroundUrl, preloadBackgroundUrls } = await import(
-  "../../packages/theme/src/theme-background-cache.ts"
+  "../../../packages/theme/src/theme-background-cache.ts"
 );
 
 // ---------------------------------------------------------------------------

@@ -1,33 +1,35 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { resolveSurfaceMount } from "../dist-test/src/layer/surface-mount-utils.js";
+import { resolveSurfaceMount } from "../../../packages/shell/src/layer/surface-mount-utils.js";
 
 const surface = { id: "test-surface", component: "TestComponent" };
-const fakeMountFn = () => () => {};
+const cleanup = () => {};
+const fakeMountFn = () => cleanup;
+
+function assertResolves(moduleValue, expected = cleanup) {
+  const result = resolveSurfaceMount(moduleValue, surface);
+  assert.equal(typeof result, "function");
+  assert.equal(result({}, {}), expected);
+}
 
 test("resolves module.mount (bare named export)", () => {
-  const result = resolveSurfaceMount({ mount: fakeMountFn }, surface);
-  assert.equal(result, fakeMountFn);
+  assertResolves({ mount: fakeMountFn });
 });
 
 test("resolves module.mountSurface", () => {
-  const result = resolveSurfaceMount({ mountSurface: fakeMountFn }, surface);
-  assert.equal(result, fakeMountFn);
+  assertResolves({ mountSurface: fakeMountFn });
 });
 
 test("resolves module.surfaces[component] as function", () => {
-  const result = resolveSurfaceMount({ surfaces: { TestComponent: fakeMountFn } }, surface);
-  assert.equal(result, fakeMountFn);
+  assertResolves({ surfaces: { TestComponent: fakeMountFn } });
 });
 
 test("resolves module.default as function", () => {
-  const result = resolveSurfaceMount({ default: fakeMountFn }, surface);
-  assert.equal(result, fakeMountFn);
+  assertResolves({ default: fakeMountFn });
 });
 
 test("resolves module.default.mount", () => {
-  const result = resolveSurfaceMount({ default: { mount: fakeMountFn } }, surface);
-  assert.equal(result, fakeMountFn);
+  assertResolves({ default: { mount: fakeMountFn } });
 });
 
 test("returns null for empty object", () => {
@@ -43,7 +45,7 @@ test("returns null for null module", () => {
 });
 
 test("mountSurface takes priority over mount", () => {
-  const mountSurfaceFn = () => () => {};
-  const result = resolveSurfaceMount({ mountSurface: mountSurfaceFn, mount: fakeMountFn }, surface);
-  assert.equal(result, mountSurfaceFn);
+  const preferredCleanup = () => {};
+  const mountSurfaceFn = () => preferredCleanup;
+  assertResolves({ mountSurface: mountSurfaceFn, mount: fakeMountFn }, preferredCleanup);
 });

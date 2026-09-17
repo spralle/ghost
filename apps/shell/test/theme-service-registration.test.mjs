@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { THEME_SERVICE_ID } from "../../../packages/plugin-contracts/dist/index.js";
-import { createShellPluginRegistry } from "../dist-test/src/plugin-registry.js";
+import { createShellPluginRegistry } from "../../../packages/shell/src/plugin-registry.js";
 import {
   registerThemeServiceCapability,
   THEME_SERVICE_PLUGIN_ID,
-} from "../dist-test/src/theme-service-registration.js";
+} from "../../../packages/shell/src/theme-service-registration.js";
 
 // ---------------------------------------------------------------------------
 // Mock ThemeRegistry

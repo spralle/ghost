@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createRouter, jsonResponse } from "../dist-test/src/router.js";
+import { createRouter, jsonResponse } from "../src/router.js";
 
 test("jsonResponse returns JSON body with correct content-type and status", async () => {
   const response = jsonResponse({ message: "ok" }, 201);

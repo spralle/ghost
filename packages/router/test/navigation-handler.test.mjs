@@ -23,10 +23,10 @@ describe("resolveModifiers", () => {
     assert.equal(result, "auto");
   });
 
-  it("ctrl key returns tab", () => {
+  it("ctrl key retains automatic placement", () => {
     const event = mockMouseEvent({ ctrlKey: true });
     const result = resolveModifiers(event, DEFAULT_MODIFIER_MAP);
-    assert.equal(result, "tab");
+    assert.equal(result, "auto");
   });
 
   it("ctrl+shift returns split", () => {
@@ -35,16 +35,16 @@ describe("resolveModifiers", () => {
     assert.equal(result, "split");
   });
 
-  it("shift returns window", () => {
+  it("shift returns detached placement", () => {
     const event = mockMouseEvent({ shiftKey: true });
     const result = resolveModifiers(event, DEFAULT_MODIFIER_MAP);
-    assert.equal(result, "window");
+    assert.equal(result, "detach");
   });
 
-  it("middle button returns tab-background", () => {
+  it("middle button returns background placement", () => {
     const event = mockMouseEvent({ button: 1 });
     const result = resolveModifiers(event, DEFAULT_MODIFIER_MAP);
-    assert.equal(result, "tab-background");
+    assert.equal(result, "background");
   });
 
   it("custom modifier map overrides defaults", () => {

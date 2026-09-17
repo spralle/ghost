@@ -1,10 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import {
-  formatLocalPluginOverrideStartupSummary,
-  parseBackendDevCliOptions,
-} from "../dist-test/src/dev-cli-options.js";
+import { formatLocalPluginOverrideStartupSummary, parseBackendDevCliOptions } from "../src/dev-cli-options.js";
 import {
   buildEntryOverrideMap,
   DEFAULT_LOCAL_PLUGIN_ENTRIES,
@@ -18,6 +15,7 @@ test("parseBackendDevCliOptions keeps no-override baseline when no flags are pro
     selectedLocalPluginIds: [],
     duplicateSelectedLocalPluginIds: [],
     gatewayPort: undefined,
+    pluginDirs: [],
   });
 });
 
@@ -88,7 +86,7 @@ test("formatLocalPluginOverrideStartupSummary prints deterministic selected over
 
   assert.equal(
     summary,
-    "[backend] local plugin overrides (2): ghost.plugin-starter -> http://127.0.0.1:4171/mf-manifest.json; ghost.sample.contract-consumer -> http://127.0.0.1:4172/mf-manifest.json",
+    `[backend] local plugin overrides (2): ghost.plugin-starter -> ${DEFAULT_LOCAL_PLUGIN_ENTRIES[LOCAL_PLUGIN_IDS.pluginStarter]}; ghost.sample.contract-consumer -> ${DEFAULT_LOCAL_PLUGIN_ENTRIES[LOCAL_PLUGIN_IDS.sampleContractConsumer]}`,
   );
 });
 

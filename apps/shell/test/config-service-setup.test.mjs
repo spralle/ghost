@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { runPersistenceMigrations } from "../src/config-service-setup.ts";
+import { runPersistenceMigrations } from "../../../packages/shell/src/config-service-setup.ts";
 
 // ---------------------------------------------------------------------------
 // Stub ConfigurationService — minimal mock for migration tests

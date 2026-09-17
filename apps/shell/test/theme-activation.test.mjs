@@ -4,7 +4,7 @@ import {
   activateAllThemePlugins,
   activatePreferredThemePlugin,
   DEFAULT_THEME_PLUGIN_ID,
-} from "../dist-test/src/theme-activation.js";
+} from "../../../packages/shell/src/theme-activation.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -27,6 +27,7 @@ function createMockPluginRegistry(plugins) {
             version: "1.0.0",
             entry: "https://example.com/mf-manifest.json",
             compatibility: { shell: "^1.0.0", pluginContract: "^1.0.0" },
+            contributes: p.contributes,
           },
           contract: p.contract ?? null,
           failure: null,
@@ -131,8 +132,8 @@ test("activateAllThemePlugins activates all unloaded enabled plugins", async () 
       id: "ghost.theme.default",
       contract: { manifest: { id: "ghost.theme.default", name: "Default", version: "1.0.0" } },
     },
-    { id: "ghost.theme.community" }, // Not yet loaded (null contract).
-    { id: "ghost.theme.extra" }, // Not yet loaded.
+    { id: "ghost.theme.community", contributes: { themes: [{ id: "community" }] } },
+    { id: "ghost.theme.extra", contributes: { themes: [{ id: "extra" }] } },
   ]);
 
   await activateAllThemePlugins(registry);

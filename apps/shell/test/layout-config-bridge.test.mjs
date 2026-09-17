@@ -4,7 +4,7 @@ import {
   createLayoutConfigBridge,
   LAYOUT_CONFIG_KEY,
   layoutConfigSchema,
-} from "../dist-test/src/persistence/layout-config-bridge.js";
+} from "../../../packages/persistence/src/layout-config-bridge.js";
 
 // ---------------------------------------------------------------------------
 // Stub ConfigurationService — minimal mock

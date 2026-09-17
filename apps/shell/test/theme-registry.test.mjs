@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { createThemeRegistry, manageBackgroundImage } from "../../../packages/shell/src/theme-registry.js";
 import {
   clearUserThemePreference,
   readUserThemePreference,
   writeUserThemePreference,
-} from "../dist-test/src/theme-persistence.js";
-import { createThemeRegistry, manageBackgroundImage } from "../dist-test/src/theme-registry.js";
+} from "../../../packages/theme/src/theme-persistence.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -736,6 +736,7 @@ test("loadAllThemes activates unloaded plugins and discovers their themes", asyn
             version: "1.0.0",
             entry: "https://example.com/b.json",
             compatibility: { shell: "^1.0.0", pluginContract: "^1.0.0" },
+            contributes: { themes: [{ id: "theme-b" }] },
           },
           contract: state.pluginBActivated ? contractB : null,
           failure: null,

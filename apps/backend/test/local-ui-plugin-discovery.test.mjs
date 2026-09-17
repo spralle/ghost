@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { discoverLocalUiPlugins, discoverPluginDefinitions } from "../dist-test/src/local-ui-plugin-discovery.js";
+import { discoverLocalUiPlugins, discoverPluginDefinitions } from "../src/local-ui-plugin-discovery.js";
 import {
   DEFAULT_GATEWAY_PLUGIN_ENTRIES,
   DEFAULT_GATEWAY_PORT,
@@ -104,7 +104,7 @@ test("discoverLocalUiPlugins supports deterministic host and protocol mapping", 
 
   assert.equal(
     discovered.get(LOCAL_PLUGIN_IDS.sampleContractConsumer)?.entry,
-    "https://localhost:4172/mf-manifest.json",
+    "https://localhost:4189/mf-manifest.json",
   );
   assert.deepEqual(Array.from(discovered.keys()), SORTED_LOCAL_PLUGIN_IDS);
 });

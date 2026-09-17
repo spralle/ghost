@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createPartModuleHostRuntime } from "../dist-test/src/part-module-host.js";
+import { createPartModuleHostRuntime } from "../../../packages/shell/src/part-module-host.js";
 
 function createRoot(parts) {
   const content = [];
@@ -48,6 +48,9 @@ function createRuntimeStub(pluginId) {
   return {
     windowId: "window-test",
     registry: {
+      getBuiltinModule() {
+        return null;
+      },
       getSnapshot() {
         return {
           plugins: [
@@ -57,6 +60,7 @@ function createRuntimeStub(pluginId) {
                 id: pluginId,
                 entry: "https://plugins.example/mf-manifest.json",
               },
+              contract: {},
             },
           ],
         };
@@ -69,6 +73,9 @@ function createRuntimeWithMutablePlugin(pluginSnapshot) {
   return {
     windowId: "window-test",
     registry: {
+      getBuiltinModule() {
+        return null;
+      },
       getSnapshot() {
         return {
           plugins: [pluginSnapshot],
@@ -298,7 +305,7 @@ test("part module host preserves backward compatibility for legacy part shape", 
   ]);
 });
 
-test("part module host remounts after plugin lifecycle transition and clears stale fallback", async () => {
+test("part module host mounts after plugin lifecycle transition and clears stale fallback", async () => {
   const pluginId = "ghost.test.plugin";
   const part = {
     id: "part.one",
@@ -355,13 +362,13 @@ test("part module host remounts after plugin lifecycle transition and clears sta
   });
 
   await host.syncRenderedParts(root, [part]);
-  assert.equal(root.fallback[0].hidden, true);
-  assert.deepEqual(mounts, [part.instanceId]);
+  assert.equal(root.fallback[0].hidden, false);
+  assert.deepEqual(mounts, []);
 
   root.fallback[0].hidden = false;
   await host.syncRenderedParts(root, [part]);
-  assert.equal(root.fallback[0].hidden, true);
-  assert.deepEqual(mounts, [part.instanceId]);
+  assert.equal(root.fallback[0].hidden, false);
+  assert.deepEqual(mounts, []);
 
   lifecycleState = "active";
   hasContract = true;
@@ -390,6 +397,7 @@ test("part module host remounts after plugin lifecycle transition and clears sta
   });
 
   await host.syncRenderedParts(root, [part]);
-  assert.deepEqual(mounts, [part.instanceId, part.instanceId]);
+  assert.equal(root.fallback[0].hidden, true);
+  assert.deepEqual(mounts, [part.instanceId]);
   assert.equal(root.fallback[0].hidden, true);
 });

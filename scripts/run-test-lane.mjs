@@ -6,7 +6,10 @@ const laneCommands = {
   node: {
     executable: "node",
     args: ["--test", "--import", "./apps/backend/test/register-ts-hooks.mjs"],
-    prerequisites: [{ executable: "bun", args: ["run", "build"] }],
+    prerequisites: [
+      { executable: "bun", args: ["run", "build"] },
+      { executable: "bun", args: ["run", "--cwd", "packages/ui", "build:dist"] },
+    ],
   },
   vitest: {
     executable: "node",

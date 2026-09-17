@@ -1,7 +1,16 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import test, { afterEach } from "node:test";
 import { createOverrideSessionProvider } from "@weaver/config-sessions";
-import { createSessionRoutes } from "../dist-test/src/session-endpoints.js";
+import { createSessionRoutes } from "../src/session-endpoints.js";
+
+const sessionControllers = [];
+
+afterEach(() => {
+  for (const controller of sessionControllers) {
+    controller.dispose();
+  }
+  sessionControllers.length = 0;
+});
 
 /** Helper to invoke a route handler by matching against the route list. */
 async function callRoute(routes, method, pathname, bodyValue, headers = {}) {
@@ -20,6 +29,7 @@ async function callRoute(routes, method, pathname, bodyValue, headers = {}) {
 
 function createTestRoutes() {
   const sessionController = createOverrideSessionProvider();
+  sessionControllers.push(sessionController);
   const routes = createSessionRoutes({ sessionController });
   return { routes, sessionController };
 }

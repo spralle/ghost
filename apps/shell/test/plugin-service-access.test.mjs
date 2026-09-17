@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { THEME_SERVICE_ID } from "../../../packages/plugin-contracts/dist/index.js";
-import { createShellPluginRegistry } from "../dist-test/src/plugin-registry.js";
-import { createPluginServicesBridge } from "../dist-test/src/plugin-service-bridge.js";
+import { createShellPluginRegistry } from "../../../packages/shell/src/plugin-registry.js";
+import { createPluginServicesBridge } from "../../../packages/shell/src/plugin-service-bridge.js";
 
 // ---------------------------------------------------------------------------
 // Helper — register a builtin plugin with a service instance

@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import test from "node:test";
 
 test("intent execution boundary activates plugin with intent trigger", async () => {
-  const sourcePath = resolve(process.cwd(), "apps/shell/src/shell-runtime/runtime-event-handlers.ts");
+  const sourcePath = resolve(process.cwd(), "packages/shell/src/shell-runtime/runtime-event-handlers.ts");
   const source = await readFile(sourcePath, "utf8");
 
   const start = source.indexOf("async function executeResolvedAction(");
@@ -25,8 +25,10 @@ test("intent execution boundary activates plugin with intent trigger", async () 
 });
 
 test("keyboard handlers resolve and dispatch through keybinding service", async () => {
-  const keyboardPath = resolve(process.cwd(), "apps/shell/src/shell-runtime/keyboard-handlers.ts");
+  const keyboardPath = resolve(process.cwd(), "packages/shell/src/shell-runtime/keyboard-handlers.ts");
+  const dispatcherPath = resolve(process.cwd(), "packages/shell/src/shell-runtime/keyboard-action-dispatcher.ts");
   const keyboardSource = await readFile(keyboardPath, "utf8");
+  const dispatcherSource = await readFile(dispatcherPath, "utf8");
 
   assert.match(
     keyboardSource,
@@ -34,7 +36,7 @@ test("keyboard handlers resolve and dispatch through keybinding service", async 
     "keybindings should resolve through keybinding service",
   );
   assert.match(
-    keyboardSource,
+    dispatcherSource,
     /const result = await keybindingService\.dispatchSequence\(chords, context\);/,
     "keybinding dispatch should route through keybinding service",
   );

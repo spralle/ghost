@@ -4,12 +4,12 @@ import {
   CONTEXT_STATE_CONFIG_KEY,
   contextStateConfigSchema,
   createContextConfigBridge,
-} from "../dist-test/src/persistence/context-config-bridge.js";
+} from "../../../packages/persistence/src/context-config-bridge.js";
 import {
   createKeybindingConfigBridge,
   KEYBINDING_CONFIG_KEY,
   keybindingConfigSchema,
-} from "../dist-test/src/persistence/keybinding-config-bridge.js";
+} from "../../../packages/persistence/src/keybinding-config-bridge.js";
 
 // ---------------------------------------------------------------------------
 // Stub ConfigurationService — minimal mock

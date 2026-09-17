@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { deriveFullPalette, parsePluginContract } from "../../../packages/plugin-contracts/dist/index.js";
-import { pluginContract } from "../../../plugins/theme-default-plugin/src/plugin-contract.ts";
+import { parsePluginContract } from "../../../packages/plugin-contracts/dist/index.js";
+import { deriveFullPalette } from "../../../packages/theme/src/index.ts";
+import { pluginContract } from "../../../plugins/theme-default-plugin/src/plugin-contract-expose.ts";
 
 // ---------------------------------------------------------------------------
 // Contract validation
@@ -80,20 +81,22 @@ test("Default Dark theme has full explicit palette values", () => {
 // Tokyo Night minimal palette + terminal colors
 // ---------------------------------------------------------------------------
 
-test("Tokyo Night theme uses minimal Omarchy-compatible palette (5 values)", () => {
+test("Tokyo Night theme uses minimal Omarchy-compatible palette", () => {
   const tokyoNight = pluginContract.contributes?.themes?.find((t) => t.id === "ghost.theme.tokyo-night");
   assert.ok(tokyoNight);
 
   const { palette } = tokyoNight;
 
-  // Only 5 palette values defined
+  // Core colors plus Omarchy opacity values are defined.
   const definedKeys = Object.keys(palette);
-  assert.equal(definedKeys.length, 5, "Tokyo Night should have exactly 5 palette values");
+  assert.equal(definedKeys.length, 7, "Tokyo Night should have exactly 7 palette values");
   assert.ok(palette.background, "background must be defined");
   assert.ok(palette.foreground, "foreground must be defined");
   assert.ok(palette.accent, "accent must be defined");
   assert.ok(palette.cursor, "cursor must be defined");
   assert.ok(palette.selectionBackground, "selectionBackground must be defined");
+  assert.equal(palette.opacity, 0.7);
+  assert.equal(palette.opacityActive, 0.85);
 
   // Has no explicit primary, surface, border, etc.
   assert.equal(palette.primary, undefined, "primary should not be set explicitly");

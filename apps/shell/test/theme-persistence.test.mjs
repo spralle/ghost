@@ -6,7 +6,7 @@ import {
   readUserThemePreference,
   writeBackgroundPreference,
   writeUserThemePreference,
-} from "../dist-test/src/theme-persistence.js";
+} from "../../../packages/theme/src/theme-persistence.js";
 
 // ---------------------------------------------------------------------------
 // Background persistence — Node environment (no localStorage)

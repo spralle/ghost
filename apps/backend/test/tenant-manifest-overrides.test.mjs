@@ -5,7 +5,7 @@ import {
   applyLocalPluginEntryOverrides,
   createDefaultLocalPluginEntryUrlMap,
   getTenantManifestResponse,
-} from "../dist-test/src/tenant-manifest.js";
+} from "../src/tenant-manifest.js";
 import {
   buildEntryOverrideMap,
   DEFAULT_LOCAL_PLUGIN_ENTRIES,

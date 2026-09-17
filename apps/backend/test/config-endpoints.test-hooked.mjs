@@ -3,8 +3,8 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { createConfigRoutes } from "../dist-test/src/config-endpoints.js";
-import { validateTenantId } from "../dist-test/src/config-loader.js";
+import { createConfigRoutes } from "../src/config-endpoints.js";
+import { validateTenantId } from "../src/config-loader.js";
 
 /** Create a temporary config directory with seed data for testing. */
 async function createTestConfigDir() {
@@ -95,8 +95,8 @@ test("GET /config/{key} returns value + inspection for existing key", async () =
     assert.ok(body.inspection);
     assert.equal(body.inspection.effectiveValue, "DD/MM/YYYY");
     assert.equal(body.inspection.effectiveLayer, "tenant");
-    assert.equal(body.inspection.coreValue, "YYYY-MM-DD");
-    assert.equal(body.inspection.tenantValue, "DD/MM/YYYY");
+    assert.equal(body.inspection.layerValues.core, "YYYY-MM-DD");
+    assert.equal(body.inspection.layerValues.tenant, "DD/MM/YYYY");
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
