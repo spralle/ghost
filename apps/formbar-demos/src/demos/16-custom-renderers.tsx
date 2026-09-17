@@ -31,6 +31,7 @@ const schema = {
       pattern: "^#[0-9a-fA-F]{6}$",
       "x-formbar": {
         widget: "color",
+        // ghost-tokens-ignore -- demo schema color values are user-selectable hex DATA, not Ghost theme tokens.
         options: ["#3B82F6", "#EF4444", "#10B981", "#F59E0B", "#8B5CF6", "#EC4899", "#06B6D4", "#F97316"],
       },
       description: "Pick a brand color",
@@ -41,6 +42,7 @@ const schema = {
       pattern: "^#[0-9a-fA-F]{6}$",
       "x-formbar": {
         widget: "color",
+        // ghost-tokens-ignore -- demo schema color values are user-selectable hex DATA, not Ghost theme tokens.
         options: ["#1E293B", "#334155", "#475569", "#64748B", "#94A3B8", "#CBD5E1", "#E2E8F0", "#F8FAFC"],
       },
     },
