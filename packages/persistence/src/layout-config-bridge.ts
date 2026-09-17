@@ -33,7 +33,7 @@ export const layoutConfigSchema: ConfigurationPropertySchema & { key: string } =
   key: LAYOUT_CONFIG_KEY,
   type: "object",
   description: "Shell layout state (dock pane sizes)",
-  sessionMode: "allowed",
+  "x-weaver": { sessionMode: "allowed" },
   properties: {
     sideSize: {
       type: "number",

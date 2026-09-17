@@ -213,7 +213,7 @@ test("contextStateConfigSchema has correct key and type", () => {
   assert.equal(contextStateConfigSchema.key, "ghost.shell.contextState");
   assert.equal(contextStateConfigSchema.type, "object");
   assert.ok(contextStateConfigSchema.description);
-  assert.equal(contextStateConfigSchema.sessionMode, "allowed");
+  assert.equal(contextStateConfigSchema["x-weaver"].sessionMode, "allowed");
 });
 
 // ---------------------------------------------------------------------------
@@ -487,7 +487,7 @@ test("keybindingConfigSchema has correct key and type", () => {
   assert.equal(keybindingConfigSchema.key, "ghost.shell.keybindingOverrides");
   assert.equal(keybindingConfigSchema.type, "object");
   assert.ok(keybindingConfigSchema.description);
-  assert.equal(keybindingConfigSchema.sessionMode, "allowed");
+  assert.equal(keybindingConfigSchema["x-weaver"].sessionMode, "allowed");
 });
 
 // ---------------------------------------------------------------------------

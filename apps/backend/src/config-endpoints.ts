@@ -1,13 +1,7 @@
-import {
-  checkPolicy,
-  extractAccessContext,
-  type PolicyCheckDeps,
-  policyToResponse,
-  recordAudit,
-  recordOverride,
-} from "./config-auth.js";
+import { checkPolicy, extractAccessContext, type PolicyCheckDeps, policyToResponse } from "./config-auth.js";
 import type { ConfigLoaderOptions } from "./config-loader.js";
 import { createTenantConfigProviders, validateTenantId } from "./config-loader.js";
+import { auditConfigMutation } from "./config-mutation-audit.js";
 import type {
   ConfigAuditLog,
   ConfigurationLayerEntry,
@@ -141,7 +135,7 @@ async function handlePutConfigKey(
     return jsonResponse({ error: "invalid_tenant_id" }, 400);
   }
 
-  const body = (await request.body()) as { value?: unknown } | null;
+  const body = await request.body();
   if (body === null || typeof body !== "object" || !("value" in body)) {
     return jsonResponse({ error: "invalid_body", message: "Body must contain { value: ... }" }, 400);
   }
@@ -160,29 +154,12 @@ async function handlePutConfigKey(
     return jsonResponse({ error: "write_failed", message: result.error }, 500);
   }
 
-  const isEmergency = context.sessionMode === "emergency-override" && schema?.changePolicy === "emergency-override";
-  await recordAudit(deps, {
-    timestamp: new Date().toISOString(),
-    actor: context.userId,
+  await auditConfigMutation(deps, context, schema, {
     action: "set",
     key,
-    layer: "tenant",
     tenantId,
-    newValue: body.value,
-    changePolicy: schema?.changePolicy,
-    isEmergencyOverride: isEmergency,
-    overrideReason: isEmergency ? context.overrideReason : undefined,
+    value: body.value,
   });
-
-  if (isEmergency && context.overrideReason !== undefined) {
-    await recordOverride(deps, {
-      key,
-      actor: context.userId,
-      reason: context.overrideReason,
-      tenantId,
-      layer: "tenant",
-    });
-  }
 
   return jsonResponse({ success: true, key, revision: result.revision });
 }
@@ -213,17 +190,10 @@ async function handleDeleteConfigKey(
     return jsonResponse({ error: "remove_failed", message: result.error }, 500);
   }
 
-  const isEmergency = context.sessionMode === "emergency-override" && schema?.changePolicy === "emergency-override";
-  await recordAudit(deps, {
-    timestamp: new Date().toISOString(),
-    actor: context.userId,
+  await auditConfigMutation(deps, context, schema, {
     action: "remove",
     key,
-    layer: "tenant",
     tenantId,
-    changePolicy: schema?.changePolicy,
-    isEmergencyOverride: isEmergency,
-    overrideReason: isEmergency ? context.overrideReason : undefined,
   });
 
   return jsonResponse({ success: true, key, revision: result.revision });

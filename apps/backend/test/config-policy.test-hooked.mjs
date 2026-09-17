@@ -21,10 +21,10 @@ async function createTestConfigDir() {
 /** Schema fixtures for different change policies */
 function createSchemaMap() {
   return new Map([
-    ["direct.key", { type: "string", changePolicy: "direct-allowed" }],
-    ["staging.key", { type: "string", changePolicy: "staging-gate" }],
-    ["pipeline.key", { type: "string", changePolicy: "full-pipeline" }],
-    ["emergency.key", { type: "string", changePolicy: "emergency-override" }],
+    ["direct.key", { type: "string", "x-weaver": { changePolicy: "direct-allowed" } }],
+    ["staging.key", { type: "string", "x-weaver": { changePolicy: "staging-gate" } }],
+    ["pipeline.key", { type: "string", "x-weaver": { changePolicy: "full-pipeline" } }],
+    ["emergency.key", { type: "string", "x-weaver": { changePolicy: "emergency-override" } }],
   ]);
 }
 

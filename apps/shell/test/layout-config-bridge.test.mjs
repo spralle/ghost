@@ -136,7 +136,7 @@ test("layoutConfigSchema has correct key and type", () => {
   assert.equal(layoutConfigSchema.key, "ghost.shell.layout");
   assert.equal(layoutConfigSchema.type, "object");
   assert.ok(layoutConfigSchema.description);
-  assert.equal(layoutConfigSchema.sessionMode, "allowed");
+  assert.equal(layoutConfigSchema["x-weaver"].sessionMode, "allowed");
 });
 
 test("layoutConfigSchema declares sideSize and secondarySize properties", () => {

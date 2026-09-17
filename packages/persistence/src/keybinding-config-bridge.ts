@@ -34,7 +34,7 @@ export const keybindingConfigSchema: ConfigurationPropertySchema & { key: string
   key: KEYBINDING_CONFIG_KEY,
   type: "object",
   description: "User keybinding customizations",
-  sessionMode: "allowed",
+  "x-weaver": { sessionMode: "allowed" },
 };
 
 // ---------------------------------------------------------------------------

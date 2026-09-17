@@ -1,11 +1,43 @@
 import type { DecodedShellState, UrlCodecState, UrlCodecStrategy } from "./codec-types.js";
 
 const STATE_PARAM = "_s";
+const BASE64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+function encodeBase64(bytes: Uint8Array): string {
+  let encoded = "";
+  for (let index = 0; index < bytes.length; index += 3) {
+    const first = bytes[index] ?? 0;
+    const second = bytes[index + 1] ?? 0;
+    const third = bytes[index + 2] ?? 0;
+    const bits = (first << 16) | (second << 8) | third;
+    encoded += BASE64_ALPHABET[(bits >> 18) & 63];
+    encoded += BASE64_ALPHABET[(bits >> 12) & 63];
+    encoded += index + 1 < bytes.length ? BASE64_ALPHABET[(bits >> 6) & 63] : "=";
+    encoded += index + 2 < bytes.length ? BASE64_ALPHABET[bits & 63] : "=";
+  }
+  return encoded;
+}
+
+function decodeBase64(encoded: string): Uint8Array | null {
+  if (encoded.length % 4 !== 0 || !/^[A-Za-z0-9+/]*={0,2}$/.test(encoded)) return null;
+  const bytes: number[] = [];
+  for (let index = 0; index < encoded.length; index += 4) {
+    const values = [...encoded.slice(index, index + 4)].map((character) =>
+      character === "=" ? 0 : BASE64_ALPHABET.indexOf(character),
+    );
+    if (values.some((value) => value < 0)) return null;
+    const bits = (values[0] << 18) | (values[1] << 12) | (values[2] << 6) | values[3];
+    bytes.push((bits >> 16) & 255);
+    if (encoded[index + 2] !== "=") bytes.push((bits >> 8) & 255);
+    if (encoded[index + 3] !== "=") bytes.push(bits & 255);
+  }
+  return Uint8Array.from(bytes);
+}
 
 /** Base64url encode a string, resilient to missing `btoa`. */
 function encodeBase64Url(data: string): string {
   try {
-    const base64 = typeof btoa === "function" ? btoa(data) : Buffer.from(data, "utf-8").toString("base64");
+    const base64 = encodeBase64(new TextEncoder().encode(data));
     return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   } catch {
     return "";
@@ -17,7 +49,8 @@ function decodeBase64Url(encoded: string): string | null {
   try {
     const base64 = encoded.replace(/-/g, "+").replace(/_/g, "/");
     const padded = base64 + "=".repeat((4 - (base64.length % 4)) % 4);
-    return typeof atob === "function" ? atob(padded) : Buffer.from(padded, "base64").toString("utf-8");
+    const bytes = decodeBase64(padded);
+    return bytes ? new TextDecoder().decode(bytes) : null;
   } catch {
     return null;
   }

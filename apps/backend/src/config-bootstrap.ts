@@ -20,9 +20,25 @@ export interface BackendConfigResult {
   serviceConfig: ServiceConfigurationService;
 }
 
-const backendSchemaMap = new Map<string, ConfigurationPropertySchema>([
-  ["port", { type: "number", default: 8787, description: "Backend server port", reloadBehavior: "restart-required" }],
-  ["corsOrigin", { type: "string", default: "*", description: "CORS allowed origin", reloadBehavior: "hot" }],
+export const backendSchemaMap = new Map<string, ConfigurationPropertySchema>([
+  [
+    "port",
+    {
+      type: "number",
+      default: 8787,
+      description: "Backend server port",
+      "x-weaver": { reloadBehavior: "restart-required" },
+    },
+  ],
+  [
+    "corsOrigin",
+    {
+      type: "string",
+      default: "*",
+      description: "CORS allowed origin",
+      "x-weaver": { reloadBehavior: "hot" },
+    },
+  ],
 ]);
 
 export async function bootstrapBackendConfig(options: BackendConfigBootstrapOptions): Promise<BackendConfigResult> {

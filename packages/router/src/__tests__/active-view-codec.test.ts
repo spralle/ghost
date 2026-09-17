@@ -72,6 +72,28 @@ describe("createActiveViewCodec", () => {
     expect(decoded?.workspaceId).toBe("ws-42");
   });
 
+  test("state encoding is runtime-neutral and preserves Unicode", () => {
+    const state: UrlCodecState = {
+      workspaceId: "arbetsyta-åäö",
+      activeTabId: "tab-1",
+      activeDefinitionId: null,
+      activeArgs: {},
+      tabSummary: [],
+      dockTreeSnapshot: null,
+    };
+
+    const decoded = codec.decode(codec.encode(state, new URL("http://localhost")));
+
+    expect(decoded?.workspaceId).toBe("arbetsyta-åäö");
+  });
+
+  test("malformed state does not prevent route decoding", () => {
+    const decoded = codec.decode(new URL("http://localhost/view?_s=not*base64"));
+
+    expect(decoded?.activeDefinitionId).toBe("view");
+    expect(decoded?.workspaceId).toBeUndefined();
+  });
+
   test("decode ignores _s query param from activeArgs", () => {
     const url = new URL("http://localhost/view?foo=bar&_s=abc123");
     const result = codec.decode(url);

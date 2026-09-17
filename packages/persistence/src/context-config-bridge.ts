@@ -37,7 +37,7 @@ export const contextStateConfigSchema: ConfigurationPropertySchema & { key: stri
   key: CONTEXT_STATE_CONFIG_KEY,
   type: "object",
   description: "Shell context state (groups, selections, dock tree)",
-  sessionMode: "allowed",
+  "x-weaver": { sessionMode: "allowed" },
 };
 
 // ---------------------------------------------------------------------------
