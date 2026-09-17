@@ -24,6 +24,12 @@ test("release inventory classifies every workspace and public closure", async ()
   assert.match(inventoryDigest(result.inventory), /^[a-f0-9]{64}$/);
 });
 
+test("release inventory accepts only the canonical schema reference", async () => {
+  const inventory = await loadReleaseInventory();
+  assert.equal(inventory.$schema, "./release-surface.schema.json");
+  await validateReleaseInventory(repositoryRoot, clone(inventory));
+});
+
 test("release inventory rejects public workspaces reclassified as private", async () => {
   const inventory = clone(await loadReleaseInventory());
   const [moved] = inventory.publishablePackages.splice(0, 1);
@@ -56,14 +62,37 @@ test("release inventory rejects category entries with the wrong runtime trait", 
   await assert.rejects(validateReleaseInventory(repositoryRoot, inventory), /node app unexpectedly has vite.config.ts/);
 });
 
-test("release inventory rejects malformed or unresolved schema contracts", async () => {
-  const malformed = clone(await loadReleaseInventory());
-  malformed.expectedCounts.workspaces = "58";
-  await assert.rejects(validateReleaseInventory(repositoryRoot, malformed), /must be integer/);
+test("release inventory rejects missing and wrong schema references", async () => {
+  const missing = clone(await loadReleaseInventory());
+  delete missing.$schema;
+  await assert.rejects(validateReleaseInventory(repositoryRoot, missing), /\$schema must equal/);
 
-  const unresolved = clone(await loadReleaseInventory());
-  unresolved.$schema = "./missing-release-schema.json";
-  await assert.rejects(validateReleaseInventory(repositoryRoot, unresolved), /ENOENT/);
+  const wrong = clone(await loadReleaseInventory());
+  wrong.$schema = "./missing-release-schema.json";
+  await assert.rejects(validateReleaseInventory(repositoryRoot, wrong), /\$schema must equal/);
+});
+
+test("release inventory rejects substitution with an existing JSON document", async () => {
+  const substituted = clone(await loadReleaseInventory());
+  substituted.$schema = "./release-surface.json";
+  substituted.runtime.bun = 42;
+  await assert.rejects(validateReleaseInventory(repositoryRoot, substituted), /\$schema must equal/);
+});
+
+test("release inventory rejects escaping, URL, and absolute schema references", async () => {
+  const inventory = await loadReleaseInventory();
+  const references = ["../release-surface.schema.json", "https://example.test/schema.json", "/tmp/schema.json"];
+  for (const reference of references) {
+    const invalid = clone(inventory);
+    invalid.$schema = reference;
+    await assert.rejects(validateReleaseInventory(repositoryRoot, invalid), /\$schema must equal/);
+  }
+});
+
+test("canonical release schema rejects malformed inventory data", async () => {
+  const malformed = clone(await loadReleaseInventory());
+  malformed.runtime.bun = 42;
+  await assert.rejects(validateReleaseInventory(repositoryRoot, malformed), /must be string/);
 });
 
 test("release boundary changeset records approved conservative bumps", async () => {

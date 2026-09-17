@@ -1,11 +1,13 @@
 import { createHash } from "node:crypto";
 import { access, readdir, readFile } from "node:fs/promises";
-import { dirname, join, relative, resolve } from "node:path";
+import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { validateJsonSchema } from "./json-schema-validator.mjs";
 
 export const repositoryRoot = resolve(import.meta.dirname, "..");
 export const inventoryPath = join(import.meta.dirname, "release-surface.json");
+const inventorySchemaReference = "./release-surface.schema.json";
+const inventorySchemaPath = join(import.meta.dirname, "release-surface.schema.json");
 const dependencySections = ["dependencies", "peerDependencies", "optionalDependencies"];
 
 export async function readJson(path) {
@@ -19,11 +21,10 @@ export async function loadReleaseInventory() {
 }
 
 async function validateInventorySchema(inventory) {
-  if (typeof inventory?.$schema !== "string") throw new Error("release inventory has no schema reference");
-  const schemaPath = resolve(dirname(inventoryPath), inventory.$schema);
-  if (relative(dirname(inventoryPath), schemaPath).startsWith(".."))
-    throw new Error("release schema escapes scripts directory");
-  const schema = await readJson(schemaPath);
+  if (inventory?.$schema !== inventorySchemaReference) {
+    throw new Error(`release inventory $schema must equal ${inventorySchemaReference}`);
+  }
+  const schema = await readJson(inventorySchemaPath);
   validateJsonSchema(inventory, schema, "releaseSurface");
 }
 
