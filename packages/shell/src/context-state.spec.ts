@@ -21,25 +21,25 @@ import { registerSyncPopoutDegradedSpecs } from "./context-state.spec-sync-popou
 import { registerTabDragDropSpecs } from "./context-state.spec-tab-drag-drop.js";
 
 describe("context-state", () => {
-	const harness = createSpecHarness();
+  const harness = createSpecHarness();
 
-	registerContextStateCoreSelectionLanesSpecs(harness);
-	registerIntentRuntimeCompositionSpecs(harness);
-	registerContextStatePersistenceSpecs(harness);
-	registerKeyboardA11ySpecs(harness);
-	registerSyncPopoutDegradedSpecs(harness);
-	registerBridgeUnavailableSpecs(harness);
-	registerTabDragDropSpecs(harness);
-	registerDockTabDragDropSpecs(harness);
-	registerActionContextSpecs(harness);
-	registerCompositionParitySpecs(harness);
-	registerBridgeRaceAndParitySpecs(harness);
-	registerDndSessionProtocolSpecs(harness);
-	registerIncomingTransferTransactionSpecs(harness);
-	registerDndSessionBrokerSpecs(harness);
-	registerDockPopoutActionRenderingSpecs(harness);
-	registerDockSplitterDragSpecs(harness);
-	registerDockOverlayRenderingSpecs(harness);
-	registerShellKeyboardActionSpecs(harness);
-	registerPlacementStrategySpecs(harness);
+  registerContextStateCoreSelectionLanesSpecs(harness);
+  registerIntentRuntimeCompositionSpecs(harness);
+  registerContextStatePersistenceSpecs(harness);
+  registerKeyboardA11ySpecs(harness);
+  registerSyncPopoutDegradedSpecs(harness);
+  registerBridgeUnavailableSpecs(harness);
+  registerTabDragDropSpecs(harness);
+  registerDockTabDragDropSpecs(harness);
+  registerActionContextSpecs(harness);
+  registerCompositionParitySpecs(harness);
+  registerBridgeRaceAndParitySpecs(harness);
+  registerDndSessionProtocolSpecs(harness);
+  registerIncomingTransferTransactionSpecs(harness);
+  registerDndSessionBrokerSpecs(harness);
+  registerDockPopoutActionRenderingSpecs(harness);
+  registerDockSplitterDragSpecs(harness);
+  registerDockOverlayRenderingSpecs(harness);
+  registerShellKeyboardActionSpecs(harness);
+  registerPlacementStrategySpecs(harness);
 });

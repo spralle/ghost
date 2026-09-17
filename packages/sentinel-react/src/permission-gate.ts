@@ -8,12 +8,7 @@ export interface PermissionGateProps {
   readonly children: ReactNode;
 }
 
-export function PermissionGate({
-  action,
-  resource,
-  fallback,
-  children,
-}: PermissionGateProps): ReactNode {
+export function PermissionGate({ action, resource, fallback, children }: PermissionGateProps): ReactNode {
   const { allowed } = useCan(action, resource);
 
   if (allowed) {

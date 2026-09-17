@@ -9,15 +9,11 @@
 
 import type { ConfigurationService } from "@ghost-shell/contracts";
 import {
-  type OverrideSessionController,
-  createOverrideSessionProvider,
-} from "@weaver/config-sessions";
-
-import {
   createContextConfigBridge,
   createKeybindingConfigBridge,
   createLayoutConfigBridge,
 } from "@ghost-shell/persistence";
+import { createOverrideSessionProvider, type OverrideSessionController } from "@weaver/config-sessions";
 import { getCurrentUserId, getStorage } from "./app/utils.js";
 
 // ---------------------------------------------------------------------------
@@ -33,11 +29,7 @@ export interface ShellConfigServiceResult {
 // Factory
 // ---------------------------------------------------------------------------
 
-function notifyListeners(
-  listeners: Map<string, Set<(value: unknown) => void>>,
-  key: string,
-  value: unknown,
-): void {
+function notifyListeners(listeners: Map<string, Set<(value: unknown) => void>>, key: string, value: unknown): void {
   const keyListeners = listeners.get(key);
   if (keyListeners) {
     for (const listener of keyListeners) {

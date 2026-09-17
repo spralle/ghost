@@ -107,6 +107,8 @@ describe("runtime event handlers", () => {
       sourceWindowId: "window-remote",
     });
 
-    expect(readGroupLaneForTab(runtime.contextState, { tabId: "tab-b", key: "shell.group-context" })?.value).toBe("ctx-remote");
+    expect(readGroupLaneForTab(runtime.contextState, { tabId: "tab-b", key: "shell.group-context" })?.value).toBe(
+      "ctx-remote",
+    );
   });
 });

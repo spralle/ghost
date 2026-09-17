@@ -1,17 +1,9 @@
-import { describe, it, expect, mock } from "bun:test";
-import {
-  createPrincipal,
-  impersonate,
-  isImpersonated,
-} from "../principal/index.js";
-import {
-  isExpired,
-  needsRefresh,
-  getTtlForRoles,
-} from "../snapshot/snapshot-validator.js";
-import { buildSnapshot } from "../snapshot/snapshot-builder.js";
-import type { SentinelStore } from "../storage/sentinel-store.js";
+import { describe, expect, it, mock } from "bun:test";
+import { createPrincipal, impersonate, isImpersonated } from "../principal/index.js";
 import type { SentinelPrincipal } from "../principal/sentinel-principal.js";
+import { buildSnapshot } from "../snapshot/snapshot-builder.js";
+import { getTtlForRoles, isExpired, needsRefresh } from "../snapshot/snapshot-validator.js";
+import type { SentinelStore } from "../storage/sentinel-store.js";
 
 describe("principal", () => {
   const basePrincipal: SentinelPrincipal = {
@@ -128,9 +120,7 @@ describe("snapshot-builder", () => {
   it("buildSnapshot assembles all components", async () => {
     const mockStore: SentinelStore = {
       loadRoles: mock(() => Promise.resolve(["user"])),
-      loadPolicies: mock(() =>
-        Promise.resolve([{ resourceType: "document", action: "read", condition: {} }]),
-      ),
+      loadPolicies: mock(() => Promise.resolve([{ resourceType: "document", action: "read", condition: {} }])),
       loadTuples: mock(() => Promise.resolve([])),
       loadTuplesFrom: mock(() => Promise.resolve([])),
     };

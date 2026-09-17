@@ -1,10 +1,10 @@
 import type { ContextApi } from "./context-contribution-registry.js";
 import type { Disposable } from "./disposable.js";
 import type { Event } from "./event.js";
+import type { LayoutApiService } from "./layout-service.js";
 import type { PluginServices } from "./plugin-services.js";
 import type { ServiceToken } from "./service-token.js";
 import type { WorkspaceService } from "./workspace-service.js";
-import type { LayoutApiService } from "./layout-service.js";
 
 // ─── GhostApi (top-level namespace) ───
 

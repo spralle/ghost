@@ -1,6 +1,11 @@
 // get-effective-strategy.ts — Resolves the active placement strategy with mode override.
 
-import type { PlacementConfig, PlacementStrategyId, PlacementStrategyRegistry, TabPlacementStrategy } from "@ghost-shell/state";
+import type {
+  PlacementConfig,
+  PlacementStrategyId,
+  PlacementStrategyRegistry,
+  TabPlacementStrategy,
+} from "@ghost-shell/state";
 import { getLayoutModeService } from "../services/layout-mode-service-registration.js";
 
 /**

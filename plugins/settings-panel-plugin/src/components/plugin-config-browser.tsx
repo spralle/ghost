@@ -8,8 +8,8 @@ import {
   CONFIG_SERVICE_ID,
   type ConfigurationService,
   PLUGIN_CONFIG_CATALOG_SERVICE_ID,
-  type PluginConfigCatalogService,
   PLUGIN_REGISTRY_SERVICE_ID,
+  type PluginConfigCatalogService,
 } from "@ghost-shell/contracts";
 import { useService } from "@ghost-shell/react";
 import { Card, CardContent } from "@ghost-shell/ui";
@@ -74,12 +74,7 @@ interface InnerProps {
   readonly configService: ConfigurationService;
 }
 
-function PluginConfigBrowserInner({
-  context,
-  registryService,
-  catalogService,
-  configService,
-}: InnerProps) {
+function PluginConfigBrowserInner({ context, registryService, catalogService, configService }: InnerProps) {
   const snapshot = useRegistrySnapshot(registryService);
   const [selectedPluginId, setSelectedPluginId] = useState<string | null>(null);
 

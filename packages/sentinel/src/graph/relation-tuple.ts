@@ -8,10 +8,6 @@ export interface RelationTuple {
 }
 
 /** Create a frozen RelationTuple */
-export function createTuple(
-  source: RelationNode,
-  relation: string,
-  target: RelationNode,
-): RelationTuple {
+export function createTuple(source: RelationNode, relation: string, target: RelationNode): RelationTuple {
   return Object.freeze({ source, relation, target });
 }

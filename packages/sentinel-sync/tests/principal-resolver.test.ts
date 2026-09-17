@@ -1,7 +1,7 @@
-import { describe, it, expect, mock } from "bun:test";
-import { resolvePrincipal } from "../src/principal-resolver.js";
+import { describe, expect, it, mock } from "bun:test";
 import type { SentinelStore } from "@ghost/sentinel";
-import type { EnrichedJwtPayload, PrincipalResolverOptions } from "../src/types.js";
+import { resolvePrincipal } from "../src/principal-resolver.js";
+import type { EnrichedJwtPayload } from "../src/types.js";
 
 function createMockStore(overrides: Partial<SentinelStore> = {}): SentinelStore {
   return {
@@ -52,9 +52,7 @@ describe("resolvePrincipal", () => {
     expect(principal.partyIds).toEqual(["jwt-party-1"]);
     // loadTuples should not be called for partyMember
     const calls = (loadTuples as ReturnType<typeof mock>).mock.calls;
-    const partyMemberCalls = calls.filter(
-      (c: unknown[]) => c[2] === "partyMember",
-    );
+    const partyMemberCalls = calls.filter((c: unknown[]) => c[2] === "partyMember");
     expect(partyMemberCalls.length).toBe(0);
   });
 
@@ -67,9 +65,7 @@ describe("resolvePrincipal", () => {
 
     expect(principal.partyIds).toEqual([]);
     const calls = (loadTuples as ReturnType<typeof mock>).mock.calls;
-    const partyMemberCalls = calls.filter(
-      (c: unknown[]) => c[2] === "partyMember",
-    );
+    const partyMemberCalls = calls.filter((c: unknown[]) => c[2] === "partyMember");
     expect(partyMemberCalls.length).toBe(1);
   });
 

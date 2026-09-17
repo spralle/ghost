@@ -4,10 +4,10 @@
 // following the same pattern as theme-service-registration.ts.
 
 import type { ConfigurationService, PluginContract } from "@ghost-shell/contracts";
-import type { ScopedConfigurationService } from "@weaver/config-types";
 import { CONFIG_SERVICE_ID } from "@ghost-shell/contracts";
 import { deriveNamespace } from "@weaver/config-engine";
 import { createScopedConfigurationService } from "@weaver/config-providers";
+import type { ScopedConfigurationService } from "@weaver/config-types";
 import type { ShellPluginRegistry } from "./plugin-registry-types.js";
 
 export const CONFIG_SERVICE_PLUGIN_ID = "ghost.shell.config-service";

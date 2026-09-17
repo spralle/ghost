@@ -1,23 +1,16 @@
+import type { PermissionSnapshot, SentinelPrincipal, SentinelStore } from "@ghost/sentinel";
 import { buildSnapshot } from "@ghost/sentinel";
-import type { SentinelPrincipal, PermissionSnapshot, SentinelStore } from "@ghost/sentinel";
 import type { BatchBuildOptions, BatchBuildResult } from "./types.js";
 
 /** Run async tasks with bounded concurrency using a worker pool */
-async function runPool<T>(
-  items: readonly T[],
-  limit: number,
-  fn: (item: T) => Promise<void>,
-): Promise<void> {
+async function runPool<T>(items: readonly T[], limit: number, fn: (item: T) => Promise<void>): Promise<void> {
   let index = 0;
-  const workers = Array.from(
-    { length: Math.min(limit, items.length) },
-    async () => {
-      while (index < items.length) {
-        const item = items[index++];
-        await fn(item);
-      }
-    },
-  );
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (index < items.length) {
+      const item = items[index++];
+      await fn(item);
+    }
+  });
   await Promise.all(workers);
 }
 
@@ -55,10 +48,7 @@ export async function buildBatch(
       const snapshot = await buildSnapshot(cachedStore, principal, resourceTypes);
       snapshots.set(principal.userId, snapshot);
     } catch (err: unknown) {
-      errors.set(
-        principal.userId,
-        err instanceof Error ? err : new Error(String(err)),
-      );
+      errors.set(principal.userId, err instanceof Error ? err : new Error(String(err)));
     }
   });
 

@@ -1,6 +1,6 @@
-import { describe, it, expect } from "bun:test";
-import { createRedactionHook } from "../src/redaction-middleware.js";
+import { describe, expect, it } from "bun:test";
 import type { ResourceSchema } from "@ghost/sentinel";
+import { createRedactionHook } from "../src/redaction-middleware.js";
 
 function createSchema(): ResourceSchema<unknown, string> {
   return {
@@ -18,9 +18,7 @@ describe("createRedactionHook", () => {
   it("redacts documents based on granted blocks", () => {
     const hook = createRedactionHook();
     const schema = createSchema();
-    const docs = [
-      { title: "Doc 1", status: "active", content: "secret", notes: "internal" },
-    ];
+    const docs = [{ title: "Doc 1", status: "active", content: "secret", notes: "internal" }];
 
     const result = hook(docs, schema, { grantedBlocks: ["public"] });
 

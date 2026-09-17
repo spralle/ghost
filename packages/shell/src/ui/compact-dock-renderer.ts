@@ -1,12 +1,12 @@
 // compact-dock-renderer.ts — Renders all dock tree tabs as a flat bottom bar with full-screen active content.
 
-import type { DockNode } from "../context-state.js";
 import type { ContextTab, DockStackNode } from "@ghost-shell/state";
 import { escapeHtml } from "../app/utils.js";
+import type { DockNode } from "../context-state.js";
 import { injectCompactDockStyles } from "./compact-dock-styles.js";
-import { renderPartBody } from "./parts-rendering-body.js";
+import { createCompactHeader } from "./compact-header.js";
 import type { ComposedShellPart } from "./parts-rendering.js";
-import { createCompactHeader, type CompactHeaderHandle } from "./compact-header.js";
+import { renderPartBody } from "./parts-rendering-body.js";
 
 // ---------------------------------------------------------------------------
 // Tab collection
@@ -137,7 +137,12 @@ export function renderCompactDock(
     header.update(title, canGoBack(tree, active));
   }
 
-  function render(tree: DockNode, tabMeta: ReadonlyMap<string, ContextTab>, active: string, partsMap?: ReadonlyMap<string, ComposedShellPart>): void {
+  function render(
+    tree: DockNode,
+    tabMeta: ReadonlyMap<string, ContextTab>,
+    active: string,
+    partsMap?: ReadonlyMap<string, ComposedShellPart>,
+  ): void {
     const collected = collectAllTabs(tree);
     const effectiveParts = partsMap ?? new Map<string, ComposedShellPart>();
 

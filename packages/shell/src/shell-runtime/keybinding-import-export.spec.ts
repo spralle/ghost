@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest";
 import { exportKeybindingOverrides, validateKeybindingImport } from "@ghost-shell/commands";
 import type { KeybindingOverrideEntryV1 } from "@ghost-shell/persistence";
+import { describe, expect, it } from "vitest";
+
 describe("keybinding import export", () => {
   // -------------------------------------------------------------------------
   // exportKeybindingOverrides

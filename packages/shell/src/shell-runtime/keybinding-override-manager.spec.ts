@@ -1,7 +1,8 @@
-import { describe, expect, it } from "vitest";
 import { createKeybindingOverrideManager } from "@ghost-shell/commands";
 import type { KeybindingOverrideEntryV1, ShellKeybindingPersistence } from "@ghost-shell/persistence";
+import { describe, expect, it } from "vitest";
 import type { ActionKeybinding } from "../action-surface.js";
+
 function createMockPersistence(): ShellKeybindingPersistence & { saved: KeybindingOverrideEntryV1[][] } {
   const saved: KeybindingOverrideEntryV1[][] = [];
   let current: KeybindingOverrideEntryV1[] = [];

@@ -1,8 +1,8 @@
-import type { JsonFormLayoutNode, JsonFormSchema } from "@ghost-shell/contracts";
 import type { FormApi } from "@formbar/core";
 import type { LayoutNode, SchemaFieldInfo } from "@formbar/from-schema";
 import { compileLayout, ingestSchema } from "@formbar/from-schema";
 import { useForm } from "@formbar/react";
+import type { JsonFormLayoutNode, JsonFormSchema } from "@ghost-shell/contracts";
 import { FieldGroup } from "@ghost-shell/ui";
 import type { ReactElement } from "react";
 import { useMemo } from "react";

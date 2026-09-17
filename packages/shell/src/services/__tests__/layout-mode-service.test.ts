@@ -1,8 +1,8 @@
 // layout-mode-service.test.ts — Tests for the layout mode service.
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { LayoutSignals } from "../layout-mode-types.js";
 import { createLayoutModeService } from "../layout-mode-service.js";
+import type { LayoutSignals } from "../layout-mode-types.js";
 
 function makeSignals(overrides: Partial<LayoutSignals> = {}): LayoutSignals {
   return {
@@ -56,11 +56,13 @@ describe("layout-mode-service", () => {
     });
 
     it("resolves wide touch-only (≥1024, no fine pointer, no hover) to medium", () => {
-      const s = createTestService(makeSignals({
-        viewportWidth: 1200,
-        anyPointerFine: false,
-        anyHoverHover: false,
-      }));
+      const s = createTestService(
+        makeSignals({
+          viewportWidth: 1200,
+          anyPointerFine: false,
+          anyHoverHover: false,
+        }),
+      );
       expect(s.mode).toBe("medium");
       s.dispose();
     });
@@ -221,8 +223,12 @@ describe("layout-mode-service", () => {
   // ─── Debounce ───
 
   describe("debounce", () => {
-    beforeEach(() => { vi.useFakeTimers(); });
-    afterEach(() => { vi.useRealTimers(); });
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
 
     it("coalesces rapid signal changes into a single mode change", () => {
       let current = makeSignals({ viewportWidth: 500 });
@@ -303,7 +309,9 @@ describe("layout-mode-service", () => {
 
   describe("getContextFacts", () => {
     it("returns correct context facts for compact mode", () => {
-      const s = createTestService(makeSignals({ viewportWidth: 400, pointer: "coarse", hover: "none", orientation: "portrait" }));
+      const s = createTestService(
+        makeSignals({ viewportWidth: 400, pointer: "coarse", hover: "none", orientation: "portrait" }),
+      );
       const facts = s.getContextFacts();
       expect(facts["layout.mode"]).toBe("compact");
       expect(facts["layout.tabStripPosition"]).toBe("bottom");

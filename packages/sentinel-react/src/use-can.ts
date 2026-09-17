@@ -1,16 +1,13 @@
-import { useMemo } from "react";
-import { can } from "@ghost/sentinel";
 import type { CheckContext } from "@ghost/sentinel";
+import { can } from "@ghost/sentinel";
+import { useMemo } from "react";
 import { useSentinel } from "./sentinel-context.js";
 
 export interface UseCanResult {
   readonly allowed: boolean;
 }
 
-export function useCan(
-  action: string,
-  resource?: Record<string, unknown>,
-): UseCanResult {
+export function useCan(action: string, resource?: Record<string, unknown>): UseCanResult {
   const { snapshot, principal } = useSentinel();
   const res = resource ?? {};
 

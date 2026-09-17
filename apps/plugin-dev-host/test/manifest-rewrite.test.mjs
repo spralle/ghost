@@ -43,7 +43,7 @@ describe("rewriteManifestPublicPath", () => {
   it("handles entries with no assets gracefully", () => {
     const manifest = { shared: [{ name: "react" }], exposes: [{ path: "./foo" }] };
     const result = rewriteManifestPublicPath(manifest, BASE);
-    // Should not throw — assets are optional
+    // Should not throw â€” assets are optional
     assert.equal(result.shared[0].name, "react");
   });
 

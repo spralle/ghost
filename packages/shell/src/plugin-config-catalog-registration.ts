@@ -3,9 +3,9 @@
 // Registers the PluginConfigCatalog as a builtin plugin capability,
 // following the same pattern as config-service-registration.ts.
 
+import type { PluginConfigCatalog } from "@ghost-shell/config-plugin-runtime";
 import type { PluginContract } from "@ghost-shell/contracts";
 import { PLUGIN_CONFIG_CATALOG_SERVICE_ID } from "@ghost-shell/contracts";
-import type { PluginConfigCatalog } from "@ghost-shell/config-plugin-runtime";
 import type { ShellPluginRegistry } from "./plugin-registry-types.js";
 
 export const PLUGIN_CONFIG_CATALOG_PLUGIN_ID = "ghost.shell.plugin-config-catalog";

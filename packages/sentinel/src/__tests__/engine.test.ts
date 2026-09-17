@@ -1,19 +1,11 @@
 import { describe, expect, it } from "vitest";
-import {
-  check,
-  can,
-  filterQuery,
-  redact,
-  expand,
-  type SentinelPrincipal,
-  type CheckContext,
-} from "../index.js";
-import { compilePolicyRules } from "../policy/compile-policy.js";
 import { GraphSubset } from "../graph/graph-subset.js";
-import { createTuple } from "../graph/relation-tuple.js";
 import { createNode } from "../graph/relation-node.js";
-import { defineResourceSchema } from "../schema/define-resource.js";
+import { createTuple } from "../graph/relation-tuple.js";
+import { type CheckContext, can, check, expand, filterQuery, redact, type SentinelPrincipal } from "../index.js";
+import { compilePolicyRules } from "../policy/compile-policy.js";
 import type { PolicyRule } from "../policy/policy-types.js";
+import { defineResourceSchema } from "../schema/define-resource.js";
 
 const principal: SentinelPrincipal = {
   userId: "user-1",

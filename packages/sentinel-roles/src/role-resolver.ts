@@ -1,6 +1,6 @@
-import { expandBundles } from './permission-bundle';
-import { RoleRegistry } from './role-registry';
-import type { PermissionGrant, ResolvedRole } from './types';
+import { expandBundles } from "./permission-bundle";
+import type { RoleRegistry } from "./role-registry";
+import type { PermissionGrant, ResolvedRole } from "./types";
 
 /** Deduplicate grants by action+resourceType */
 function deduplicateGrants(grants: readonly PermissionGrant[]): readonly PermissionGrant[] {
@@ -37,7 +37,7 @@ export async function resolveRole(
   let bundleIds: string[] = [];
   const chain: string[] = [roleId];
 
-  if (role.kind === 'custom') {
+  if (role.kind === "custom") {
     const expanded = expandBundles(role.bundles, registry.getBundles());
     grants = [...expanded, ...role.additionalGrants];
     bundleIds = [...role.bundles];

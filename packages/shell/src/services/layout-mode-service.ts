@@ -7,7 +7,6 @@
 import { createEventEmitter, evaluateContributionPredicate } from "@ghost-shell/plugin-system";
 import type {
   DisposableLayoutModeService,
-  LayoutModeService,
   LayoutOverride,
   LayoutResolutionConfig,
   LayoutRuleset,
@@ -21,10 +20,22 @@ import type {
 
 const DEFAULT_LAYOUT_RULES: LayoutRuleset = [
   { name: "narrow-viewport", when: { viewportWidth: { $lt: 600 } }, mode: "compact" },
-  { name: "short-touch-viewport", when: { viewportHeight: { $lt: 500 }, anyPointerFine: { $eq: false } }, mode: "compact" },
-  { name: "medium-touch-only", when: { viewportWidth: { $gte: 600, $lt: 768 }, anyPointerFine: { $eq: false } }, mode: "compact" },
+  {
+    name: "short-touch-viewport",
+    when: { viewportHeight: { $lt: 500 }, anyPointerFine: { $eq: false } },
+    mode: "compact",
+  },
+  {
+    name: "medium-touch-only",
+    when: { viewportWidth: { $gte: 600, $lt: 768 }, anyPointerFine: { $eq: false } },
+    mode: "compact",
+  },
   { name: "medium-viewport", when: { viewportWidth: { $gte: 600, $lt: 1024 } }, mode: "medium" },
-  { name: "wide-touch-only", when: { viewportWidth: { $gte: 1024 }, anyPointerFine: { $eq: false }, anyHoverHover: { $eq: false } }, mode: "medium" },
+  {
+    name: "wide-touch-only",
+    when: { viewportWidth: { $gte: 1024 }, anyPointerFine: { $eq: false }, anyHoverHover: { $eq: false } },
+    mode: "medium",
+  },
   { name: "wide-viewport", when: { viewportWidth: { $gte: 1024 } }, mode: "expanded" },
 ];
 
@@ -115,9 +126,7 @@ export interface CreateLayoutModeServiceOptions {
   signalSource?: () => LayoutSignals;
 }
 
-export function createLayoutModeService(
-  options?: CreateLayoutModeServiceOptions,
-): DisposableLayoutModeService {
+export function createLayoutModeService(options?: CreateLayoutModeServiceOptions): DisposableLayoutModeService {
   const rules = options?.rules ?? DEFAULT_LAYOUT_RULES;
   const modes = options?.modes ?? STANDARD_MODES;
   const config: LayoutResolutionConfig = { ...DEFAULT_CONFIG, ...options?.config };
@@ -201,8 +210,12 @@ export function createLayoutModeService(
 
   // Media query listeners
   const mediaQueries = [
-    "(pointer: coarse)", "(pointer: fine)", "(hover: hover)",
-    "(any-pointer: fine)", "(any-hover: hover)", "(display-mode: standalone)",
+    "(pointer: coarse)",
+    "(pointer: fine)",
+    "(hover: hover)",
+    "(any-pointer: fine)",
+    "(any-hover: hover)",
+    "(display-mode: standalone)",
   ];
   for (const query of mediaQueries) {
     if (typeof globalThis.matchMedia !== "function") break;
@@ -213,10 +226,18 @@ export function createLayoutModeService(
   }
 
   const result: DisposableLayoutModeService = {
-    get mode() { return getEffectiveMode(); },
-    get capabilities() { return getCapabilities(); },
-    get signals() { return currentSignals; },
-    get isOverridden() { return override !== null; },
+    get mode() {
+      return getEffectiveMode();
+    },
+    get capabilities() {
+      return getCapabilities();
+    },
+    get signals() {
+      return currentSignals;
+    },
+    get isOverridden() {
+      return override !== null;
+    },
     onDidChangeMode: modeEmitter.event,
     onDidChangeSignals: signalsEmitter.event,
 

@@ -13,9 +13,7 @@ export interface BackgroundLayerController {
  * system when a LayerRegistry is provided, falling back to the legacy
  * body-level div when it is not.
  */
-export function createBackgroundLayerController(
-  layerRegistry: LayerRegistry | undefined,
-): BackgroundLayerController {
+export function createBackgroundLayerController(layerRegistry: LayerRegistry | undefined): BackgroundLayerController {
   let registered = false;
   let currentEntry: ThemeBackgroundEntry | undefined;
 

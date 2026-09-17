@@ -1,8 +1,4 @@
-import type {
-  RelationTuple,
-  SentinelStore,
-  StoredPolicyRule,
-} from "@ghost/sentinel";
+import type { RelationTuple, SentinelStore, StoredPolicyRule } from "@ghost/sentinel";
 
 /** Re-export-compatible tuple shape for loadTuplesFrom */
 interface StoreTuple {
@@ -56,26 +52,12 @@ export class MemorySentinelStore implements SentinelStore {
     return this;
   }
 
-  async loadTuples(
-    nodeType: string,
-    nodeId: string,
-    relation: string,
-  ): Promise<RelationTuple[]> {
-    return this.tuples.filter(
-      (t) =>
-        t.nodeType === nodeType &&
-        t.nodeId === nodeId &&
-        t.relation === relation,
-    );
+  async loadTuples(nodeType: string, nodeId: string, relation: string): Promise<RelationTuple[]> {
+    return this.tuples.filter((t) => t.nodeType === nodeType && t.nodeId === nodeId && t.relation === relation);
   }
 
-  async loadTuplesFrom(node: {
-    readonly type: string;
-    readonly id: string;
-  }): Promise<StoreTuple[]> {
-    return this.tuples.filter(
-      (t) => t.nodeType === node.type && t.nodeId === node.id,
-    );
+  async loadTuplesFrom(node: { readonly type: string; readonly id: string }): Promise<StoreTuple[]> {
+    return this.tuples.filter((t) => t.nodeType === node.type && t.nodeId === node.id);
   }
 
   async loadPolicies(resourceType: string): Promise<StoredPolicyRule[]> {

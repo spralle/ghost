@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { PluginLayerSurfaceContribution } from "@ghost-shell/contracts/layer";
+import { describe, expect, it } from "vitest";
 import { LayerRegistry } from "../registry.js";
 
 function makeSurface(overrides: Partial<PluginLayerSurfaceContribution> = {}): PluginLayerSurfaceContribution {
@@ -34,9 +34,7 @@ describe("registry", () => {
     const reg = new LayerRegistry();
     reg.registerBuiltinLayers();
     const names = reg.getOrderedLayers().map((l) => l.name);
-    expect(names).toEqual(
-      ["background", "bottom", "main", "floating", "notification", "modal", "overlay"],
-    );
+    expect(names).toEqual(["background", "bottom", "main", "floating", "notification", "modal", "overlay"]);
   });
 
   // --- Plugin layer registration ---

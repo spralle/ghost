@@ -1,6 +1,6 @@
-import { describe, it, expect, mock } from "bun:test";
+import { describe, expect, it, mock } from "bun:test";
 import { createInvalidationProcessor } from "../src/invalidation.js";
-import type { SnapshotManager, InvalidationHandler } from "../src/types.js";
+import type { InvalidationHandler, SnapshotManager } from "../src/types.js";
 
 function createMockManager(): SnapshotManager {
   return {

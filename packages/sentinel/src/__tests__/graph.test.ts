@@ -1,12 +1,6 @@
-import { describe, it, expect } from "bun:test";
-import {
-  createNode,
-  createTuple,
-  GraphSubset,
-  buildCone,
-} from "../graph/index.js";
-import type { SentinelStore } from "../storage/sentinel-store.js";
-import type { StoreTuple } from "../storage/sentinel-store.js";
+import { describe, expect, it } from "bun:test";
+import { buildCone, createNode, createTuple, GraphSubset } from "../graph/index.js";
+import type { SentinelStore, StoreTuple } from "../storage/sentinel-store.js";
 
 describe("GraphSubset", () => {
   const user = createNode("user", "u1");
@@ -50,10 +44,7 @@ describe("GraphSubset", () => {
   it("transitiveClosure() handles cycles", () => {
     const a = createNode("x", "a");
     const b = createNode("x", "b");
-    const cycleTuples = [
-      createTuple(a, "link", b),
-      createTuple(b, "link", a),
-    ];
+    const cycleTuples = [createTuple(a, "link", b), createTuple(b, "link", a)];
     const g = new GraphSubset(cycleTuples);
     const result = g.transitiveClosure(a, "link");
     expect(result).toHaveLength(1);
@@ -117,11 +108,14 @@ describe("buildCone", () => {
 
   it("respects maxNodes", async () => {
     const data = new Map<string, StoreTuple[]>([
-      ["user:u1", [
-        { nodeType: "user", nodeId: "u1", relation: "link", targetType: "x", targetId: "a" },
-        { nodeType: "user", nodeId: "u1", relation: "link", targetType: "x", targetId: "b" },
-        { nodeType: "user", nodeId: "u1", relation: "link", targetType: "x", targetId: "c" },
-      ]],
+      [
+        "user:u1",
+        [
+          { nodeType: "user", nodeId: "u1", relation: "link", targetType: "x", targetId: "a" },
+          { nodeType: "user", nodeId: "u1", relation: "link", targetType: "x", targetId: "b" },
+          { nodeType: "user", nodeId: "u1", relation: "link", targetType: "x", targetId: "c" },
+        ],
+      ],
       ["x:a", []],
       ["x:b", []],
       ["x:c", []],

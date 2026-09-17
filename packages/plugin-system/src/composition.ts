@@ -1,7 +1,7 @@
 import type { PluginLayerSurfaceContribution } from "@ghost-shell/contracts/layer";
 import type {
-  PluginContributionPredicate,
   PluginContract,
+  PluginContributionPredicate,
   PluginDockableTabMetadata,
   PluginPartContribution,
   PluginSectionContribution,

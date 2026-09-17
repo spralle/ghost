@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { PluginContract } from "@ghost-shell/contracts";
+import { describe, expect, it } from "vitest";
 import { createShellPluginRegistry } from "../plugin-registry.js";
 
 function createTestBuiltinContract(): PluginContract {

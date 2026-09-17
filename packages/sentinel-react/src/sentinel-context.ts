@@ -1,6 +1,6 @@
-import { createContext, useContext, createElement } from "react";
-import type { ReactNode } from "react";
 import type { PermissionSnapshot, SentinelPrincipal } from "@ghost/sentinel";
+import type { ReactNode } from "react";
+import { createContext, createElement, useContext } from "react";
 
 export interface SentinelContextValue {
   readonly snapshot: PermissionSnapshot;
@@ -15,16 +15,8 @@ export interface SentinelProviderProps {
 
 const SentinelContext = createContext<SentinelContextValue | null>(null);
 
-export function SentinelProvider({
-  snapshot,
-  principal,
-  children,
-}: SentinelProviderProps): ReactNode {
-  return createElement(
-    SentinelContext.Provider,
-    { value: { snapshot, principal } },
-    children,
-  );
+export function SentinelProvider({ snapshot, principal, children }: SentinelProviderProps): ReactNode {
+  return createElement(SentinelContext.Provider, { value: { snapshot, principal } }, children);
 }
 
 export function useSentinel(): SentinelContextValue {

@@ -1,4 +1,4 @@
-import type { ActionMap } from './types.js';
+import type { ActionMap } from "./types.js";
 
 /**
  * Resolve a sentinel action from a command type using the action map.
@@ -8,7 +8,7 @@ export function resolveAction(actionMap: ActionMap, commandType: string): string
   if (actionMap[commandType]) return actionMap[commandType];
 
   for (const [pattern, action] of Object.entries(actionMap)) {
-    if (pattern.endsWith('.*') && commandType.startsWith(pattern.slice(0, -1))) {
+    if (pattern.endsWith(".*") && commandType.startsWith(pattern.slice(0, -1))) {
       return action;
     }
   }

@@ -291,7 +291,9 @@ async function mountViaFederation(
 
     // Plugin mount functions expect LayerSurfaceContext directly per @ghost-shell/contracts.
     // The MountSurfaceComponentFn type is for built-in shell mounts only.
-    const cleanupResult = await (mountFn as unknown as (t: HTMLElement, ctx: typeof surfaceContext) => ReturnType<typeof mountFn>)(target, surfaceContext);
+    const cleanupResult = await (
+      mountFn as unknown as (t: HTMLElement, ctx: typeof surfaceContext) => ReturnType<typeof mountFn>
+    )(target, surfaceContext);
     const cleanup = normalizeCleanup(cleanupResult);
 
     if (ctx.generation !== expectedGeneration) {

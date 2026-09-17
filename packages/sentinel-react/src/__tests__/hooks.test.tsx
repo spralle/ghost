@@ -1,14 +1,9 @@
-import { expect, test, describe } from "bun:test";
+import { describe, expect, test } from "bun:test";
+import type { CompiledPolicy, PermissionSnapshot, SentinelPrincipal } from "@ghost/sentinel";
+import { GraphSubset } from "@ghost/sentinel";
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
-import {
-  SentinelProvider,
-  useCan,
-  useDataBlock,
-  PermissionGate,
-} from "../index.js";
-import type { PermissionSnapshot, SentinelPrincipal, CompiledPolicy } from "@ghost/sentinel";
-import { GraphSubset } from "@ghost/sentinel";
+import { PermissionGate, SentinelProvider, useCan, useDataBlock } from "../index.js";
 
 function makePolicy(rules: CompiledPolicy["rules"]): CompiledPolicy {
   return { rules };
@@ -49,12 +44,10 @@ function makePrincipal(): SentinelPrincipal {
 }
 
 /** Helper: renders a hook inside SentinelProvider using SSR */
-function renderWithProvider(hookComponent: () => React.ReactNode): string {
+function _renderWithProvider(hookComponent: () => React.ReactNode): string {
   const snapshot = makeSnapshot();
   const principal = makePrincipal();
-  return renderToString(
-    createElement(SentinelProvider, { snapshot, principal }, hookComponent()),
-  );
+  return renderToString(createElement(SentinelProvider, { snapshot, principal }, hookComponent()));
 }
 
 describe("SentinelProvider", () => {
@@ -62,11 +55,7 @@ describe("SentinelProvider", () => {
     const snapshot = makeSnapshot();
     const principal = makePrincipal();
     const html = renderToString(
-      createElement(
-        SentinelProvider,
-        { snapshot, principal },
-        createElement("div", null, "hello"),
-      ),
+      createElement(SentinelProvider, { snapshot, principal }, createElement("div", null, "hello")),
     );
     expect(html).toContain("hello");
   });
@@ -80,9 +69,7 @@ describe("useCan", () => {
     }
     const snapshot = makeSnapshot();
     const principal = makePrincipal();
-    const html = renderToString(
-      createElement(SentinelProvider, { snapshot, principal }, createElement(TestComponent)),
-    );
+    const html = renderToString(createElement(SentinelProvider, { snapshot, principal }, createElement(TestComponent)));
     expect(html).toContain("true");
   });
 
@@ -93,9 +80,7 @@ describe("useCan", () => {
     }
     const snapshot = makeSnapshot();
     const principal = makePrincipal();
-    const html = renderToString(
-      createElement(SentinelProvider, { snapshot, principal }, createElement(TestComponent)),
-    );
+    const html = renderToString(createElement(SentinelProvider, { snapshot, principal }, createElement(TestComponent)));
     expect(html).toContain("false");
   });
 });
@@ -108,9 +93,7 @@ describe("useDataBlock", () => {
     }
     const snapshot = makeSnapshot();
     const principal = makePrincipal();
-    const html = renderToString(
-      createElement(SentinelProvider, { snapshot, principal }, createElement(TestComponent)),
-    );
+    const html = renderToString(createElement(SentinelProvider, { snapshot, principal }, createElement(TestComponent)));
     expect(html).toContain("true:name,email");
   });
 
@@ -121,9 +104,7 @@ describe("useDataBlock", () => {
     }
     const snapshot = makeSnapshot();
     const principal = makePrincipal();
-    const html = renderToString(
-      createElement(SentinelProvider, { snapshot, principal }, createElement(TestComponent)),
-    );
+    const html = renderToString(createElement(SentinelProvider, { snapshot, principal }, createElement(TestComponent)));
     expect(html).toContain("false:0");
   });
 });

@@ -1,7 +1,7 @@
 // plugin-config-sidebar.tsx — Searchable list of configurable plugins.
 
-import { useState, useMemo, useCallback } from "react";
 import type { PluginRegistryEntry } from "@ghost-shell/contracts";
+import { useCallback, useMemo, useState } from "react";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -29,11 +29,7 @@ function displayName(entry: PluginRegistryEntry): string {
 // Component
 // ---------------------------------------------------------------------------
 
-export function PluginConfigSidebar({
-  plugins,
-  selectedPluginId,
-  onSelectPlugin,
-}: PluginConfigSidebarProps) {
+export function PluginConfigSidebar({ plugins, selectedPluginId, onSelectPlugin }: PluginConfigSidebarProps) {
   const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
@@ -45,10 +41,7 @@ export function PluginConfigSidebar({
     });
   }, [plugins, search]);
 
-  const handleSearchChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value),
-    [],
-  );
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value), []);
 
   return (
     <nav
@@ -107,12 +100,8 @@ export function PluginConfigSidebar({
               border: "none",
               borderRadius: "4px",
               cursor: "pointer",
-              background: isSelected
-                ? "var(--ghost-accent)"
-                : "transparent",
-              color: isSelected
-                ? "var(--ghost-accent-foreground)"
-                : "var(--ghost-foreground)",
+              background: isSelected ? "var(--ghost-accent)" : "transparent",
+              color: isSelected ? "var(--ghost-accent-foreground)" : "var(--ghost-foreground)",
             }}
           >
             <span style={{ fontWeight: 500 }}>{displayName(plugin)}</span>
@@ -120,9 +109,7 @@ export function PluginConfigSidebar({
               style={{
                 display: "block",
                 fontSize: "11px",
-                color: isSelected
-                  ? "var(--ghost-accent-foreground)"
-                  : "var(--ghost-muted-foreground)",
+                color: isSelected ? "var(--ghost-accent-foreground)" : "var(--ghost-muted-foreground)",
                 opacity: 0.8,
               }}
             >

@@ -2,8 +2,6 @@ export type { ActivityStatusService, ActivityToken } from "./activity-status-ser
 export { ACTIVITY_STATUS_SERVICE_ID } from "./activity-status-service.js";
 export type { ConfigurationService } from "./config-service.js";
 export { CONFIG_SERVICE_ID } from "./config-service.js";
-export type { PluginConfigCatalogService } from "./plugin-config-catalog-service.js";
-export { PLUGIN_CONFIG_CATALOG_SERVICE_ID } from "./plugin-config-catalog-service.js";
 export type { ContextContribution, ProviderContribution } from "./context-contribution.js";
 export type {
   ContextApi,
@@ -52,8 +50,6 @@ export type {
   JsonFormOptions,
   JsonFormSchema,
 } from "./jsonform-capability.js";
-export type { LayoutApiService } from "./layout-service.js";
-export { LAYOUT_SERVICE_ID } from "./layout-service.js";
 export type {
   KeybindingEntry,
   KeybindingOverride,
@@ -76,6 +72,8 @@ export {
   InputBehavior,
   KeyboardInteractivity,
 } from "./layer-types.js";
+export type { LayoutApiService } from "./layout-service.js";
+export { LAYOUT_SERVICE_ID } from "./layout-service.js";
 export type {
   ParsePluginContractResult,
   ParseTenantPluginManifestResult,
@@ -83,6 +81,8 @@ export type {
 } from "./parsing.js";
 export { parsePluginContract, parseTenantPluginManifest } from "./parsing.js";
 export type { PartRenderContext, PartRenderer, PartRendererRegistry, PartRenderHandle } from "./part-renderer.js";
+export type { PluginConfigCatalogService } from "./plugin-config-catalog-service.js";
+export { PLUGIN_CONFIG_CATALOG_SERVICE_ID } from "./plugin-config-catalog-service.js";
 export type { PluginManagementService } from "./plugin-management-service.js";
 export { PLUGIN_MANAGEMENT_SERVICE_ID } from "./plugin-management-service.js";
 export type {

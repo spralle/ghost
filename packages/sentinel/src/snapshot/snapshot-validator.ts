@@ -4,8 +4,8 @@ import type { PermissionSnapshot } from "./permission-snapshot.js";
 export const DEFAULT_ROLE_TTLS: Readonly<Record<string, number>> = {
   "platform-ops": 60 * 60 * 1000, // 1h
   "tenant-admin": 2 * 60 * 60 * 1000, // 2h
-  "user": 8 * 60 * 60 * 1000, // 8h
-  "service": 24 * 60 * 60 * 1000, // 24h
+  user: 8 * 60 * 60 * 1000, // 8h
+  service: 24 * 60 * 60 * 1000, // 24h
 } as const;
 
 /** Role priority order (lower index = higher priority = shorter TTL) */
@@ -24,10 +24,7 @@ export function needsRefresh(snapshot: PermissionSnapshot): boolean {
 }
 
 /** Get TTL for a principal based on their highest-priority role */
-export function getTtlForRoles(
-  roles: readonly string[],
-  customTtls?: Readonly<Record<string, number>>,
-): number {
+export function getTtlForRoles(roles: readonly string[], customTtls?: Readonly<Record<string, number>>): number {
   const ttls = customTtls ?? DEFAULT_ROLE_TTLS;
 
   for (const role of ROLE_PRIORITY) {

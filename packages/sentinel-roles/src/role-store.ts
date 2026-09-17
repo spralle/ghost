@@ -1,4 +1,4 @@
-import type { CustomRole, PermissionBundle, RoleStore, SystemRole } from './types';
+import type { CustomRole, PermissionBundle, RoleStore, SystemRole } from "./types";
 
 /** In-memory implementation of RoleStore for testing */
 export class MemoryRoleStore implements RoleStore {
@@ -20,9 +20,7 @@ export class MemoryRoleStore implements RoleStore {
   }
 
   async saveCustomRole(role: CustomRole): Promise<void> {
-    const idx = this.customRoles.findIndex(
-      (r) => r.id === role.id && r.tenantId === role.tenantId,
-    );
+    const idx = this.customRoles.findIndex((r) => r.id === role.id && r.tenantId === role.tenantId);
     if (idx >= 0) {
       this.customRoles[idx] = role;
     } else {
@@ -31,9 +29,7 @@ export class MemoryRoleStore implements RoleStore {
   }
 
   async deleteCustomRole(tenantId: string, roleId: string): Promise<void> {
-    const idx = this.customRoles.findIndex(
-      (r) => r.id === roleId && r.tenantId === tenantId,
-    );
+    const idx = this.customRoles.findIndex((r) => r.id === roleId && r.tenantId === tenantId);
     if (idx >= 0) {
       this.customRoles.splice(idx, 1);
     }

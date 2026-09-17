@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { evaluateContributionPredicate } from "@ghost-shell/plugin-system";
+import { describe, expect, it } from "vitest";
 
 /**
  * Tests for edge-slot when-predicate filtering logic.

@@ -1,11 +1,6 @@
 // Plugin config catalog — extracts and composes config schemas from plugin contracts
 
 import type { ConfigurationPropertySchema } from "@ghost-shell/contracts/plugin";
-import {
-  composeConfigurationSchemas,
-  createSchemaRegistry,
-  deriveNamespace,
-} from "@weaver/config-engine";
 import type {
   ComposedSchemaEntry,
   ComposeResult,
@@ -15,6 +10,7 @@ import type {
   SchemaCompositionError,
   UnregisterSchemaResult,
 } from "@weaver/config-engine";
+import { composeConfigurationSchemas, createSchemaRegistry, deriveNamespace } from "@weaver/config-engine";
 
 // Re-export weaver types so downstream consumers can still import from this module
 export type {

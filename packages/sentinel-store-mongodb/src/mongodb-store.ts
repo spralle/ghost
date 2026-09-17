@@ -1,6 +1,6 @@
-import type { Collection, Db } from 'mongodb';
-import type { MongoSentinelStoreConfig, TupleDocument, PolicyDocument, RoleDocument } from './types';
-import { COLLECTION_NAMES, INDEXES } from './collections';
+import type { Collection, Db } from "mongodb";
+import { COLLECTION_NAMES, INDEXES } from "./collections";
+import type { MongoSentinelStoreConfig, PolicyDocument, RoleDocument, TupleDocument } from "./types";
 
 interface RelationTuple {
   readonly nodeType: string;
@@ -32,28 +32,26 @@ export class MongoSentinelStore implements SentinelStore {
 
   constructor(config: MongoSentinelStoreConfig) {
     this.db = config.db;
-    this.prefix = config.collectionPrefix ?? 'sentinel_';
+    this.prefix = config.collectionPrefix ?? "sentinel_";
     this.tuples = this.db.collection<TupleDocument>(`${this.prefix}${COLLECTION_NAMES.tuples}`);
     this.policies = this.db.collection<PolicyDocument>(`${this.prefix}${COLLECTION_NAMES.policies}`);
     this.roles = this.db.collection<RoleDocument>(`${this.prefix}${COLLECTION_NAMES.roles}`);
   }
 
   async loadTuples(nodeType: string, nodeId: string, relation: string): Promise<RelationTuple[]> {
-    return this.tuples
-      .find({ nodeType, nodeId, relation }, { projection: { _id: 0 } })
-      .toArray() as Promise<RelationTuple[]>;
+    return this.tuples.find({ nodeType, nodeId, relation }, { projection: { _id: 0 } }).toArray() as Promise<
+      RelationTuple[]
+    >;
   }
 
   async loadTuplesFrom(node: { readonly type: string; readonly id: string }): Promise<RelationTuple[]> {
-    return this.tuples
-      .find({ nodeType: node.type, nodeId: node.id }, { projection: { _id: 0 } })
-      .toArray() as Promise<RelationTuple[]>;
+    return this.tuples.find({ nodeType: node.type, nodeId: node.id }, { projection: { _id: 0 } }).toArray() as Promise<
+      RelationTuple[]
+    >;
   }
 
   async loadPolicies(resourceType: string): Promise<PolicyRule[]> {
-    return this.policies
-      .find({ resourceType }, { projection: { _id: 0 } })
-      .toArray() as Promise<PolicyRule[]>;
+    return this.policies.find({ resourceType }, { projection: { _id: 0 } }).toArray() as Promise<PolicyRule[]>;
   }
 
   async loadRoles(principalId: string): Promise<string[]> {
@@ -102,11 +100,7 @@ export class MongoSentinelStore implements SentinelStore {
   }
 
   async setRoles(principalId: string, roles: readonly string[]): Promise<this> {
-    await this.roles.updateOne(
-      { principalId },
-      { $set: { principalId, roles: [...roles] } },
-      { upsert: true },
-    );
+    await this.roles.updateOne({ principalId }, { $set: { principalId, roles: [...roles] } }, { upsert: true });
     return this;
   }
 

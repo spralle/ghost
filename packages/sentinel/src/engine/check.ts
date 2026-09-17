@@ -1,8 +1,8 @@
-import type { CompiledPolicy } from "../policy/compile-policy.js";
-import type { EvalContext } from "../policy/policy-types.js";
-import { evaluatePolicy } from "../policy/evaluate-policy.js";
 import type { GraphSubset } from "../graph/graph-subset.js";
 import { createNode } from "../graph/relation-node.js";
+import type { CompiledPolicy } from "../policy/compile-policy.js";
+import { evaluatePolicy } from "../policy/evaluate-policy.js";
+import type { EvalContext } from "../policy/policy-types.js";
 import type { SentinelPrincipal } from "../principal/sentinel-principal.js";
 
 export interface CheckContext {
@@ -18,11 +18,7 @@ export interface CheckResult {
 }
 
 /** Build EvalContext from principal, resource, and graph subset */
-function buildEvalContext(
-  principal: SentinelPrincipal,
-  action: string,
-  context: CheckContext,
-): EvalContext {
+function buildEvalContext(principal: SentinelPrincipal, action: string, context: CheckContext): EvalContext {
   const principalNode = createNode("user", principal.userId);
 
   return {
@@ -45,11 +41,7 @@ function buildEvalContext(
 }
 
 /** Check if a principal can perform an action on a resource */
-export function check(
-  principal: SentinelPrincipal,
-  action: string,
-  context: CheckContext,
-): CheckResult {
+export function check(principal: SentinelPrincipal, action: string, context: CheckContext): CheckResult {
   const evalContext = buildEvalContext(principal, action, context);
   const decision = evaluatePolicy(context.policy, action, evalContext);
 

@@ -1,7 +1,6 @@
-import { describe, it, expect, mock } from "bun:test";
+import { describe, expect, it, mock } from "bun:test";
+import type { SentinelPrincipal, SentinelStore } from "@ghost/sentinel";
 import { createSnapshotManager } from "../src/snapshot-manager.js";
-import type { SentinelStore, SentinelPrincipal, PermissionSnapshot } from "@ghost/sentinel";
-import type { SnapshotCache } from "../src/types.js";
 
 function createMockStore(): SentinelStore {
   return {

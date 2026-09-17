@@ -1,5 +1,9 @@
 import type { ShellEdgeSlot, ShellEdgeSlotPosition } from "@ghost-shell/contracts";
-import { type ComposedPluginSlotContribution, composeEnabledPluginContributions, evaluateContributionPredicate } from "@ghost-shell/plugin-system";
+import {
+  type ComposedPluginSlotContribution,
+  composeEnabledPluginContributions,
+  evaluateContributionPredicate,
+} from "@ghost-shell/plugin-system";
 import type { ShellRuntime } from "../app/types.js";
 import {
   ensureRemoteRegistered,

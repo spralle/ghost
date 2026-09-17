@@ -29,10 +29,7 @@ export function redact<T extends Record<string, unknown>>(
 }
 
 /** Collect all allowed top-level field paths from granted blocks */
-function collectAllowedPaths(
-  schema: ResourceSchema<unknown, string>,
-  grantedBlocks: readonly string[],
-): Set<string> {
+function collectAllowedPaths(schema: ResourceSchema<unknown, string>, grantedBlocks: readonly string[]): Set<string> {
   const paths = new Set<string>();
 
   for (const blockName of grantedBlocks) {
@@ -47,10 +44,7 @@ function collectAllowedPaths(
 }
 
 /** Pick only allowed paths from document (top-level dot-path support) */
-function pickPaths(
-  document: Record<string, unknown>,
-  allowedPaths: Set<string>,
-): Record<string, unknown> {
+function pickPaths(document: Record<string, unknown>, allowedPaths: Set<string>): Record<string, unknown> {
   const result: Record<string, unknown> = {};
 
   for (const path of allowedPaths) {

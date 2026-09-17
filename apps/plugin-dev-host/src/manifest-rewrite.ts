@@ -4,7 +4,7 @@
  * The gateway is the single source of truth for origin/port/pluginId,
  * so rewriting happens here rather than coupling plugins to env vars.
  *
- * Only publicPath is rewritten — asset paths in shared[] and exposes[]
+ * Only publicPath is rewritten â€” asset paths in shared[] and exposes[]
  * remain relative because the federation runtime resolves them against
  * publicPath automatically. Prefixing both causes doubled URLs.
  */
@@ -26,7 +26,7 @@ interface MfEntry {
 
 /**
  * Deep-clones an MF manifest and sets `metaData.publicPath` to the given
- * absolute base URL. Asset paths remain relative — the federation runtime
+ * absolute base URL. Asset paths remain relative â€” the federation runtime
  * resolves them against publicPath at load time.
  */
 export function rewriteManifestPublicPath(

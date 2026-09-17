@@ -1,11 +1,11 @@
-import type { SentinelStore } from "../storage/sentinel-store.js";
-import type { SentinelPrincipal } from "../principal/sentinel-principal.js";
-import type { PermissionSnapshot } from "./permission-snapshot.js";
-import { compilePolicyRules } from "../policy/compile-policy.js";
 import { buildCone } from "../graph/cone-builder.js";
 import { createNode } from "../graph/relation-node.js";
-import { getTtlForRoles } from "./snapshot-validator.js";
 import type { CompiledRule } from "../policy/compile-policy.js";
+import { compilePolicyRules } from "../policy/compile-policy.js";
+import type { SentinelPrincipal } from "../principal/sentinel-principal.js";
+import type { SentinelStore } from "../storage/sentinel-store.js";
+import type { PermissionSnapshot } from "./permission-snapshot.js";
+import { getTtlForRoles } from "./snapshot-validator.js";
 
 export interface SnapshotBuilderOptions {
   readonly maxGraphDepth?: number; // default 5

@@ -1,5 +1,5 @@
+import type { PermissionSnapshot, SentinelPrincipal } from "@ghost/sentinel";
 import { buildSnapshot, isExpired } from "@ghost/sentinel";
-import type { SentinelPrincipal, PermissionSnapshot } from "@ghost/sentinel";
 import type { SnapshotCache, SnapshotManager, SnapshotManagerConfig } from "./types.js";
 
 /** Default in-memory cache */
@@ -7,9 +7,15 @@ function createDefaultCache(): SnapshotCache {
   const map = new Map<string, PermissionSnapshot>();
   return {
     get: (id) => map.get(id),
-    set: (id, snapshot) => { map.set(id, snapshot); },
-    delete: (id) => { map.delete(id); },
-    clear: () => { map.clear(); },
+    set: (id, snapshot) => {
+      map.set(id, snapshot);
+    },
+    delete: (id) => {
+      map.delete(id);
+    },
+    clear: () => {
+      map.clear();
+    },
   };
 }
 

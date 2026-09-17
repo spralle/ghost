@@ -1,8 +1,4 @@
-import type {
-  InvalidationEvent,
-  InvalidationProcessor,
-  InvalidationProcessorConfig,
-} from "./types.js";
+import type { InvalidationEvent, InvalidationProcessor, InvalidationProcessorConfig } from "./types.js";
 
 const DEFAULT_DEBOUNCE_MS = 100;
 
@@ -10,9 +6,7 @@ const DEFAULT_DEBOUNCE_MS = 100;
  * Create an invalidation processor that debounces events and
  * batches affected principal IDs before invalidating.
  */
-export function createInvalidationProcessor(
-  config: InvalidationProcessorConfig,
-): InvalidationProcessor {
+export function createInvalidationProcessor(config: InvalidationProcessorConfig): InvalidationProcessor {
   const { snapshotManager, handler, debounceMs = DEFAULT_DEBOUNCE_MS } = config;
 
   let pending = new Set<string>();

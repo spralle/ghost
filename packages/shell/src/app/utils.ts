@@ -118,7 +118,11 @@ export function parseTenantManifestFallback(input: unknown): TenantPluginManifes
       result.activationEvents = descriptor.activationEvents;
     }
 
-    if (descriptor.contributes && typeof descriptor.contributes === "object" && !Array.isArray(descriptor.contributes)) {
+    if (
+      descriptor.contributes &&
+      typeof descriptor.contributes === "object" &&
+      !Array.isArray(descriptor.contributes)
+    ) {
       const raw = descriptor.contributes as Record<string, unknown>;
       const contributes: Record<string, unknown> = {};
 

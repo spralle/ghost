@@ -1,4 +1,4 @@
-import type { Db } from 'mongodb';
+import type { Db } from "mongodb";
 
 export interface MongoSentinelStoreConfig {
   readonly db: Db;

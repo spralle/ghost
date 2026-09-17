@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { IntentRuntime } from "@ghost-shell/intents";
+import { describe, expect, it } from "vitest";
 import type { ActionSurface } from "../action-surface.js";
 import { type ActionServiceDependencies, createActionService } from "./action-service.js";
 

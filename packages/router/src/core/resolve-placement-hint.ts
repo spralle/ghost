@@ -8,10 +8,7 @@ export interface PlacementCapabilities {
  * Resolve a PlacementHint based on layout capabilities.
  * Degrades hints that aren't supported in the current mode.
  */
-export function resolvePlacementHint(
-  hint: PlacementHint,
-  capabilities: PlacementCapabilities,
-): PlacementHint {
+export function resolvePlacementHint(hint: PlacementHint, capabilities: PlacementCapabilities): PlacementHint {
   switch (hint) {
     case "split":
       return capabilities.maxPanes > 1 ? "split" : "auto";

@@ -1,5 +1,5 @@
-import { createPrincipal } from "@ghost/sentinel";
 import type { SentinelPrincipal, SentinelStore } from "@ghost/sentinel";
+import { createPrincipal } from "@ghost/sentinel";
 import type { EnrichedJwtPayload, PrincipalResolverOptions } from "./types.js";
 
 /**
@@ -27,11 +27,7 @@ export async function resolvePrincipal(
   });
 }
 
-async function resolvePartyIds(
-  jwt: EnrichedJwtPayload,
-  store: SentinelStore,
-  trustJwt: boolean,
-): Promise<string[]> {
+async function resolvePartyIds(jwt: EnrichedJwtPayload, store: SentinelStore, trustJwt: boolean): Promise<string[]> {
   if (jwt.partyIds && trustJwt) {
     return [...jwt.partyIds];
   }
@@ -40,10 +36,7 @@ async function resolvePartyIds(
   return tuples.map((t) => t.targetId);
 }
 
-async function resolveOrgChain(
-  jwt: EnrichedJwtPayload,
-  store: SentinelStore,
-): Promise<string[]> {
+async function resolveOrgChain(jwt: EnrichedJwtPayload, store: SentinelStore): Promise<string[]> {
   if (jwt.orgChain) {
     return [...jwt.orgChain];
   }

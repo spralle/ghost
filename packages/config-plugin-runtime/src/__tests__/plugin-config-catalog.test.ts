@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 /**
  * Integration test verifying the full pipeline from plugin configuration
@@ -6,8 +6,8 @@ import { describe, it, expect } from "vitest";
  * the plugin config catalog to what the settings panel would receive.
  */
 
-import { extractPluginSchemas } from "../plugin-config-catalog";
 import type { PluginConfigInput } from "../plugin-config-catalog";
+import { extractPluginSchemas } from "../plugin-config-catalog";
 
 describe("plugin-config-catalog integration", () => {
   describe("theme-service builtin contract", () => {

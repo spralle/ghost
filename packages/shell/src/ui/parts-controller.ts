@@ -164,9 +164,7 @@ function renderCompactDockMode(
   deps: PartsControllerDeps,
 ): void {
   const dockTree = runtime.contextState.dockTree.root!;
-  const tabMeta = new Map<string, ContextTab>(
-    Object.entries(runtime.contextState.tabs),
-  );
+  const tabMeta = new Map<string, ContextTab>(Object.entries(runtime.contextState.tabs));
   const partsMap = new Map(visibleDockParts.map((p) => [p.instanceId, p]));
   const activeTabId = runtime.selectedPartId ?? runtime.contextState.activeTabId ?? "";
 

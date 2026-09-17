@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { QuickPickItem } from "@ghost-shell/contracts";
+import { describe, expect, it } from "vitest";
 import { createWindowService, type WindowServiceDependencies } from "./window-service.js";
 
 function createTestDeps(overrides: Partial<WindowServiceDependencies> = {}): WindowServiceDependencies {

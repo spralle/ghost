@@ -201,9 +201,7 @@ describe("workspace", () => {
     state = createWorkspace(state).state;
     const result = reorderWorkspace(state, "1", 999);
     expect(result.changed).toBe(true);
-    expect(
-      result.state.workspaceOrder[result.state.workspaceOrder.length - 1],
-    ).toBe("1");
+    expect(result.state.workspaceOrder[result.state.workspaceOrder.length - 1]).toBe("1");
   });
 
   it("reorderWorkspace returns changed false when position unchanged", () => {

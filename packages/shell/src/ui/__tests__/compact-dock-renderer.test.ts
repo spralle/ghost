@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { DockSplitNode, DockStackNode } from "@ghost-shell/state";
+import { describe, expect, it } from "vitest";
 import { collectAllTabs } from "../compact-dock-renderer.js";
 
 describe("collectAllTabs", () => {

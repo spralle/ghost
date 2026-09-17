@@ -1,14 +1,9 @@
 import type { ConfigurationPropertySchema } from "@ghost-shell/contracts/plugin";
-import type { ConfigurationLayer } from "@weaver/config-types";
-import {
-  composeConfigurationSchemas,
-  deriveNamespace,
-  qualifyKey,
-} from "@weaver/config-engine";
 import type { SchemaCompositionError } from "@weaver/config-engine";
-import type { ComposeResult, ConfigurationSchemaDeclaration } from "./plugin-config-catalog.js";
+import { composeConfigurationSchemas, deriveNamespace, qualifyKey } from "@weaver/config-engine";
+import type { ConfigurationLayer } from "@weaver/config-types";
+import type { ComposeResult, ConfigurationSchemaDeclaration, PluginConfigInput } from "./plugin-config-catalog.js";
 import { extractPluginSchemas } from "./plugin-config-catalog.js";
-import type { PluginConfigInput } from "./plugin-config-catalog.js";
 
 export type PluginConfigLifecycleEvent = "install" | "uninstall" | "enable" | "disable" | "promote";
 

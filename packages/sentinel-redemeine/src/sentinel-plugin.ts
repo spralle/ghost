@@ -1,7 +1,7 @@
-import { check, expand } from '@ghost/sentinel';
-import type { CheckContext, SentinelPrincipal } from '@ghost/sentinel';
-import { resolveAction } from './action-mapper.js';
-import { AuthorizationError, type SentinelPluginConfig, type EvaluationMode } from './types.js';
+import type { CheckContext, SentinelPrincipal } from "@ghost/sentinel";
+import { check, expand } from "@ghost/sentinel";
+import { resolveAction } from "./action-mapper.js";
+import { AuthorizationError, type EvaluationMode, type SentinelPluginConfig } from "./types.js";
 
 /** Shape of the redemeine CommandInterceptorContext we consume */
 interface CommandContext {
@@ -21,13 +21,13 @@ function buildCheckContext(
   mode: EvaluationMode,
   principal: SentinelPrincipal,
   ctx: CommandContext,
-  buildResource: SentinelPluginConfig['buildResource'],
+  buildResource: SentinelPluginConfig["buildResource"],
 ): CheckContext | undefined {
   const resource = buildResource
     ? buildResource({ aggregateId: ctx.aggregateId, commandType: ctx.commandType, payload: ctx.payload })
     : { id: ctx.aggregateId, type: ctx.commandType };
 
-  if (mode.kind === 'snapshot') {
+  if (mode.kind === "snapshot") {
     const snapshot = mode.getSnapshot(principal.userId);
     if (!snapshot) return undefined;
     return {
@@ -45,35 +45,28 @@ function buildCheckContext(
 
 function createDeniedResult() {
   return {
-    effect: 'deny' as const,
+    effect: "deny" as const,
     matchedRules: [] as readonly { name: string; effect: string; salience: number }[],
-    reason: 'No evaluation context available',
+    reason: "No evaluation context available",
   };
 }
 
 /** Create a Sentinel authorization plugin for redemeine */
 export function createSentinelPlugin(config: SentinelPluginConfig): RedemeinePlugin {
-  const {
-    actionMap,
-    resolvePrincipal,
-    mode,
-    denyUnmapped = false,
-    denyAnonymous = true,
-    buildResource,
-  } = config;
+  const { actionMap, resolvePrincipal, mode, denyUnmapped = false, denyAnonymous = true, buildResource } = config;
 
   return {
-    key: 'sentinel-auth',
+    key: "sentinel-auth",
     async onBeforeCommand(ctx: CommandContext) {
       const action = resolveAction(actionMap, ctx.commandType);
       if (!action) {
         if (denyUnmapped) {
           throw new AuthorizationError({
-            principal: { userId: 'unknown', tenantId: 'unknown', roles: [], partyIds: [], orgChain: [] },
+            principal: { userId: "unknown", tenantId: "unknown", roles: [], partyIds: [], orgChain: [] },
             action: ctx.commandType,
             commandType: ctx.commandType,
             aggregateId: ctx.aggregateId,
-            checkResult: { effect: 'deny', matchedRules: [], reason: 'Unmapped command denied' },
+            checkResult: { effect: "deny", matchedRules: [], reason: "Unmapped command denied" },
           });
         }
         return;
@@ -83,11 +76,11 @@ export function createSentinelPlugin(config: SentinelPluginConfig): RedemeinePlu
       if (!principal) {
         if (denyAnonymous) {
           throw new AuthorizationError({
-            principal: { userId: 'anonymous', tenantId: 'unknown', roles: [], partyIds: [], orgChain: [] },
+            principal: { userId: "anonymous", tenantId: "unknown", roles: [], partyIds: [], orgChain: [] },
             action,
             commandType: ctx.commandType,
             aggregateId: ctx.aggregateId,
-            checkResult: { effect: 'deny', matchedRules: [], reason: 'Anonymous access denied' },
+            checkResult: { effect: "deny", matchedRules: [], reason: "Anonymous access denied" },
           });
         }
         return;
@@ -106,7 +99,7 @@ export function createSentinelPlugin(config: SentinelPluginConfig): RedemeinePlu
 
       const result = check(principal, action, checkContext);
 
-      if (result.effect === 'deny') {
+      if (result.effect === "deny") {
         const derivation = expand(principal, action, checkContext);
         throw new AuthorizationError({
           principal,

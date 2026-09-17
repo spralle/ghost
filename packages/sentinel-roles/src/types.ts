@@ -15,7 +15,7 @@ export interface PermissionBundle {
 
 /** System role — hardcoded, cannot be modified by tenant-admins */
 export interface SystemRole {
-  readonly kind: 'system';
+  readonly kind: "system";
   readonly id: string;
   readonly name: string;
   readonly description: string;
@@ -25,7 +25,7 @@ export interface SystemRole {
 
 /** Custom role — created by tenant-admins */
 export interface CustomRole {
-  readonly kind: 'custom';
+  readonly kind: "custom";
   readonly id: string;
   readonly tenantId: string;
   readonly name: string;

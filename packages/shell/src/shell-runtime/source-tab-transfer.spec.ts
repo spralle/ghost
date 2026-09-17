@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { DndSessionDeleteEvent, DndSessionUpsertEvent } from "@ghost-shell/bridge";
+import { describe, expect, it } from "vitest";
 import type { ShellRuntime } from "../app/types.js";
 import { updateContextState } from "../context/runtime-state.js";
 import { createInitialShellContextState, registerTab, type ShellContextState, setActiveTab } from "../context-state.js";

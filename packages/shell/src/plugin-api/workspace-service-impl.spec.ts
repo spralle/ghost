@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
 import { createEventEmitter } from "@ghost-shell/plugin-system";
 import { createInitialWorkspaceManagerState } from "@ghost-shell/state";
+import { describe, expect, it } from "vitest";
 import type { ShellRuntime } from "../app/types.js";
 import { createInitialShellContextState } from "../context-state.js";
 import { createWorkspaceService } from "./workspace-service-impl.js";

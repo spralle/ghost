@@ -5,9 +5,7 @@ import type { QueryDecoratorConfig, QueryDecoratorFactory, ViewDbQueryDecorator 
  * Factory that produces a viewdb queryDecorator function.
  * The decorator injects permission filters based on the principal's party IDs.
  */
-export function createQueryDecoratorFactory(
-  config: QueryDecoratorConfig,
-): QueryDecoratorFactory {
+export function createQueryDecoratorFactory(config: QueryDecoratorConfig): QueryDecoratorFactory {
   const { collectionSchemaMap, defaultRelation = "viewer", relationOverrides } = config;
 
   return (principalPartyIds: readonly string[]): ViewDbQueryDecorator => {

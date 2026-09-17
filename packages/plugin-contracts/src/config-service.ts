@@ -7,8 +7,8 @@
 export const CONFIG_SERVICE_ID = "ghost.configuration.Service" as const;
 
 export type {
-  ConfigurationService,
   ConfigurationInspection,
+  ConfigurationService,
   ScopedConfigurationService,
   ViewConfigurationService,
 } from "@weaver/config-types";

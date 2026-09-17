@@ -50,9 +50,7 @@ export function composePartDefinitionsFromRegistrySnapshot(
   }));
 
   // Eager discovery: include parts from unloaded plugin descriptors
-  const loadedPluginIds = new Set(
-    snapshot.plugins.filter((p) => p.enabled && p.contract !== null).map((p) => p.id),
-  );
+  const loadedPluginIds = new Set(snapshot.plugins.filter((p) => p.enabled && p.contract !== null).map((p) => p.id));
 
   const descriptorParts = extractDescriptorParts(snapshot.plugins, loadedPluginIds);
 
@@ -70,7 +68,9 @@ function extractDescriptorParts(
   return plugins
     .filter(
       (plugin) =>
-        plugin.enabled && plugin.contract === null && !loadedPluginIds.has(plugin.id) &&
+        plugin.enabled &&
+        plugin.contract === null &&
+        !loadedPluginIds.has(plugin.id) &&
         plugin.descriptor.contributes?.parts,
     )
     .flatMap((plugin) => {

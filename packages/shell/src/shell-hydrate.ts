@@ -3,21 +3,20 @@
  * action contributions, and registry subscription.
  */
 
+import { createPluginConfigCatalog, type PluginConfigCatalog } from "@ghost-shell/config-plugin-runtime";
 import { bootstrapShellWithTenantManifest } from "./app/bootstrap.js";
 import type { ShellRuntime } from "./app/types.js";
 import { getShellBootstrap } from "./bootstrap-shell.js";
 import { registerConfigurationServiceCapability } from "./config-service-registration.js";
 import { createShellConfigService, runPersistenceMigrations } from "./config-service-setup.js";
 import { readGroupSelectionContext, writeGroupSelectionContext } from "./context/runtime-state.js";
-import { registerPluginConfigCatalogCapability } from "./plugin-config-catalog-registration.js";
 import { createGhostApiDeps } from "./plugin-api/ghost-api-deps-factory.js";
+import { registerPluginConfigCatalogCapability } from "./plugin-config-catalog-registration.js";
 import { createPluginServicesBridge } from "./plugin-service-bridge.js";
+import { getLayoutModeService } from "./services/layout-mode-service-registration.js";
 import { createDefaultShellKeybindingContract } from "./shell-runtime/default-shell-keybindings.js";
 import { createWorkspaceSwitchDeps, refreshActionContributions, renderParts } from "./shell-wiring.js";
-import { getLayoutModeService } from "./services/layout-mode-service-registration.js";
 import { createQuickPickBridge } from "./ui/quick-pick/quick-pick-bridge.js";
-
-import { createPluginConfigCatalog, type PluginConfigCatalog } from "@ghost-shell/config-plugin-runtime";
 
 export interface HydrateOptions {
   readonly tenantId: string;
@@ -173,10 +172,7 @@ function renderAllPanels(root: HTMLElement, runtime: ShellRuntime): void {
 // Catalog population helpers
 // ---------------------------------------------------------------------------
 
-function populateCatalogFromSnapshot(
-  runtime: ShellRuntime,
-  catalog: PluginConfigCatalog,
-): void {
+function populateCatalogFromSnapshot(runtime: ShellRuntime, catalog: PluginConfigCatalog): void {
   const snapshot = runtime.registry.getSnapshot();
   for (const plugin of snapshot.plugins) {
     if (plugin.contract?.contributes?.configuration) {
@@ -188,10 +184,7 @@ function populateCatalogFromSnapshot(
   }
 }
 
-function subscribeCatalogToRegistry(
-  runtime: ShellRuntime,
-  catalog: PluginConfigCatalog,
-): void {
+function subscribeCatalogToRegistry(runtime: ShellRuntime, catalog: PluginConfigCatalog): void {
   // Shell-lifetime subscription — intentionally never disposed.
   // registerPlugin is idempotent (unregisters before re-registering internally),
   // so re-populating on every registry event is safe, just redundant.

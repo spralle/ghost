@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
 import type { PluginServices } from "@ghost-shell/contracts";
 import { createEventEmitter } from "@ghost-shell/plugin-system";
+import { describe, expect, it } from "vitest";
 import type { ShellRuntime } from "../app/types.js";
 import { createIncomingTransferJournal } from "../context-state.js";
 import { dispatchLocalLifecycleAction } from "./part-instance-lifecycle-dispatch.js";

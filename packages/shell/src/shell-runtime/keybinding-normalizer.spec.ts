@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
 import { normalizeConfiguredChord, normalizeConfiguredSequence } from "@ghost-shell/commands";
+import { describe, expect, it } from "vitest";
+
 describe("keybinding normalizer", () => {
   it("normalizeConfiguredSequence parses two-chord sequence", () => {
     const result = normalizeConfiguredSequence("ctrl+k c");

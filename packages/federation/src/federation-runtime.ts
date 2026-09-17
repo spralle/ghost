@@ -3,16 +3,21 @@ import * as ghostReact from "@ghost-shell/react";
 import * as ghostUi from "@ghost-shell/ui";
 import { createInstance, type ModuleFederation } from "@module-federation/enhanced/runtime";
 import * as react from "react";
+import * as reactJsxRuntime from "react/jsx-runtime";
 import * as reactDom from "react-dom";
 import * as reactDomClient from "react-dom/client";
-import * as reactJsxRuntime from "react/jsx-runtime";
 
 type RuntimeCreateOptions = Parameters<typeof createInstance>[0];
+
+type ModuleFederationGlobalCache = {
+  share?: Record<string, unknown>;
+  remote?: Record<string, unknown>;
+};
 
 /**
  * Keep shell/plugin contracts singleton-safe by preferring the already loaded
  * host instance across remotes. We provide each shared module via `lib` so the
- * runtime host can seed the MF shared scope — without a bundler plugin the
+ * runtime host can seed the MF shared scope â€” without a bundler plugin the
  * scope would otherwise be empty and remotes would resolve `undefined`.
  */
 const SHARED_DEPENDENCIES: NonNullable<RuntimeCreateOptions["shared"]> = {
@@ -91,16 +96,20 @@ const SHARED_DEPENDENCIES: NonNullable<RuntimeCreateOptions["shared"]> = {
 /**
  * Seed the global MF module cache so that build-time generated shared wrapper
  * scripts (which eagerly check `globalThis.__mf_module_cache__.share[name]`)
- * find the host-provided modules immediately — even during `preloadAssets`
+ * find the host-provided modules immediately â€” even during `preloadAssets`
  * before the runtime's lazy `loadShare()` has fired.
  */
 function seedGlobalShareCache(): void {
   const CACHE_KEY = "__mf_module_cache__";
   const g = globalThis as Record<string, unknown>;
-  const cache = (g[CACHE_KEY] ??= { share: {}, remote: {} }) as {
-    share: Record<string, unknown>;
-    remote: Record<string, unknown>;
-  };
+  const existingCache = g[CACHE_KEY] as ModuleFederationGlobalCache | null | undefined;
+  let cache: ModuleFederationGlobalCache;
+  if (existingCache == null) {
+    cache = { share: {}, remote: {} };
+    g[CACHE_KEY] = cache;
+  } else {
+    cache = existingCache;
+  }
   cache.share ??= {};
   cache.remote ??= {};
 

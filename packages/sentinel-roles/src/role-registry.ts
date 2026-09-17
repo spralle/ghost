@@ -6,7 +6,7 @@ import type {
   RoleStore,
   SystemRole,
   UpdateRoleInput,
-} from './types';
+} from "./types";
 
 export interface RoleRegistryConfig {
   readonly store: RoleStore;
@@ -17,8 +17,8 @@ export interface RoleRegistryConfig {
 function generateId(name: string): string {
   const slug = name
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
   const suffix = Math.random().toString(36).slice(2, 8);
   return `${slug}-${suffix}`;
 }
@@ -55,12 +55,12 @@ export class RoleRegistry {
   async createRole(input: CreateRoleInput): Promise<CustomRole> {
     const errors = this.validate(input);
     if (errors.length > 0) {
-      throw new Error(`Validation failed: ${errors.join(', ')}`);
+      throw new Error(`Validation failed: ${errors.join(", ")}`);
     }
 
     const now = Date.now();
     const role: CustomRole = {
-      kind: 'custom',
+      kind: "custom",
       id: generateId(input.name),
       tenantId: input.tenantId,
       name: input.name,
@@ -77,11 +77,7 @@ export class RoleRegistry {
     return role;
   }
 
-  async updateRole(
-    tenantId: string,
-    roleId: string,
-    input: UpdateRoleInput,
-  ): Promise<CustomRole> {
+  async updateRole(tenantId: string, roleId: string, input: UpdateRoleInput): Promise<CustomRole> {
     const customs = await this.store.loadCustomRoles(tenantId);
     const existing = customs.find((r) => r.id === roleId);
     if (!existing) {

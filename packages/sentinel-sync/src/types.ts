@@ -1,9 +1,4 @@
-import type {
-  SentinelPrincipal,
-  PermissionSnapshot,
-  SentinelStore,
-  ResourceSchema,
-} from "@ghost/sentinel";
+import type { PermissionSnapshot, ResourceSchema, SentinelPrincipal, SentinelStore } from "@ghost/sentinel";
 
 /** Current JWT payload from accounts service */
 export interface AccountsJwtPayload {
@@ -77,14 +72,14 @@ export interface RedactionContext {
 export type RedactionHook<T extends Record<string, unknown> = Record<string, unknown>> = (
   documents: readonly T[],
   schema: ResourceSchema<unknown, string>,
-  context: RedactionContext
+  context: RedactionContext,
 ) => Partial<T>[];
 
 /** viewdb queryDecorator signature */
 export type ViewDbQueryDecorator = (
   collection: string,
   query: object,
-  callback: (decoratedQuery: object) => void
+  callback: (decoratedQuery: object) => void,
 ) => void;
 
 export interface QueryDecoratorConfig {
@@ -93,9 +88,7 @@ export interface QueryDecoratorConfig {
   readonly relationOverrides?: Readonly<Record<string, string>>;
 }
 
-export type QueryDecoratorFactory = (
-  principalPartyIds: readonly string[]
-) => ViewDbQueryDecorator;
+export type QueryDecoratorFactory = (principalPartyIds: readonly string[]) => ViewDbQueryDecorator;
 
 export type InvalidationEventType =
   | "role_assigned"

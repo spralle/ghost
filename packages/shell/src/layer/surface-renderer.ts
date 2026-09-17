@@ -1,6 +1,6 @@
 import type { ElementTransitionHook, PluginLayerSurfaceContribution } from "@ghost-shell/contracts";
 import { ELEMENT_TRANSITION_HOOK_ID, HOOK_REGISTRY_SERVICE_ID } from "@ghost-shell/contracts";
-import type { LayerRegistry, ShellLayerSurface } from "@ghost-shell/layer";
+import type { LayerRegistry } from "@ghost-shell/layer";
 import {
   computeExclusiveZones,
   createFocusGrabManager,
@@ -15,9 +15,9 @@ import type { ShellRuntime } from "../app/types.js";
 import { safeUnmount } from "../federation-mount-utils.js";
 import type { ShellFederationRuntime } from "../federation-runtime.js";
 import type { HookRegistry } from "../hook-registry.js";
+import { getLayoutModeService } from "../services/layout-mode-service-registration.js";
 import { composeSurfaceKey, type MountSurfaceComponentFn } from "./surface-mount-utils.js";
 import { type ReconcilerContext, reconcileLayerContainer } from "./surface-reconciler.js";
-import { getLayoutModeService } from "../services/layout-mode-service-registration.js";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -102,7 +102,7 @@ export function createLayerSurfaceRenderer(options: LayerSurfaceRendererOptions)
     if (surface.focusGrab) {
       const container = target.parentElement;
       if (container) {
-          focusGrabManager.grabFocus({
+        focusGrabManager.grabFocus({
           surfaceId: key,
           surfaceElement: target as HTMLDivElement,
           layerContainer: container,
@@ -182,9 +182,8 @@ export function createLayerSurfaceRenderer(options: LayerSurfaceRendererOptions)
     // Filter out surfaces whose when-condition evaluates to false
     const layoutFacts = getLayoutModeService()?.getContextFacts() ?? {};
     const visibleSurfaces = filterByWhenCondition(allSurfaces, layoutFacts).filter(
-      (s) => !dismissedSurfaces.has(composeSurfaceKey(s.pluginId, s.surface.id))
+      (s) => !dismissedSurfaces.has(composeSurfaceKey(s.pluginId, s.surface.id)),
     );
-
 
     // Build the desired set of surface IDs
     const desiredIds = new Set(visibleSurfaces.map((s) => composeSurfaceKey(s.pluginId, s.surface.id)));

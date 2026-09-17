@@ -147,10 +147,7 @@ export function refreshActionContributions(runtime: ShellRuntime): void {
   const descriptorContracts: PluginContract[] = snapshot.plugins
     .filter(
       (plugin) =>
-        plugin.enabled &&
-        plugin.contract === null &&
-        plugin.descriptor.contributes &&
-        !loadedPluginIds.has(plugin.id),
+        plugin.enabled && plugin.contract === null && plugin.descriptor.contributes && !loadedPluginIds.has(plugin.id),
     )
     .map((plugin) => ({
       manifest: { id: plugin.id, name: plugin.id, version: plugin.descriptor.version },

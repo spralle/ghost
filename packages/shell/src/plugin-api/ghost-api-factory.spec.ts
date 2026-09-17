@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { ActivationContext, GhostApi, PluginServices } from "@ghost-shell/contracts";
+import { describe, expect, it } from "vitest";
 import { createActivationContext, createGhostApi, type GhostApiFactoryDependencies } from "./ghost-api-factory.js";
 
 const nullServices: PluginServices = { getService: () => null, hasService: () => false } as PluginServices;

@@ -9,12 +9,12 @@ import { registerConfigurationServiceCapability } from "./config-service-registr
 import type { ContextServiceDeps } from "./context-service-registration.js";
 import { registerContextServiceCapability } from "./context-service-registration.js";
 import { registerHookRegistryCapability } from "./hook-registry-registration.js";
-import { registerLayoutModeServiceCapability } from "./services/layout-mode-service-registration.js";
 import type { KeybindingServiceDeps } from "./keybinding-service-registration.js";
 import { registerKeybindingServiceCapability } from "./keybinding-service-registration.js";
 import { registerPluginManagementServiceCapability } from "./plugin-management-service-registration.js";
 import { registerPluginRegistryServiceCapability } from "./plugin-registry-service-registration.js";
 import type { ShellPluginRegistry } from "./plugin-registry-types.js";
+import { registerLayoutModeServiceCapability } from "./services/layout-mode-service-registration.js";
 import type { SyncStatusServiceDeps } from "./sync-status-service-registration.js";
 import { registerSyncStatusServiceCapability } from "./sync-status-service-registration.js";
 import type { ThemeRegistry } from "./theme-registry.js";

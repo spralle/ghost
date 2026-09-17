@@ -1,12 +1,9 @@
-import { useMemo } from "react";
-import { expand } from "@ghost/sentinel";
 import type { CheckContext, DerivationNode } from "@ghost/sentinel";
+import { expand } from "@ghost/sentinel";
+import { useMemo } from "react";
 import { useSentinel } from "./sentinel-context.js";
 
-export function useExpand(
-  action: string,
-  resource?: Record<string, unknown>,
-): DerivationNode {
+export function useExpand(action: string, resource?: Record<string, unknown>): DerivationNode {
   const { snapshot, principal } = useSentinel();
   const res = resource ?? {};
 

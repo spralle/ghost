@@ -1,4 +1,3 @@
-import { describe, expect, it } from "vitest";
 import type { NormalizedKeybindingChord, NormalizedKeybindingSequence } from "@ghost-shell/commands";
 import {
   type KeybindingLayer,
@@ -8,7 +7,9 @@ import {
   resolveKeybindingSequence,
 } from "@ghost-shell/commands";
 import { createDefaultContributionPredicateMatcher } from "@ghost-shell/plugin-system";
+import { describe, expect, it } from "vitest";
 import type { InvokableAction } from "../action-surface.js";
+
 function chord(input: string): NormalizedKeybindingChord {
   const c = normalizeConfiguredChord(input);
   if (!c) throw new Error(`Invalid chord: ${input}`);

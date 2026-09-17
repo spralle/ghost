@@ -370,12 +370,8 @@ export async function activateByStartupEvent(
   if (allEnabled.length === 0) return result;
 
   // Only activate plugins that explicitly opt into eager startup
-  const enabled = allEnabled.filter(
-    (p) => p.descriptor.activationEvents?.includes("onStartup"),
-  );
-  const lazy = allEnabled.filter(
-    (p) => !p.descriptor.activationEvents?.includes("onStartup"),
-  );
+  const enabled = allEnabled.filter((p) => p.descriptor.activationEvents?.includes("onStartup"));
+  const lazy = allEnabled.filter((p) => !p.descriptor.activationEvents?.includes("onStartup"));
 
   for (const plugin of lazy) {
     result.skipped.push(plugin.id);

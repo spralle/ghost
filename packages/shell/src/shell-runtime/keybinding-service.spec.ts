@@ -1,8 +1,9 @@
-import { describe, expect, it } from "vitest";
 import { createKeybindingService } from "@ghost-shell/commands";
 import type { IntentRuntime } from "@ghost-shell/intents";
 import { createDefaultContributionPredicateMatcher } from "@ghost-shell/plugin-system";
+import { describe, expect, it } from "vitest";
 import type { ActionSurface } from "../action-surface.js";
+
 function createActionSurface(): ActionSurface {
   return {
     actions: [

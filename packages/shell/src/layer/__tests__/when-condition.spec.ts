@@ -1,6 +1,6 @@
-import { describe, expect, test } from "vitest";
 import type { PluginLayerSurfaceContribution } from "@ghost-shell/contracts";
 import { evaluateContributionPredicate } from "@ghost-shell/plugin-system";
+import { describe, expect, test } from "vitest";
 
 /**
  * Mirrors the filterByWhenCondition logic from surface-renderer.ts

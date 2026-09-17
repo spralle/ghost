@@ -3,8 +3,8 @@ import { describe, expect, test } from "bun:test";
 import {
   compilePolicyRules,
   definePolicy,
-  evaluatePolicy,
   type EvalContext,
+  evaluatePolicy,
   type PolicyRule,
 } from "../policy/index.js";
 
@@ -30,9 +30,7 @@ describe("definePolicy", () => {
   test("freezes config", () => {
     const policy = definePolicy({
       name: "test-policy",
-      rules: [
-        { name: "r1", effect: "grant", target: { kind: "action", action: "read" }, condition: {} },
-      ],
+      rules: [{ name: "r1", effect: "grant", target: { kind: "action", action: "read" }, condition: {} }],
     });
 
     expect(Object.isFrozen(policy)).toBe(true);

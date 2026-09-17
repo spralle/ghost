@@ -1,5 +1,10 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import type { PlacementConfig, PlacementStrategyId, PlacementStrategyRegistry, TabPlacementStrategy } from "@ghost-shell/state";
+import type {
+  PlacementConfig,
+  PlacementStrategyId,
+  PlacementStrategyRegistry,
+  TabPlacementStrategy,
+} from "@ghost-shell/state";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock the layout mode service registration module
 vi.mock("../../services/layout-mode-service-registration.js", () => ({
@@ -7,7 +12,7 @@ vi.mock("../../services/layout-mode-service-registration.js", () => ({
 }));
 
 import { getLayoutModeService } from "../../services/layout-mode-service-registration.js";
-import { getEffectiveStrategy, getEffectivePlacementConfig } from "../get-effective-strategy.js";
+import { getEffectivePlacementConfig, getEffectiveStrategy } from "../get-effective-strategy.js";
 
 const mockGetLayoutModeService = vi.mocked(getLayoutModeService);
 

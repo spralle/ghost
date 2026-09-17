@@ -1,6 +1,6 @@
-import { describe, it, expect } from "bun:test";
-import { createQueryDecoratorFactory } from "../src/query-decorator.js";
+import { describe, expect, it } from "bun:test";
 import type { ResourceSchema } from "@ghost/sentinel";
+import { createQueryDecoratorFactory } from "../src/query-decorator.js";
 
 function createSchema(name: string): ResourceSchema<unknown, string> {
   return {
@@ -21,7 +21,9 @@ describe("createQueryDecoratorFactory", () => {
     const decorator = factory(["party-1"]);
 
     let result: object | undefined;
-    decorator("unknown_collection", { foo: 1 }, (q) => { result = q; });
+    decorator("unknown_collection", { foo: 1 }, (q) => {
+      result = q;
+    });
 
     expect(result).toEqual({ foo: 1 });
   });
@@ -34,7 +36,9 @@ describe("createQueryDecoratorFactory", () => {
     const decorator = factory(["party-1", "party-2"]);
 
     let result: object | undefined;
-    decorator("documents", { status: "active" }, (q) => { result = q; });
+    decorator("documents", { status: "active" }, (q) => {
+      result = q;
+    });
 
     expect(result).toHaveProperty("$and");
     const andArray = (result as { $and: object[] }).$and;
@@ -60,7 +64,9 @@ describe("createQueryDecoratorFactory", () => {
     const decorator = factory(["party-1"]);
 
     let result: object | undefined;
-    decorator("tasks", {}, (q) => { result = q; });
+    decorator("tasks", {}, (q) => {
+      result = q;
+    });
 
     expect(result).toHaveProperty("$and");
   });

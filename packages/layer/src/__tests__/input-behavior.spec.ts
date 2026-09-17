@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { InputBehavior, KeyboardInteractivity } from "@ghost-shell/contracts/layer";
+import { describe, expect, it } from "vitest";
 import { applyInputBehavior, applyKeyboardInteractivity, createKeyboardExclusiveManager } from "../input-behavior.js";
 
 // ---------------------------------------------------------------------------

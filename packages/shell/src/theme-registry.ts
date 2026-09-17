@@ -5,13 +5,12 @@
 // user preference persistence.
 
 import type { FullThemePalette, PluginContract, ThemeBackgroundEntry } from "@ghost-shell/contracts";
-import { type ComposedThemeContribution, composeThemeContributions } from "@ghost-shell/plugin-system";
 import type { LayerRegistry } from "@ghost-shell/layer";
+import { type ComposedThemeContribution, composeThemeContributions } from "@ghost-shell/plugin-system";
 import {
   clearBackgroundPreference,
   deriveFullPalette,
   GHOST_THEME_CSS_VARS,
-
   preloadBackgroundUrls,
   readBackgroundPreference,
   readUserThemePreference,
@@ -19,8 +18,8 @@ import {
   writeUserThemePreference,
 } from "@ghost-shell/theme";
 import type { ShellPluginRegistry } from "./plugin-registry-types.js";
-import { createBackgroundLayerController } from "./theme-background-layer.js";
 import { activateAllThemePlugins } from "./theme-activation.js";
+import { createBackgroundLayerController } from "./theme-background-layer.js";
 
 // ---------------------------------------------------------------------------
 // Public types

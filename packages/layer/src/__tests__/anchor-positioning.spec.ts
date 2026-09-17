@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
 import type { PluginLayerSurfaceContribution } from "@ghost-shell/contracts/layer";
 import { AnchorEdge } from "@ghost-shell/contracts/layer";
+import { describe, expect, it } from "vitest";
 import { computeAnchorStyles, computeExclusiveZones, getAnchorKey } from "../anchor-positioning.js";
 
 function makeSurface(overrides: Partial<PluginLayerSurfaceContribution> = {}): PluginLayerSurfaceContribution {
@@ -302,14 +302,12 @@ describe("anchor-positioning", () => {
   });
 
   it("anchor key: all edges → top-bottom-left-right", () => {
-    expect(
-      getAnchorKey(AnchorEdge.Top | AnchorEdge.Bottom | AnchorEdge.Left | AnchorEdge.Right),
-    ).toBe("top-bottom-left-right");
+    expect(getAnchorKey(AnchorEdge.Top | AnchorEdge.Bottom | AnchorEdge.Left | AnchorEdge.Right)).toBe(
+      "top-bottom-left-right",
+    );
   });
 
   it("anchor key: Bottom+Left+Right → bottom-left-right", () => {
-    expect(
-      getAnchorKey(AnchorEdge.Bottom | AnchorEdge.Left | AnchorEdge.Right),
-    ).toBe("bottom-left-right");
+    expect(getAnchorKey(AnchorEdge.Bottom | AnchorEdge.Left | AnchorEdge.Right)).toBe("bottom-left-right");
   });
 });
