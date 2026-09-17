@@ -1,6 +1,6 @@
-import { escapeHtml } from "../app/utils.js";
 import type { ComposedShellPart } from "./parts-rendering.js";
 import { renderPartBody } from "./parts-rendering-body.js";
+import { renderPartPopoutButton } from "./parts-rendering-popout-button.js";
 
 export function renderDockDropOverlay(targetTabId: string): string {
   return `<div class="dock-drop-overlay" data-dock-drop-overlay-for="${targetTabId}" aria-hidden="true">
@@ -23,7 +23,7 @@ export function renderDockPartPanel(part: ComposedShellPart, isActive: boolean):
     >
       <section class="dock-tabpanel-content" data-tab-id="${part.id}" data-part-id="${part.id}">
         <div class="part-actions">
-          <button type="button" data-action="popout" data-tab-id="${part.instanceId}" data-part-id="${part.instanceId}" aria-label="Pop out ${escapeHtml(part.title)} to a new window" title="Pop out tab to a new window">Pop out tab</button>
+          ${renderPartPopoutButton(part)}
         </div>
         ${renderPartBody(part)}
       </section>
