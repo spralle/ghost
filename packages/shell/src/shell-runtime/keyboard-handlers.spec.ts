@@ -1,8 +1,8 @@
-import { describe, expect, it } from "vitest";
 import { createInitialWorkspaceManagerState } from "@ghost-shell/state";
+import { describe, expect, it } from "vitest";
 import { buildActionSurface } from "../action-surface.js";
 import type { ShellRuntime } from "../app/types.js";
-import { createInitialShellContextState, registerTab, setActiveTab } from "../context-state.js";
+import { createInitialShellContextState, registerTab, type ShellContextState, setActiveTab } from "../context-state.js";
 import {
   createDefaultShellKeybindingContract,
   DEFAULT_SHELL_KEYBINDING_PLUGIN_ID,
@@ -68,6 +68,10 @@ class FakeElement {
   dataset: Record<string, string> = {};
 }
 
+interface RuntimeFixture extends ShellRuntime {
+  readonly getWorkspacePersistenceSaveCount: () => number;
+}
+
 describe("keyboard handlers", () => {
   it("keyboard handler resolves browser-safe shell keybinding and executes action path", async () => {
     const root = new FakeRoot();
@@ -85,6 +89,7 @@ describe("keyboard handlers", () => {
 
     expect(result.prevented).toBe(true);
     expect(runtime.contextState.tabs["tab-a"]).toBe(undefined);
+    expect(runtime.getWorkspacePersistenceSaveCount()).toBeGreaterThan(0);
     expect(runtime.actionNotice.includes("shell.view.close")).toBeTruthy();
 
     dispose();
@@ -112,6 +117,7 @@ describe("keyboard handlers", () => {
 
     expect(result.prevented).toBe(false);
     expect(activationCalls).toBe(1);
+    expect(runtime.getWorkspacePersistenceSaveCount()).toBe(0);
     expect(runtime.actionNotice.includes("blocked")).toBeTruthy();
     expect(runtime.actionNotice.includes("com.ghost.shell.keybindings.default")).toBeTruthy();
   });
@@ -133,6 +139,7 @@ describe("keyboard handlers", () => {
 
     expect(result.prevented).toBe(true);
     expect(runtime.contextState.tabs["tab-a"]).toBe(undefined);
+    expect(runtime.getWorkspacePersistenceSaveCount()).toBeGreaterThan(0);
     expect(runtime.actionNotice.includes("shell.view.close")).toBeTruthy();
   });
 
@@ -158,6 +165,7 @@ describe("keyboard handlers", () => {
     });
 
     expect(result.prevented).toBe(false);
+    expect(runtime.getWorkspacePersistenceSaveCount()).toBe(0);
     expect(runtime.actionNotice.includes("shell.window.mode.toggle")).toBeTruthy();
     expect(runtime.actionNotice.includes("no-op")).toBeTruthy();
   });
@@ -179,6 +187,7 @@ describe("keyboard handlers", () => {
     const result1 = await root.dispatch({ key: "z", altKey: true, shiftKey: true, target });
     expect(result1.prevented).toBe(true);
     expect(runtime.contextState.tabs["tab-a"]).toBe(undefined);
+    expect(runtime.getWorkspacePersistenceSaveCount()).toBeGreaterThan(0);
 
     // Now change override to different chord (same count=1) — remap close to shift+alt+x
     overrideSet = [
@@ -251,7 +260,8 @@ describe("keyboard handlers", () => {
   });
 });
 
-function createRuntimeFixture(): ShellRuntime {
+function createRuntimeFixture(): RuntimeFixture {
+  let workspacePersistenceSaveCount = 0;
   let contextState = createInitialShellContextState({
     initialTabId: "tab-a",
     initialGroupId: "group-a",
@@ -309,7 +319,15 @@ function createRuntimeFixture(): ShellRuntime {
     syncHealthState: "healthy",
     windowId: "window-a",
     workspaceManager: createInitialWorkspaceManagerState(contextState),
-  } as unknown as ShellRuntime;
+    workspacePersistence: {
+      load: (fallback: ShellContextState) => ({ state: createInitialWorkspaceManagerState(fallback), warning: null }),
+      save: () => {
+        workspacePersistenceSaveCount += 1;
+        return { warning: null };
+      },
+    },
+    getWorkspacePersistenceSaveCount: () => workspacePersistenceSaveCount,
+  } as unknown as RuntimeFixture;
 }
 
 function createBindings(runtime: ShellRuntime, overrides: Partial<KeyboardBindings> = {}): KeyboardBindings {

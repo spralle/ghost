@@ -1,5 +1,6 @@
 import type { KeybindingService, NormalizedKeybindingChord } from "@ghost-shell/commands";
 import type { KeyboardBindings } from "./keyboard-handlers.js";
+import { readLocalStorageItem } from "./keyboard-local-storage.js";
 
 const SEQUENCE_TIMEOUT_KEY = "ghost.keybindings.sequenceTimeoutMs";
 const SEQUENCE_TIMEOUT_DEFAULT = 1000;
@@ -11,8 +12,7 @@ const SEQUENCE_TIMEOUT_MAX = 5000;
  * Returns default (1000ms) if value is missing, non-numeric, or out of range.
  */
 export function readSequenceTimeoutMs(): number {
-  if (typeof localStorage === "undefined") return SEQUENCE_TIMEOUT_DEFAULT;
-  const raw = localStorage.getItem(SEQUENCE_TIMEOUT_KEY);
+  const raw = readLocalStorageItem(SEQUENCE_TIMEOUT_KEY);
   if (raw == null) return SEQUENCE_TIMEOUT_DEFAULT;
   const parsed = Number(raw);
   if (!Number.isFinite(parsed) || parsed <= 0) return SEQUENCE_TIMEOUT_DEFAULT;

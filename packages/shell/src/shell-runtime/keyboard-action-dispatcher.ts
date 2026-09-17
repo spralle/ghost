@@ -12,7 +12,7 @@ export async function dispatchExactMatch(
   chords: NormalizedKeybindingChord[],
   context: Record<string, string>,
   action: { id: string; pluginId: string },
-): Promise<void> {
+): Promise<boolean> {
   const activated = await bindings.activatePluginForBoundary({
     pluginId: action.pluginId,
     triggerType: "action",
@@ -20,7 +20,7 @@ export async function dispatchExactMatch(
   });
   if (!activated) {
     runtime.actionNotice = `Action '${action.id}' blocked: plugin '${action.pluginId}' is not active.`;
-    return;
+    return false;
   }
 
   const shellResult = handleShellKeyboardAction(runtime, bindings, action.id);
@@ -67,4 +67,6 @@ export async function dispatchExactMatch(
     bindings.renderParts();
     bindings.renderSyncStatus();
   }
+
+  return executed;
 }

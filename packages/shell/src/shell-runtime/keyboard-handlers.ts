@@ -9,6 +9,7 @@ import { DEFAULT_SHELL_KEYBINDING_PLUGIN_ID } from "./default-shell-keybindings.
 import { dispatchExactMatch } from "./keyboard-action-dispatcher.js";
 import { handleChooserKeyboardEvent } from "./keyboard-chooser-handler.js";
 import { handleDegradedKeydown } from "./keyboard-degraded-handler.js";
+import { readLocalStorageItem } from "./keyboard-local-storage.js";
 import {
   createSequenceStateManager,
   readSequenceTimeoutMs,
@@ -40,8 +41,7 @@ export interface KeyboardBindings {
   getWorkspaceSwitchDeps: () => WorkspaceSwitchDeps;
 }
 
-const DEBUG_KEYBINDINGS =
-  typeof localStorage !== "undefined" && localStorage.getItem("ghost.debug.keybindings") === "true";
+const DEBUG_KEYBINDINGS = readLocalStorageItem("ghost.debug.keybindings") === "true";
 
 function computeOverrideFingerprint(overrides: ActionKeybinding[]): string {
   if (overrides.length === 0) return "";
@@ -70,10 +70,20 @@ async function handleChordResolution(
 
   if (resolution.kind === "exact") {
     sequenceManager.clear();
-    event.preventDefault();
     const action = resolution.match?.action;
     if (action) {
-      await dispatchExactMatch(root, runtime, bindings, keybindingService, chords, context, action);
+      const shouldPreventDefault = await dispatchExactMatch(
+        root,
+        runtime,
+        bindings,
+        keybindingService,
+        chords,
+        context,
+        action,
+      );
+      if (shouldPreventDefault) {
+        event.preventDefault();
+      }
     }
     return true;
   }
