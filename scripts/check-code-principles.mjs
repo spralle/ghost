@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "..");
 
 const sourceRoots = ["apps", "packages", "plugins"];
-const MAX_FILE_LINES = 400;
+export const MAX_FILE_LINES = 400;
 
 async function main() {
   const productionFiles = await collectProductionTsFiles();
@@ -16,11 +16,8 @@ async function main() {
 
   for (const relativePath of productionFiles) {
     const source = await readFile(path.resolve(repoRoot, relativePath), "utf8");
-
-    const effectiveLineCount = countEffectiveLines(source);
-    if (effectiveLineCount > MAX_FILE_LINES) {
-      oversizedFileViolations.push({ file: relativePath, lineCount: effectiveLineCount });
-    }
+    const violation = getOversizedFileViolation(relativePath, source);
+    if (violation) oversizedFileViolations.push(violation);
   }
 
   if (!oversizedFileViolations.length) {
@@ -65,7 +62,7 @@ async function collectProductionTsFiles() {
   return files.sort();
 }
 
-function isProductionTsFile(relativePath) {
+export function isProductionTsFile(relativePath) {
   if (!relativePath.endsWith(".ts") && !relativePath.endsWith(".tsx")) {
     return false;
   }
@@ -111,20 +108,25 @@ async function safeReaddir(targetPath) {
   }
 }
 
-function countEffectiveLines(source) {
-  const lines = source.split(/\r?\n/);
-  let count = 0;
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("//")) {
-      continue;
-    }
-    count += 1;
-  }
-  return count;
+export function countPhysicalLines(source) {
+  if (source.length === 0) return 0;
+  const lines = source.split(/\r\n|\r|\n/);
+  return lines.at(-1) === "" ? lines.length - 1 : lines.length;
 }
 
-main().catch((error) => {
-  console.error("[code-principles] Check failed:", error);
-  process.exitCode = 1;
-});
+export function getOversizedFileViolation(relativePath, source) {
+  if (!isProductionTsFile(relativePath)) return null;
+  const lineCount = countPhysicalLines(source);
+  return lineCount > MAX_FILE_LINES ? { file: relativePath, lineCount } : null;
+}
+
+function isMainModule() {
+  return process.argv[1] && path.resolve(process.argv[1]) === __filename;
+}
+
+if (isMainModule()) {
+  main().catch((error) => {
+    console.error("[code-principles] Check failed:", error);
+    process.exitCode = 1;
+  });
+}
