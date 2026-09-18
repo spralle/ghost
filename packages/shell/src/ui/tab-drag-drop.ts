@@ -1,6 +1,5 @@
 import { DRAG_INLINE_PREFIX, DRAG_REF_PREFIX, TAB_DOCK_DRAG_MIME } from "../app/constants.js";
 import type { ShellRuntime } from "../app/types.js";
-import { safeParse } from "../app/utils.js";
 import { updateContextState } from "../context/runtime-state.js";
 import { moveTabBeforeTab, setActiveTab } from "../context-state.js";
 import {
@@ -8,22 +7,10 @@ import {
   readActiveDockDragPayload,
   setActiveDockDragPayload,
 } from "./dock-drag-session.js";
-import { readTabDragPayload as readDockTabDragPayload } from "./dock-tab-dnd-payload.js";
 import { handleCrossWindowTabStripDrop } from "./tab-drag-drop-cross-window.js";
+import { readDraggedTabPayload, type TabDragPayload } from "./tab-drag-payload.js";
 
-const DEBUG_DND =
-  typeof globalThis !== "undefined" && (globalThis as Record<string, unknown>).__GHOST_DEBUG_DND === true;
-
-interface TabDragPayload {
-  kind: "shell-tab-dnd";
-  tabId: string;
-  sourceWindowId: string;
-}
-
-interface ResolvedTabDragPayload {
-  payload: TabDragPayload;
-  transferSessionId: string | null;
-}
+const DEBUG_DND = typeof globalThis !== "undefined" && Reflect.get(globalThis, "__GHOST_DEBUG_DND") === true;
 interface TabDragDropDeps {
   onTabMoved: (tabId: string) => void;
   onStateChange: () => void;
@@ -315,89 +302,4 @@ function addRootClass(root: HTMLElement, className: string): void {
 
 function removeRootClass(root: HTMLElement, className: string): void {
   if (root.classList && typeof root.classList.remove === "function") root.classList.remove(className);
-}
-
-function parseTabDragPayload(runtime: ShellRuntime, raw: string): TabDragPayload | null {
-  if (raw.startsWith(DRAG_REF_PREFIX)) {
-    const id = raw.slice(DRAG_REF_PREFIX.length);
-    return asTabDragPayload(runtime.dragSessionBroker.consume({ id }, runtime.windowId));
-  }
-
-  if (raw.startsWith(DRAG_INLINE_PREFIX)) {
-    return asTabDragPayload(safeParse(raw.slice(DRAG_INLINE_PREFIX.length)));
-  }
-
-  return null;
-}
-
-function readDraggedTabPayload(
-  runtime: ShellRuntime,
-  dataTransfer: DataTransfer,
-  root: HTMLElement,
-): ResolvedTabDragPayload | null {
-  const rawText = dataTransfer.getData("text/plain");
-  const parsedTabDrag = parseTabDragPayload(runtime, rawText);
-  if (parsedTabDrag) {
-    return {
-      payload: parsedTabDrag,
-      transferSessionId: rawText.startsWith(DRAG_REF_PREFIX) ? rawText.slice(DRAG_REF_PREFIX.length) : null,
-    };
-  }
-
-  const dockPayload = readDockTabDragPayload(dataTransfer, runtime, { consumeRef: false });
-  if (dockPayload) {
-    return {
-      payload: {
-        kind: "shell-tab-dnd",
-        tabId: dockPayload.tabId,
-        sourceWindowId: dockPayload.sourceWindowId,
-      },
-      transferSessionId: dockPayload.transferSessionId ?? null,
-    };
-  }
-
-  const activeDockPayload = readActiveDockDragPayload(root);
-  if (activeDockPayload) {
-    return {
-      payload: {
-        kind: "shell-tab-dnd",
-        tabId: activeDockPayload.tabId,
-        sourceWindowId: activeDockPayload.sourceWindowId,
-      },
-      transferSessionId: null,
-    };
-  }
-
-  if (runtime.contextState.tabs[rawText]) {
-    return {
-      payload: {
-        kind: "shell-tab-dnd",
-        tabId: rawText,
-        sourceWindowId: runtime.windowId,
-      },
-      transferSessionId: null,
-    };
-  }
-
-  return null;
-}
-
-function asTabDragPayload(value: unknown): TabDragPayload | null {
-  if (!value || typeof value !== "object") {
-    return null;
-  }
-  const payload = value as Record<string, unknown>;
-  if (
-    payload.kind !== "shell-tab-dnd" ||
-    typeof payload.tabId !== "string" ||
-    typeof payload.sourceWindowId !== "string"
-  ) {
-    return null;
-  }
-
-  return {
-    kind: payload.kind,
-    tabId: payload.tabId,
-    sourceWindowId: payload.sourceWindowId,
-  };
 }

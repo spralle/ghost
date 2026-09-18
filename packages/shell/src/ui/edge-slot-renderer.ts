@@ -1,9 +1,5 @@
 import type { ShellEdgeSlot, ShellEdgeSlotPosition } from "@ghost-shell/contracts";
-import {
-  type ComposedPluginSlotContribution,
-  composeEnabledPluginContributions,
-  evaluateContributionPredicate,
-} from "@ghost-shell/plugin-system";
+import { type ComposedPluginSlotContribution, evaluateContributionPredicate } from "@ghost-shell/plugin-system";
 import type { ShellRuntime } from "../app/types.js";
 import {
   ensureRemoteRegistered,
@@ -14,6 +10,7 @@ import {
 } from "../federation-mount-utils.js";
 import type { ShellFederationRuntime } from "../federation-runtime.js";
 import { getLayoutModeService } from "../services/layout-mode-service-registration.js";
+import { createSlotMountKey, gatherSlotContributions } from "./edge-slot-contributions.js";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -336,22 +333,6 @@ export function createEdgeSlotRenderer(options: EdgeSlotRendererOptions): EdgeSl
 }
 
 // ---------------------------------------------------------------------------
-// Contribution gathering
-// ---------------------------------------------------------------------------
-
-function gatherSlotContributions(runtime: ShellRuntime): ComposedPluginSlotContribution[] {
-  const snapshot = runtime.registry.getSnapshot();
-  const composed = composeEnabledPluginContributions(
-    snapshot.plugins.map((plugin) => ({
-      id: plugin.id,
-      enabled: plugin.enabled,
-      contract: plugin.contract,
-    })),
-  );
-  return composed.slots;
-}
-
-// ---------------------------------------------------------------------------
 // Slot mount resolution
 // ---------------------------------------------------------------------------
 
@@ -400,19 +381,4 @@ function resolveSlotMount(
   }
 
   return null;
-}
-
-// ---------------------------------------------------------------------------
-// Utilities
-// ---------------------------------------------------------------------------
-
-function createSlotMountKey(contribution: ComposedPluginSlotContribution, runtime: ShellRuntime): string {
-  const snapshot = runtime.registry.getSnapshot();
-  const pluginSnapshot = snapshot.plugins.find((p) => p.id === contribution.pluginId);
-  if (!pluginSnapshot) {
-    return `${contribution.pluginId}|${contribution.id}|missing`;
-  }
-  const enabledState = pluginSnapshot.enabled ? "enabled" : "disabled";
-  const lifecycleState = pluginSnapshot.lifecycle?.state ?? "lifecycle:unknown";
-  return [contribution.pluginId, contribution.id, enabledState, lifecycleState].join("|");
 }

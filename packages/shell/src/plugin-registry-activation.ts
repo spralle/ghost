@@ -3,7 +3,6 @@ import type { LayerRegistry } from "@ghost-shell/layer";
 import { evaluateShellPluginCompatibility } from "@ghost-shell/plugin-system";
 import { createNullServices, resolveActivationEntry } from "./activation-resolution.js";
 import type { CapabilityRegistry } from "./capability-registry.js";
-import { buildActivationPlan } from "./plugin-activation-plan.js";
 import {
   createActivationContext,
   createGhostApi,
@@ -17,8 +16,13 @@ import type {
   PluginRegistryDiagnostic,
   PluginRuntimeFailure,
   PluginRuntimeState,
-  ShellPluginRegistry,
 } from "./plugin-registry-types.js";
+
+export {
+  type ActivationFailure,
+  activateByStartupEvent,
+  type StartupActivationResult,
+} from "./plugin-registry-startup-activation.js";
 
 const SHELL_CONTRACT_DECLARATION = "^1.0.0";
 
@@ -317,100 +321,4 @@ function isPluginLoadError(error: unknown): error is PluginLoadError {
   }
 
   return error instanceof PluginLoadError;
-}
-
-function extractErrorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message;
-  if (typeof error === "string") return error;
-  return String(error);
-}
-
-// ---------------------------------------------------------------------------
-// Startup activation event
-// ---------------------------------------------------------------------------
-
-export interface ActivationFailure {
-  pluginId: string;
-  reason: string;
-  cause?: unknown;
-}
-
-export interface StartupActivationResult {
-  activated: string[];
-  skipped: string[];
-  failed: string[];
-  failures: ActivationFailure[];
-}
-
-/**
- * Activate plugins that explicitly declare `"onStartup"` in their
- * `activationEvents`. Plugins without this declaration are lazy by default
- * and will only activate on-demand (via view, action, or intent triggers).
- *
- * 1. **Plan**: a dependency DAG is built from `pluginDependencies` in each
- *    plugin's descriptor, then topologically sorted into layers.
- * 2. **Activate**: each layer is activated concurrently — a plugin only
- *    starts once every plugin it depends on is already active.
- *
- * Plugins that form circular dependencies are rejected upfront.
- */
-export async function activateByStartupEvent(
-  registry: ShellPluginRegistry,
-  onProgress?: () => void,
-): Promise<StartupActivationResult> {
-  const snapshot = registry.getSnapshot();
-  const result: StartupActivationResult = {
-    activated: [],
-    skipped: [],
-    failed: [],
-    failures: [],
-  };
-
-  const allEnabled = snapshot.plugins.filter((p) => p.enabled);
-  if (allEnabled.length === 0) return result;
-
-  // Only activate plugins that explicitly opt into eager startup
-  const enabled = allEnabled.filter((p) => p.descriptor.activationEvents?.includes("onStartup"));
-  const lazy = allEnabled.filter((p) => !p.descriptor.activationEvents?.includes("onStartup"));
-
-  for (const plugin of lazy) {
-    result.skipped.push(plugin.id);
-  }
-
-  if (enabled.length === 0) return result;
-
-  // Phase 1 — build dependency-aware activation plan from descriptor metadata.
-  const planEntries = enabled.map((plugin) => ({
-    id: plugin.id,
-    pluginDependencies: plugin.descriptor.pluginDependencies ?? [],
-  }));
-  const plan = buildActivationPlan(planEntries);
-
-  for (const rejection of plan.rejected) {
-    result.failed.push(rejection.pluginId);
-    result.failures.push({ pluginId: rejection.pluginId, reason: "circular_dependency" });
-  }
-
-  // Phase 2 — activate layer by layer; within a layer, concurrently.
-  for (const layer of plan.layers) {
-    const layerPromises = layer.map(async (pluginId) => {
-      try {
-        const success = await registry.activateByEvent(pluginId, "onStartup");
-        if (success) {
-          result.activated.push(pluginId);
-        } else {
-          result.failed.push(pluginId);
-          result.failures.push({ pluginId, reason: "activation_returned_false" });
-        }
-      } catch (error: unknown) {
-        result.failed.push(pluginId);
-        result.failures.push({ pluginId, reason: extractErrorMessage(error), cause: error });
-      }
-      onProgress?.();
-    });
-
-    await Promise.all(layerPromises);
-  }
-
-  return result;
 }

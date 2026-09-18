@@ -132,6 +132,17 @@ function dispatchCycleAndNavActions(
   runtime: ShellRuntime,
   actionId: ShellKeyboardActionId,
 ): ShellKeyboardActionResult | null {
+  return (
+    dispatchCycleActions(runtime, actionId) ??
+    dispatchNavigationActions(runtime, actionId) ??
+    dispatchStackMutationActions(runtime, actionId)
+  );
+}
+
+function dispatchCycleActions(
+  runtime: ShellRuntime,
+  actionId: ShellKeyboardActionId,
+): ShellKeyboardActionResult | null {
   if (actionId === "shell.group.cycle.prev") {
     return applyContextMutation(runtime, cycleTabGroup(runtime.contextState, -1), actionId, "group cycle unavailable");
   }
@@ -154,6 +165,13 @@ function dispatchCycleAndNavActions(
       "stack cycle unavailable",
     );
   }
+  return null;
+}
+
+function dispatchNavigationActions(
+  runtime: ShellRuntime,
+  actionId: ShellKeyboardActionId,
+): ShellKeyboardActionResult | null {
   if (actionId === "shell.stack.navigate.back") {
     return applyContextMutation(
       runtime,
@@ -178,6 +196,13 @@ function dispatchCycleAndNavActions(
       "stack navigate forward unavailable",
     );
   }
+  return null;
+}
+
+function dispatchStackMutationActions(
+  runtime: ShellRuntime,
+  actionId: ShellKeyboardActionId,
+): ShellKeyboardActionResult | null {
   if (actionId === "shell.tab.reorder.prev") {
     return applyContextMutation(
       runtime,
