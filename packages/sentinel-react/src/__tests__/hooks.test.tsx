@@ -43,13 +43,6 @@ function makePrincipal(): SentinelPrincipal {
   };
 }
 
-/** Helper: renders a hook inside SentinelProvider using SSR */
-function _renderWithProvider(hookComponent: () => React.ReactNode): string {
-  const snapshot = makeSnapshot();
-  const principal = makePrincipal();
-  return renderToString(createElement(SentinelProvider, { snapshot, principal }, hookComponent()));
-}
-
 describe("SentinelProvider", () => {
   test("renders children", () => {
     const snapshot = makeSnapshot();

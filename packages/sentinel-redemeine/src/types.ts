@@ -7,7 +7,9 @@ export interface SentinelStoreReader {
 }
 
 /** How to resolve the principal from command metadata */
-export type PrincipalResolver = (meta: unknown) => SentinelPrincipal | undefined;
+export interface PrincipalResolver {
+  (meta: unknown): SentinelPrincipal | undefined;
+}
 
 /** How to resolve evaluation context (store-based or snapshot-based) */
 export type EvaluationMode =

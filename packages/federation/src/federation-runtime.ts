@@ -10,9 +10,42 @@ import * as reactDomClient from "react-dom/client";
 type RuntimeCreateOptions = Parameters<typeof createInstance>[0];
 
 type ModuleFederationGlobalCache = {
-  share?: Record<string, unknown>;
-  remote?: Record<string, unknown>;
+  share: Record<string, unknown>;
+  remote: Record<string, unknown>;
 };
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function normalizeCacheRecord(value: unknown): Record<string, unknown> {
+  return isRecord(value) ? value : {};
+}
+
+function installGlobalCache(cacheKey: string, cache: ModuleFederationGlobalCache): void {
+  if (!Reflect.set(globalThis, cacheKey, cache)) {
+    throw new TypeError(`Cannot initialize module federation cache at ${cacheKey}`);
+  }
+}
+
+function normalizeGlobalCache(cacheKey: string): ModuleFederationGlobalCache {
+  const existingCache = Reflect.get(globalThis, cacheKey);
+  if (!isRecord(existingCache)) {
+    const cache = { share: {}, remote: {} };
+    installGlobalCache(cacheKey, cache);
+    return cache;
+  }
+
+  const share = normalizeCacheRecord(Reflect.get(existingCache, "share"));
+  const remote = normalizeCacheRecord(Reflect.get(existingCache, "remote"));
+  if (Reflect.set(existingCache, "share", share) && Reflect.set(existingCache, "remote", remote)) {
+    return { share, remote };
+  }
+
+  const cache = { share, remote };
+  installGlobalCache(cacheKey, cache);
+  return cache;
+}
 
 /**
  * Keep shell/plugin contracts singleton-safe by preferring the already loaded
@@ -101,17 +134,7 @@ const SHARED_DEPENDENCIES: NonNullable<RuntimeCreateOptions["shared"]> = {
  */
 function seedGlobalShareCache(): void {
   const CACHE_KEY = "__mf_module_cache__";
-  const g = globalThis as Record<string, unknown>;
-  const existingCache = g[CACHE_KEY] as ModuleFederationGlobalCache | null | undefined;
-  let cache: ModuleFederationGlobalCache;
-  if (existingCache == null) {
-    cache = { share: {}, remote: {} };
-    g[CACHE_KEY] = cache;
-  } else {
-    cache = existingCache;
-  }
-  cache.share ??= {};
-  cache.remote ??= {};
+  const cache = normalizeGlobalCache(CACHE_KEY);
 
   const modules: Record<string, unknown> = {
     "@ghost-shell/contracts": pluginContracts,
