@@ -42,14 +42,17 @@ const fixtureSources = {
 test("canonical runner ownership is nonempty, complete, and disjoint", () => {
   const selections = resolveRunnerSelections();
   assert.deepEqual(Object.fromEntries(Object.entries(selections).map(([lane, files]) => [lane, files.length])), {
-    node: 52,
-    vitest: 79,
+    node: 53,
+    vitest: 81,
     bun: 18,
   });
   assert.ok(selections.node.includes("apps/plugin-dev-host/test/manifest-rewrite.test.mjs"));
   assert.ok(selections.node.includes("scripts/test/ci-entrypoints.test.mjs"));
+  assert.ok(selections.node.includes("scripts/test/code-principles.test.mjs"));
+  assert.ok(selections.vitest.includes("apps/entity-table-demos/src/demos/08-order-aggregate.test.tsx"));
   assert.ok(selections.vitest.includes("packages/sentinel/src/__tests__/engine.test.ts"));
   assert.ok(selections.vitest.includes("packages/federation/src/federation-runtime.test.ts"));
+  assert.ok(selections.vitest.includes("plugins/appearance-settings-plugin/src/appearance-dom.test.ts"));
   assert.ok(selections.bun.includes("packages/sentinel-react/src/__tests__/hooks.test.tsx"));
 });
 
