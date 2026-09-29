@@ -114,6 +114,8 @@ Plugins declare provided capabilities (components, services) with semver version
 
 ## Related Docs
 
+- [Multi-target Architecture Assessment (Proposed)](../multi-target-architecture-assessment.md)
+- [Plugin Contract and Plugin Inventory (Proposed)](../plugin-contract-and-plugin-inventory.md)
 - [Plugin System](./plugin-system.md)
 - [Renderer Protocol](./renderer-protocol.md)
 - [State Management](./state-management.md)
