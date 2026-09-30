@@ -115,6 +115,12 @@ Plugins declare provided capabilities (components, services) with semver version
 ## Related Docs
 
 - [Multi-target Architecture Assessment (Proposed)](../multi-target-architecture-assessment.md)
+- [Plugin Envelope, Host, and Deployment Boundaries (Proposed)](../plugin-envelope-host-deployment-boundaries.md)
+- [Weaver Change Notification Assessment (Proposed)](../weaver-change-notification-assessment.md)
+- [Plugin Runtime 0.1 Proposal](../plugin-runtime-0.1-proposal.md)
+- [Plugin Runtime 0.1 PRD (Proposed)](../plugin-runtime-0.1-prd.md)
+- [Plugin Runtime 0.1 Architectural Review Brief (Proposed)](../plugin-runtime-0.1-arb.md)
+- [Plugin Runtime Future Directions (Unscheduled)](../plugin-runtime-future-directions.md)
 - [Plugin Contract and Plugin Inventory (Proposed)](../plugin-contract-and-plugin-inventory.md)
 - [Plugin System](./plugin-system.md)
 - [Renderer Protocol](./renderer-protocol.md)

@@ -8,6 +8,8 @@
 
 This proposal separates current Ghost evidence from recommended boundaries. It does not introduce APIs or assert current Formbar TUI availability. The companion [plugin contract and inventory assessment](./plugin-contract-and-plugin-inventory.md) supplies contract taxonomy, concrete plugins, compatibility surfaces, and migration gaps.
 
+The follow-up [plugin envelope, host, and deployment boundaries](./plugin-envelope-host-deployment-boundaries.md) requests ownership/default decisions; it is not an accepted ADR or executable schema.
+
 ## 1. Contract taxonomy before rendering
 
 **Proposed:** one logical plugin envelope describes identity, dependency and configuration conventions, with distinct typed contracts for server, web client, and terminal client hosts. Every executable entrypoint is optional, including server. An external declarations-only plugin should be possible without importing JavaScript; that path is not implemented today. Shared metadata does not imply shared privileges, co-deployment, or atomic distributed activation.
